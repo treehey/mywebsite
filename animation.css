@@ -1,0 +1,28 @@
+/* 定义按钮的关键帧动画效果 */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* 应用按钮动画效果 */
+.button {
+    animation: pulse 2s infinite;
+}
+
+/* 创建淡入淡出动画效果 */
+.portfolio-item {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* 使用滚动事件触发淡入淡出动画效果 */
+.portfolio-item.animation {
+    opacity: 1;
+}

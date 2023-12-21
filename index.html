@@ -1,11 +1,122 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>个人网站</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="banner.css">
+    <script src="script.js"></script>
+    <!-- 引入Font Awesome图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
 </head>
 <body>
-    <header>hello</header>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#"><i class="fas fa-home"></i> 首页</a></li>
+                <li><a href="#"><i class="fas fa-user"></i> 关于我</a></li>
+                <li><a href="#"><i class="fas fa-cogs"></i> 技能</a></li>
+                <li><a href="#"><i class="fas fa-briefcase"></i> 作品</a></li>
+                <li><a href="#"><i class="fas fa-envelope"></i> 联系我</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section class="banner">
+        <div class="banner">
+            <div class="banner-slides">
+                <div class="banner-slide">
+                    <div class="hero">
+                        <h1>欢迎来到我的个人网站</h1>
+                        <p>我是treehey，一个热爱设计和开发的人。</p>
+                        <a href="#" class="btn">了解更多</a>
+                    </div>
+                </div>
+              <div class="banner-slide">
+                <img src="image/1.jpg" alt="Slide 1">
+                <div class="slide-content">
+                  <h2>标题 1</h2>
+                  <p>说明文字 1</p>
+                </div>
+              </div>
+              <div class="banner-slide">
+                <img src="image/2.jpg" alt="Slide 2">
+                <div class="slide-content">
+                  <h2>标题 2</h2>
+                  <p>说明文字 2</p>
+                </div>
+              </div>
+              <div class="banner-slide">
+                <img src="image/3.JPG" alt="Slide 3">
+                <div class="slide-content">
+                  <h2>标题 3</h2>
+                  <p>说明文字 3</p>
+                </div>
+              </div>
+            </div>
+            <div class="banner-nav">
+              <button class="banner-prev">&lt;</button>
+              <button class="banner-next">&gt;</button>
+            </div>
+          </div>
+    </section>
+    <main>
+        <section class="about">
+            <div class="content">
+                <h2>关于我</h2>
+                <p>在这里您可以介绍自己的经验、技能和激情。</p>
+            </div>
+        </section>
+    
+        <section class="skills">
+            <div class="content">
+                <h2>技能</h2>
+                <ul>
+                    <li>Web设计</li>
+                    <li>前端开发</li>
+                    <li>UI/UX设计</li>
+                    <li>响应式网页设计</li>
+                </ul>
+            </div>
+        </section>
+    
+        <section class="portfolio">
+            <div class="portfolio-grid">
+                <div class="portfolio-item">
+                    <!-- 在卡片中显示图片 -->
+                    <img src="your-image.jpg" alt="Project 1">
+                    <h3>项目1</h3>
+                    <p>这是项目1的描述。</p>
+                </div>
+                <div class="portfolio-item">
+                    <!-- 在卡片中显示图片 -->
+                    <img src="your-image.jpg" alt="Project 2">
+                    <h3>项目2</h3>
+                    <p>这是项目2的描述。</p>
+                </div>
+                <div class="portfolio-item">
+                    <!-- 在卡片中显示图片 -->
+                    <img src="your-image.jpg" alt="Project 3">
+                    <h3>项目3</h3>
+                    <p>这是项目3的描述。</p>
+                </div>
+            </div>
+        </section>
+    
+        <section class="contact">
+            <div class="content">
+                <h2>联系我</h2>
+                <p>如果您对我的工作感兴趣，可以通过以下方式联系我：</p>
+                <ul>
+                    <li>Email: info@example.com</li>
+                    <li>电话: 123-456-7890</li>
+                    <li>社交媒体: <a href="#">Twitter</a>, <a href="#">LinkedIn</a></li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 Copyright. All rights reserved.</p>
+    </footer>
+    <script src="banner.js"></script>
 </body>
 </html>

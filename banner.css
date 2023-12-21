@@ -1,0 +1,99 @@
+.banner {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .banner-slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .banner-slide {
+    flex: 0 0 100%;
+    position: relative;
+  }
+  
+  .banner-slide img {
+    width: 100%;
+    height: auto;
+  }
+  
+  .slide-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  
+  .slide-content h2 {
+    color: #FFFFFF;
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  
+  .slide-content p {
+    color: #FFFFFF;
+    font-size: 18px;
+  }
+  
+  .banner-nav {
+    position: absolute;
+    z-index: 2;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .banner-prev,
+  .banner-next {
+    background-color: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-size: 36px;
+    cursor: pointer;
+  }
+  
+  .banner-prev {
+    margin-right: 10px;
+  }
+  
+  .banner-next {
+    margin-left: 10px;
+  }
+
+  /* Hero区域样式 */
+.hero {
+    background: linear-gradient(45deg, #007AFF, #80bbff);
+    color: #FFFFFF;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.hero h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.hero .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007AFF;
+    color: #FFFFFF;
+    border-radius: 15px;
+    text-decoration: none;
+    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    /* 添加渐变效果 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hero .btn:hover {
+    background-color: #4CD964;
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
