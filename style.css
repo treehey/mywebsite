@@ -5,6 +5,8 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    scroll-behavior: smooth;
+    transition: all 0.5s ease-in-out;
 }
 
 body {
@@ -13,78 +15,79 @@ body {
     color: #333333;
 }
 
+body::-webkit-scrollbar {
+    width: 0;
+  }
+
+
 /* 导航栏样式 */
-nav {
-    background-color: #FFFFFF;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+nav.bar { 
     padding: 20px;
-    border-radius: 10px;
-    position: fixed;
+    position: absolute;
+    top: 0;
+    width: 100vw;
+    /* margin-left: 0vw; */
+    z-index: 10;
+    transition: background-color 0.3s ease;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
 }
 
-nav ul {
+nav.bar.bar-fixed {
+    position: fixed;
+    top: 5px;
+    background-color: #FFFFFF;
+    transition: background-image 0.3s ease;
+    background-image: none;
+    border-radius: 20px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+nav.bar ul {
+    position: relative;
+    height: 100%;
     list-style-type: none;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
+    align-items: center;
 }
 
-nav li {
+nav.bar li {
     margin-right: 20px;
-}
-
-nav a {
-    text-decoration: none;
-    color: #333333;
-    font-weight: bold;
-    transition: color 0.3s ease;
-}
-
-nav a:hover {
-    color: #007AFF;
-}
-
-
-
-/* Hero区域样式 */
-.hero {
-    background: linear-gradient(45deg, #007AFF, #80bbff);
-    color: #FFFFFF;
-    padding: 100px 0;
+    width: 10%;
     text-align: center;
 }
 
-.hero h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
+nav.bar i {
+    font-size: 3vw;
 }
 
-.hero p {
-    font-size: 18px;
-    margin-bottom: 30px;
-}
-
-.hero .btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007AFF;
-    color: #FFFFFF;
-    border-radius: 15px;
+nav.bar a {
     text-decoration: none;
-    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
-    /* 添加渐变效果 */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    transition: color 0.3s ease;
+    color: #FFFFFF;
+    transition: color 0.3s ease;
+    font-size: 2vw;
+}
+nav.bar.bar-fixed a {
+    color: #333333;
 }
 
-.hero .btn:hover {
-    background-color: #4CD964;
-    transform: scale(1.1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+nav.bar a:hover {
+    color: #007AFF;
+}
+
+main {
+    position: relative;
+    margin-top: 100vh;
+    z-index: 9;
+    background-color: #FFFFFF;
 }
 
 /* 内容区域样式 */
 .content {
     background-color: #FFFFFF;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     padding: 40px;
     margin-bottom: 40px;
 }
@@ -119,23 +122,22 @@ ul {
     list-style-type: none;
 }
 
+
 /* Footer样式 */
 footer {
+    position: relative;
+    z-index: 9;
     background-color: #FFFFFF;
-    padding: 20px;
+    padding: 30px;
     text-align: center;
     font-size: 14px;
     color: #666666;
 }
 
 /* 响应式样式 */
-@media only screen and (max-width: 768px) {
-    .hero h1 {
-        font-size: 30px;
-    }
-
-    .hero p {
-        font-size: 16px;
+@media only screen and (max-width: 1000px) {
+    main {
+        margin-top: 0;
     }
 
     .content {
@@ -144,5 +146,21 @@ footer {
 
     .portfolio-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    nav.bar {
+        position: fixed;
+        height: 8vh;
+        background-color: #FFFFFF;
+        transition: background-image 0.3s ease;
+        background-image: none;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    nav.bar a {
+        color: #333333;
+    }
+    nav.bar i {
+        font-size: 5vw;
     }
 }

@@ -17,7 +17,7 @@ prevButton.addEventListener('click', () => {
   clearInterval(change);
 
   // 重新设置自动换页的定时器
-  change = setInterval(changeBanner, 5000);
+  change = setInterval(changeBanner, 10000);
 });
 
 nextButton.addEventListener('click', () => {
@@ -27,11 +27,11 @@ nextButton.addEventListener('click', () => {
   clearInterval(change);
 
   // 重新设置自动换页的定时器
-  change = setInterval(changeBanner, 5000);
+  change = setInterval(changeBanner, 10000);
 });
 
 function updateSlide() {
   bannerSlides.style.transform = `translateX(-${slideIndex * 100}%)`;
 }
 
-change = setInterval(changeBanner, 5000);
+// change = setInterval(changeBanner, 10000);
