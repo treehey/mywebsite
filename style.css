@@ -1,6 +1,4 @@
 /* styles.css */
-
-/* Reset CSS */
 * {
     margin: 0;
     padding: 0;
@@ -23,7 +21,7 @@ body::-webkit-scrollbar {
 /* 导航栏样式 */
 nav.bar { 
     padding: 20px;
-    position: absolute;
+    position: fixed;
     top: 0;
     width: 100vw;
     /* margin-left: 0vw; */
@@ -135,7 +133,7 @@ footer {
 }
 
 /* 响应式样式 */
-@media only screen and (max-width: 1000px) {
+@media only screen and (max-width: 767px) {
     main {
         margin-top: 0;
     }
