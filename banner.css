@@ -1,90 +1,97 @@
 .banner {
-    position: fixed;
-    overflow: hidden;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 1;
+  position: fixed;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1;
 
-  }
-  
-  .banner-slides {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  
-  .banner-slide {
-    flex: 0 0 100%;
-    position: relative;
-    height: 100%;
-    
-  }
-  
-  .banner-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .slide-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  }
-  
-  .slide-content h2 {
-    color: #FFFFFF;
-    font-size: 36px;
-    margin-bottom: 20px;
-  }
-  
-  .slide-content p {
-    color: #FFFFFF;
-    font-size: 18px;
-  }
-  
-  .banner-nav {
-    position: absolute;
-    z-index: 2;
-    bottom: 5%;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  .banner-prev,
-  .banner-next {
-    background-color: transparent;
-    border: none;
-    color: #FFFFFF;
-    font-size: 36px;
-    cursor: pointer;
-  }
-  
-  .banner-prev {
-    margin-right: 20px;
-  }
-  
-  .banner-next {
-    margin-left: 20px;
-  }
+}
 
-  
-  /* background区域样式 */
+.banner-slides {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-slide {
+  flex: 0 0 100%;
+  position: relative;
+  height: 100%;
+
+}
+
+.banner-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slide-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.slide-content h2 {
+  color: #FFFFFF;
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
+}
+
+.slide-content p {
+  color: #FFFFFF;
+  font-size: 18px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.banner-nav {
+  position: absolute;
+  z-index: 2;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+}
+
+.banner-prev,
+.banner-next {
+  background-color: transparent;
+  border: none;
+  color: #FFFFFF;
+  font-size: 36px;
+  cursor: pointer;
+}
+
+.banner-prev {
+  position: absolute;
+  left: 40%;
+  top: auto;
+}
+
+.banner-next {
+  position: absolute;
+  top: auto;
+  right: 40%;
+}
+
+
+/* background区域样式 */
 .background {
   background-image: linear-gradient(45deg, #caebfc, #b5eafa, #d2effd);
-    color: #FFFFFF;
-    /* padding: 100px 0; */
-    text-align: center;
-    width: 100%;
-    height: 100%;
+  color: #FFFFFF;
+  /* padding: 100px 0; */
+  text-align: center;
+  width: 100%;
+  height: 100%;
 }
 
 .card {
@@ -94,14 +101,14 @@
   position: absolute;
   top: 20%;
   left: 15%;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
 
 .card-inner {
   width: 100%;
   height: 100%;
-  background: rgba(255,255,255,.05);
-  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  background: rgba(255, 255, 255, .05);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 15px;
   backdrop-filter: blur(10px);
 }
@@ -146,13 +153,13 @@
 
 .card-inner h1 {
   color: black;
-    font-size: 5vw;
-    margin-bottom: 20px;
+  font-size: 5vw;
+  margin-bottom: 20px;
 }
 
 .card-inner p {
-    font-size: 2.5vw;
-    margin-bottom: 15%;
+  font-size: 2.5vw;
+  margin-bottom: 15%;
 }
 
 .card-inner .button {
@@ -196,7 +203,7 @@
 }
 
 .card-inner .hoverEffect div {
-  background: rgb(222,0,75);
+  background: rgb(222, 0, 75);
   background: linear-gradient(90deg, #007AFF 0%, #00C700 49%, #FFD500 100%);
   border-radius: 40px;
   width: 400%;
@@ -233,26 +240,26 @@
     font-size: 10vw;
 
   }
-  
+
   .slide-content p {
     font-size: 5vw;
   }
 
   .card-inner h1 {
-      font-size: 5vw;
+    font-size: 5vw;
   }
 
   .card-inner p {
-      font-size: 25px;
+    font-size: 25px;
   }
 
-  .card-inner .button{
-    padding: 10% 20%;
+  .card-inner .button {
+    padding: 8% 15%;
     font-size: 4vw;
     width: 30vw;
   }
 
-  section.banner{
+  section.banner {
     margin-top: 8vh;
   }
 
@@ -261,20 +268,12 @@
     height: 80vh;
   }
 
-  .banner-nav{
-    bottom: 5%;
+  .banner-nav {
+    bottom: 8%;
   }
 
   .banner-prev,
   .banner-next {
     font-size: 10vw;
-  }
-
-  .banner-prev {
-    margin-right: 100px;
-  }
-  
-  .banner-next {
-    margin-left: 100px;
   }
 }
