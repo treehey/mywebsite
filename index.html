@@ -8,8 +8,10 @@
     <link rel="icon" href="favicon.png" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" type="text/css" href="banner.css">
+    <link rel="stylesheet" type="text/css" href="timeline.css">
 
     <script src="navbar.js"></script>
+    <script src="index.js"></script>
     <!-- 引入Font Awesome图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <!-- 引入bootstrap图标库 -->
@@ -20,11 +22,11 @@
     <header>
         <nav class="bar">
             <ul>
-                <li><a href="#"><i class="fas fa-home"></i><p>首页</p></a></li>
-                <li><a href="#about"><i class="fas fa-user"></i><p>关于我</p></a></li>
-                <li><a href="#skills"><i class="fas fa-cogs"></i><p>技能</p></a></li>
-                <li><a href="#portfolio"><i class="fas fa-briefcase"></i><p>作品</p></a></li>
-                <li><a href="#contact"><i class="fas fa-envelope"></i><p>联系我</p></a></li>
+                <li><a href="#"><i class="bi bi-house-door"></i><p>首页</p></a></li>
+                <li><a href="#about"><i class="bi bi-person"></i><p>关于我</p></a></li>
+                <li><a href="#skills"><i class="bi bi-bookmark-check"></i><p>技能</p></a></li>
+                <li><a href="#portfolio"><i class="bi bi-folder2-open"></i><p>作品</p></a></li>
+                <li><a href="#contact"><i class="bi bi-chat-left"></i><p>联系我</p></a></li>
             </ul>
         </nav>
     </header>
@@ -32,7 +34,6 @@
         <div class="banner">
             <div class="banner-slides">
                 <div class="banner-slide">
-                    <div class="background"></div>
                     <div class="card">
                         <div class="circle"></div>
                         <div class="circle"></div>
@@ -77,7 +78,7 @@
     </section>
     <main>
         <section class="about" id="about">
-            <div class="section-content">
+            <div class="section-content" id="shell">
                 <div class="about-header">
                     <h2 class="title">我的故事</h2>
                     <p class="subtitle">在这里您可以介绍自己的经验、技能和激情。</p>
@@ -85,7 +86,7 @@
                 <div class="timeline">
                     <div class="item" data-text="2006">
                         <div class="content">
-                            <i class="bi bi-house"></i>
+                            <i class="fa fa-birthday-cake img"></i>
                             <h2 class="content-title">BORN</h2>
                             <p class="content-desc">2006年出生在中国澳门，故事从此开始</p>
                         </div>
@@ -93,7 +94,7 @@
                     
                     <div class="item" data-text="2006">
                         <div class="content">
-                            <i class="bi bi-house"></i>
+                            <i class="bi bi-house img"></i>
                             <h2 class="content-title">BORN</h2>
                             <p class="content-desc">2006年出生在中国澳门，故事从此开始</p>
                         </div>
@@ -101,7 +102,7 @@
 
                     <div class="item" data-text="2006">
                         <div class="content">
-                            <i class="bi bi-house"></i>
+                            <i class="bi bi-house img"></i>
                             <h2 class="content-title">BORN</h2>
                             <p class="content-desc">2006年出生在中国澳门，故事从此开始</p>
                         </div>
@@ -109,7 +110,7 @@
                     
                     <div class="item" data-text="2006">
                         <div class="content">
-                            <i class="bi bi-house"></i>
+                            <i class="bi bi-house img"></i>
                             <h2 class="content-title">BORN</h2>
                             <p class="content-desc">2006年出生在中国澳门，故事从此开始</p>
                         </div>
@@ -180,6 +181,7 @@
     </main>
 
     <script src="banner.js"></script>
+    <script src="timeline.js"></script>
 </body>
 
 </html>
