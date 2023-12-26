@@ -119,19 +119,19 @@ main {
 }
 
 /* 内容区域样式 */
-.content {
+.section-content {
     background-color: #FFFFFF;
     box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
     padding: 40px;
     margin-bottom: 40px;
 }
 
-.content h2 {
+.section-content h2 {
     font-size: 24px;
     margin-bottom: 20px;
 }
 
-.content ul {
+.section-content ul {
     list-style-type: disc;
     margin-left: 20px;
 }

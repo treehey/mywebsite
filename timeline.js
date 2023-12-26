@@ -1,5 +1,5 @@
-function timeline(shell) {
-    var id = shell
+function timeline() {
+    var id = document.querySelector('#shell')
     var items = id.querySelectorAll(".item");
     var activeClass = "item--active";
     var img = "img";
@@ -14,15 +14,15 @@ function timeline(shell) {
 
     var itemLength = items.length;
     window.addEventListener("scroll", function () {
-        var pos = window.scrollY || document.documentElement.scrollTop;
-        Array.prototype.forEach.call(items, function (item, i) {
+        var pos = window.scrollY
+        items.forEach(function (item, i) {
             var min = item.offsetTop;
-            var max = item.offsetTop + item.clientHeight;
+            var max = item.offsetTop + item.offsetHeight/2;
             if (
-                i === itemLength - 2 &&
-                pos > min + item.clientHeight / 2
+                i === itemLength - 1 &&
+                pos > min + item.offsetHeight
             ) {
-                removeActiveClass(items);
+                // removeActiveClass(items);
                 id.style.backgroundImage =
                     "url(" +
                     items[items.length - 1]
@@ -30,23 +30,25 @@ function timeline(shell) {
                         .getAttribute("src") +
                     ")";
                 items[items.length - 1].classList.add(activeClass);
-            } else if (pos <= max - 10 && pos >= min) {
+            } else if (pos >= min + item.offsetHeight/1.5) {
                 id.style.backgroundImage =
                     "url(" +
                     item.querySelector(img).getAttribute("src") +
                     ")";
-                removeActiveClass(items);
+                // removeActiveClass(items);
                 item.classList.add(activeClass);
+            } else if (pos < max) {
+                item.classList.remove(activeClass);
             }
         });
     });
+
+
+    function removeActiveClass(items) {
+        items.forEach(function (item) {
+            item.classList.remove(activeClass);
+        });
+    }
 }
 
-function removeActiveClass(items) {
-    Array.prototype.forEach.call(items, function (item) {
-        item.classList.remove(activeClass);
-    });
-}
-
-var shell = document.querySelector('#shell')
-timeline(shell);
+timeline();

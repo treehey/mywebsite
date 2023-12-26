@@ -206,8 +206,8 @@
   background: rgb(222, 0, 75);
   background: linear-gradient(90deg, #007AFF 0%, #00C700 49%, #FFD500 100%);
   border-radius: 40px;
-  width: 10rem;
-  height: 10rem;
+  width: 15rem;
+  height: 15rem;
   transition: 0.4s;
   filter: blur(20px);
   animation: effect infinite 3s linear;
@@ -215,8 +215,8 @@
 }
 
 .card-inner .button:hover .hoverEffect div {
-  width: 8rem;
-  height: 8rem;
+  width: 13rem;
+  height: 13rem;
 }
 
 @keyframes effect {

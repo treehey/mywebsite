@@ -18,7 +18,7 @@ window.addEventListener('scroll', function() {
     var sectionTop = section.offsetTop;
     var sectionHeight = section.offsetHeight;
 
-    if (window.scrollY >= sectionTop - sectionHeight / 2) {
+    if (window.scrollY >= sectionTop + sectionHeight / 2) {
       currentSection = section.getAttribute('id');
     }
   });
