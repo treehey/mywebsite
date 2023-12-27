@@ -24,7 +24,7 @@
     position: relative;
 }
 
-.title {
+.about-header .title {
     color: #ffffff;
     font-size: 46px;
     font-weight: normal;
@@ -51,6 +51,7 @@
     box-sizing: border-box;
     color: #ffffff;
     max-width: 150px;
+    text-shadow: black 3px 3px 5px;
 }
 
 .content-desc {
@@ -59,6 +60,12 @@
     box-sizing: border-box;
     color: rgba(255, 255, 255, 0.9);
     line-height: 25px;
+    text-shadow: black 1px 1px 4px;
+    margin-bottom: 5px;
+}
+h2.content-desc {
+    font-size: 30px;
+    margin-bottom: 15px;
 }
 
 .timeline::before {
@@ -143,20 +150,25 @@ margin: 10px 0 0 0 ;
 font-weight: normal;
 }
 
+.bi {
+    display: block;
+}
+
+
 @media only screen and (max-width: 767px) {
     .item {
-        align-self: baseline;
+        align-self: baseline !important;
         width: 100%;
         padding: 0 30px 150px 80px;
     }
 
     .item::before{
-        left: 10px;
-        padding: 0;
+        left: 10px !important;
+        padding: 0 !important;
         top: 50px;
-        text-align: center;
+        text-align: center !important;
         width: 60px;
-        border: none;
+        border: none !important;
     }
 
     .item:last-child {

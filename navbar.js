@@ -12,14 +12,16 @@ window.addEventListener("scroll", function() {
 
 window.addEventListener('scroll', function() {
   var sections = document.querySelectorAll('section');
+  var main = document.querySelector('main');
   var currentSection = '';
-
   sections.forEach(function(section) {
     var sectionTop = section.offsetTop;
+    var mainTop = main.offsetTop;
     var sectionHeight = section.offsetHeight;
-
-    if (window.scrollY >= sectionTop + sectionHeight / 2) {
-      currentSection = section.getAttribute('id');
+    if (window.scrollY >= mainTop) {
+      if (window.scrollY-mainTop >= sectionTop){
+        currentSection = section.getAttribute('id');
+      }
     }
   });
 
@@ -32,4 +34,5 @@ window.addEventListener('scroll', function() {
       link.classList.add('active');
     }
   });
+  // navLinks[0].classList.add('active')
 });

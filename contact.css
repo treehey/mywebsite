@@ -1,0 +1,90 @@
+.contact .section-content {
+    background-color: #889094;
+    height: 30vh;
+}
+
+.contact-card {
+    display: flex;
+    width: 100%;
+    height: 70%;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.contact-card i {
+    opacity: 1;
+    transition: opacity 0.25s;
+    z-index: 2;
+    cursor: pointer;
+}
+
+.contact-card .social-link {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5rem;
+    height: 5rem;
+    color: whitesmoke;
+    font-size: 3rem;
+    text-decoration: none;
+    transition: 0.25s;
+    border-radius: 30px;
+}
+
+.contact-card i {
+    transform: scale(1);
+}
+
+.contact-card .social-link1:hover {
+    background: #f09433;
+    background: -moz-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f09433', endColorstr='#bc1888', GradientType=1);
+    animation: jump 0.4s linear;
+}
+
+.contact-card .social-link2:hover {
+    background-color: #03A9F4;
+    animation: jump 0.4s linear;
+}
+
+.contact-card .social-link3:hover {
+    background-color: #5865f2;
+    animation: jump 0.4s linear;
+}
+
+.contact-card .social-link4:hover {
+    background-color: black;
+    animation: jump 0.4s linear;
+}
+
+.contact-card .social-link5:hover {
+    background: linear-gradient(to top right, #ff7300, #FFD700, #bad84d);
+    animation: jump 0.4s linear;
+}
+
+@keyframes jump {
+    40% {
+        transform: scale(1.3);
+    }
+
+    60% {
+        transform: scale(0.9);
+    }
+
+    80% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .contact-card {
+        justify-content: space-between;
+    }
+  }
