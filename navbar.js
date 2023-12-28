@@ -19,7 +19,7 @@ window.addEventListener('scroll', function() {
     var mainTop = main.offsetTop;
     var sectionHeight = section.offsetHeight;
     if (window.scrollY >= mainTop) {
-      if (window.scrollY-mainTop >= sectionTop){
+      if (window.scrollY-mainTop >= sectionTop-mainTop+sectionHeight/2){
         currentSection = section.getAttribute('id');
       }
     }

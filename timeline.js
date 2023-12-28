@@ -5,12 +5,12 @@ function timeline() {
     var img = "img";
 
     items[0].classList.add(activeClass);
-    // id.style.backgroundImage =
-    //     "url(" +
-    //     items[0]
-    //         .querySelector(img)
-    //         .getAttribute("src") +
-    //     ")";
+    id.style.backgroundImage =
+        "url(" +
+        items[0]
+            .querySelector(img)
+            .getAttribute("src") +
+        ")";
 
     var itemLength = items.length;
     window.addEventListener("scroll", function () {
@@ -30,7 +30,7 @@ function timeline() {
                         .getAttribute("src") +
                     ")";
                 items[items.length - 1].classList.add(activeClass);
-            } else if (pos >= min + item.offsetHeight/1.2) {
+            } else if (pos >= min + item.offsetHeight/1.2 && pos < min + item.offsetHeight*1.5) {
                 id.style.backgroundImage =
                     "url(" +
                     item.querySelector(img).getAttribute("src") +
