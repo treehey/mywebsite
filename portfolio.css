@@ -1,0 +1,82 @@
+/* 摄影作品部分 */
+.photography-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.photography-item {
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 5px 5px 6px #dadada, -5px -5px 6px #f6f6f6;
+    transition: 0.4s;
+}
+
+.photography-item:hover {
+    translate: 0 -10px;
+    transform: scale(1.05);
+}
+
+.project-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.project-details {
+    padding: 10px;
+    background-color: #f5f5f5;
+}
+
+.project-title {
+    font-size: 16px;
+    margin: 0;
+}
+
+.project-location {
+    font-size: 12px;
+    margin: 0;
+    color: #999;
+}
+
+/* 小程序部分 */
+.mini-program-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    
+}
+
+.mini-program-item {
+    width: 200px;
+    height: 300px;
+    background-color: #EFEFF4;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mini-program-item img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.mini-program-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333333;
+    text-align: center;
+}

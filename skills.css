@@ -1,0 +1,41 @@
+.skill .section-content {
+    background-color: #f5f5f5;
+    padding: 20px;
+}
+
+.skill .section-content h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-gap: 20px;
+}
+
+.skill-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.skill-item:hover {
+    transform: translateY(-5px);
+}
+
+.skill-item i {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.skill-item span {
+    font-size: 16px;
+    text-align: center;
+}
