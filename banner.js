@@ -5,9 +5,9 @@ let slideIndex = 0;
 
 var change;
 
-function changeBanner(){
-    slideIndex = (slideIndex === bannerSlides.children.length - 1) ? 0 : (slideIndex + 1);
-    updateSlide();
+function changeBanner() {
+  slideIndex = (slideIndex === bannerSlides.children.length - 1) ? 0 : (slideIndex + 1);
+  updateSlide();
 }
 
 prevButton.addEventListener('click', () => {
@@ -51,17 +51,19 @@ function handleTouchMove(event) {
 
 bannerSlides.addEventListener('touchend', handleTouchEnd, false);
 
-function handleTouchEnd(event) {
+function handleTouchEnd() {
   // 检测手势方向
-  if (touchStartX - touchEndX > 50) {
-    // 向左滑动，下一张幻灯片
-    slideIndex = (slideIndex === bannerSlides.children.length - 1) ? 0 : (slideIndex + 1);
-  } else if (touchStartX - touchEndX < -50) {
-    // 向右滑动，上一张幻灯片
-    slideIndex = (slideIndex === 0) ? (bannerSlides.children.length - 1) : (slideIndex - 1);
-  } else {
-    // 没有滑动足够远，不做任何操作
-    return;
+  if (touchStartX !== 0 && touchEndX !== 0) {
+    if (touchStartX - touchEndX > 50) {
+      // 向左滑动，下一张幻灯片
+      slideIndex = (slideIndex === bannerSlides.children.length - 1) ? 0 : (slideIndex + 1);
+    } else if (touchStartX - touchEndX < -50) {
+      // 向右滑动，上一张幻灯片
+      slideIndex = (slideIndex === 0) ? (bannerSlides.children.length - 1) : (slideIndex - 1);
+    } else {
+      // 没有滑动足够远，不做任何操作
+      return;
+    }
   }
 
   updateSlide();

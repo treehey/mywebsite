@@ -13,14 +13,23 @@ window.addEventListener("scroll", function() {
 window.addEventListener('scroll', function() {
   var sections = document.querySelectorAll('section');
   var main = document.querySelector('main');
+  var bar = document.querySelector('nav.bar');
   var currentSection = '';
   sections.forEach(function(section) {
+    if(section.getAttribute('class')=='banner'){
+      return
+    }
     var sectionTop = section.offsetTop;
     var mainTop = main.offsetTop;
-    var sectionHeight = section.offsetHeight;
-    if (window.scrollY >= mainTop) {
-      if (window.scrollY-mainTop >= sectionTop-mainTop+sectionHeight/2){
+    var barHeight = bar.offsetHeight+5;
+    // var sectionHeight = section.offsetHeight;
+    var pageHeight = document.body.offsetHeight;
+    if (window.scrollY >= mainTop-barHeight) {
+      if (window.scrollY >= sectionTop+mainTop-barHeight){
         currentSection = section.getAttribute('id');
+      }
+      if (window.scrollY + window.innerHeight >= pageHeight) {
+        currentSection = 'contact';
       }
     }
   });

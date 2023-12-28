@@ -30,7 +30,7 @@ function timeline() {
                         .getAttribute("src") +
                     ")";
                 items[items.length - 1].classList.add(activeClass);
-            } else if (pos >= min + item.offsetHeight/1.2 && pos < min + item.offsetHeight*1.5) {
+            } else if (pos >= min + item.offsetHeight/1.1 && pos < min + item.offsetHeight*1.5) {
                 id.style.backgroundImage =
                     "url(" +
                     item.querySelector(img).getAttribute("src") +

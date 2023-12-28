@@ -14,6 +14,7 @@
     overflow: hidden;
     box-shadow: 5px 5px 6px #dadada, -5px -5px 6px #f6f6f6;
     transition: 0.4s;
+    max-height: 250px;
 }
 
 .photography-item:hover {
@@ -21,9 +22,14 @@
     transform: scale(1.05);
 }
 
-.project-image img {
+.project-image {
     width: 100%;
-    height: auto;
+    height: 80%;
+}
+
+.project-image img{
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 

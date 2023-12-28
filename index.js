@@ -1,3 +1,5 @@
-window.addEventListener('load', function() {
-    document.body.classList.add('loaded');
-  });
+window.addEventListener('load', function () {
+  var loading = document.getElementById('loading');
+  document.body.classList.add('loaded');
+  loading.style.display = 'none';
+});

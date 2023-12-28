@@ -35,9 +35,9 @@
 
 .slide-content {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  bottom: 5%;
+  left: 5%;
+  /* width: 100%; */
   text-align: center;
 }
 
@@ -45,7 +45,7 @@
   color: #FFFFFF;
   font-size: 36px;
   margin-bottom: 20px;
-  text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 3px 3px 4px rgba(0, 0, 0, 0.7);
 }
 
 .slide-content p {
@@ -151,7 +151,13 @@
 }
 
 
-
+.my-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 90%;
+  transform: translate(-50%,-50%);
+}
 
 .card-inner h1 {
   color: black;
@@ -161,7 +167,16 @@
 
 .card-inner p {
   font-size: 2.5vw;
-  margin-bottom: 15%;
+  margin-bottom: 5%;
+  color: #FFFFFF;
+  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+}
+
+.card-inner p span{
+  font-size: 2.7vw;
+  font-weight: bold;
+  color: #67B26F;
+  text-shadow: #78C850 1px 1px 1px;
 }
 
 .card-inner .button {
@@ -179,11 +194,11 @@
   font-weight: bold;
   color: rgb(37, 37, 37);
   z-index: 0;
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 15px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 5px 10px, rgba(0, 0, 0, 0.12) 0px -12px 20px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 8px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
 
 .card-inner .button:hover {
-  background: rgb(193, 228, 248);
+  background: #D4E3BF;
   color: rgb(33, 0, 85);
   transform: scale(1.1);
 }
@@ -206,19 +221,22 @@
 
 .card-inner .hoverEffect div {
   background: rgb(222, 0, 75);
-  background: linear-gradient(90deg, #007AFF 0%, #00C700 49%, #FFD500 100%);
+  background: linear-gradient(90deg, #33BEFF, #67B26F, #55CE18);
   border-radius: 40px;
-  width: 15rem;
-  height: 15rem;
+  width: 17rem;
+  height: 17rem;
   transition: 0.4s;
   filter: blur(20px);
   animation: effect infinite 3s linear;
   opacity: 0.5;
+  transition: 1s;
 }
 
 .card-inner .button:hover .hoverEffect div {
-  width: 13rem;
-  height: 13rem;
+  width: 50rem;
+  height: 50rem;
+  background: linear-gradient(90deg, #007AFF 0%, #00C700 79%, #FFD500 100%);
+
 }
 
 @keyframes effect {
@@ -256,9 +274,19 @@
   }
 
   .card-inner .button {
-    padding: 8% 15%;
+    padding: 7% 11%;
     font-size: 4vw;
-    width: 30vw;
+    width: 60%;
+  }
+
+  .card-inner .hoverEffect div {
+    width: 20rem;
+    height: 20rem;
+  }
+
+  .card-inner .button:hover .hoverEffect div {
+    width: 20rem;
+    height: 20rem;
   }
 
   section.banner {
