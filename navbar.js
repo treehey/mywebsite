@@ -24,7 +24,7 @@ window.addEventListener('scroll', function() {
     var barHeight = bar.offsetHeight+5;
     var sectionHeight = section.offsetHeight;
     var pageHeight = document.body.offsetHeight;
-    console.log(window.scrollY + window.innerHeight,pageHeight)
+    // console.log(window.scrollY + window.innerHeight,pageHeight)
     if (window.scrollY >= mainTop-barHeight) {
       if (window.scrollY >= sectionTop+mainTop-barHeight-window.innerHeight/2.8 && window.scrollY < sectionTop+mainTop+sectionHeight/1){
         currentSection = section.getAttribute('id');
