@@ -156,6 +156,13 @@ main {
     }
   }
 
+  .floating-arrow i {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+  }
+
 /* 内容区域样式 */
 section {
     scroll-margin-top: 10vh;
@@ -203,7 +210,7 @@ footer {
 
     .floating-arrow {
         font-size: 40px;
-        top: -70px;
+        top: -30px;
         padding: 0;
     }
 
