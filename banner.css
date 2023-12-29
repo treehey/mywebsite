@@ -100,7 +100,6 @@
 /* background区域样式 */
 .banner-slides:first-child {
   background-image: linear-gradient(45deg, #caebfc, #b5eafa, #d2effd);
-  color: #FFFFFF;
   /* padding: 100px 0; */
   text-align: center;
   width: 100%;
@@ -180,23 +179,28 @@
 }
 
 .card-inner h1 {
-  color: black;
+  color: #525a61;
   font-size: 5vw;
   margin-bottom: 20px;
+  text-shadow: rgb(255, 255, 255) 1px 1px 1px;
 }
 
 .card-inner p {
   font-size: 2.5vw;
   margin-bottom: 5%;
   color: #FFFFFF;
-  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
 }
 
 .card-inner p span {
   font-size: 3vw;
   font-weight: bold;
   color: #67B26F;
-  text-shadow: #78C850 1px 1px 1px;
+  text-shadow: #497a31 2px 2px 3px;
+}
+
+.card-inner p.me  {
+  font-size: 4vw;
 }
 
 .learn-more {
@@ -325,7 +329,13 @@
   }
 
   .card-inner p {
-    font-size: 4vw;
+    font-size: 4.5vw;
+  }
+  .card-inner p span{
+    font-size: 5.5vw;
+  }
+  .card-inner p.me  {
+    font-size: 5vw;
   }
 
   .card-inner .button {
