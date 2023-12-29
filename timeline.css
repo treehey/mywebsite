@@ -5,6 +5,7 @@
     transition: 0.3 eas 0s;
     background-attachment: fixed;
     background-size: cover;
+    background-position: center;
 }
 
 #shell::before {
