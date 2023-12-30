@@ -131,7 +131,7 @@ main {
 
 .floating-arrow{
     position: absolute;
-    top: -8vh;
+    top: -6vh;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
