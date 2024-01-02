@@ -1,6 +1,7 @@
 window.addEventListener('load', function () {
-  var loading = document.getElementsByClassName('loading');
-  var main = document.querySelector('main');
+  console.log('load')
+  var loading = document.querySelector('.loading');
+  var main = document.querySelector('.hidden');
   document.body.classList.add('loaded');
   loading.style.display = 'none';
   main.classList.remove('hidden')

@@ -22,7 +22,7 @@ body.loaded {
     opacity: 1;
 }
 
-.loading {
+/* .loading {
     display: none;
     position: fixed;
     top: 0;
@@ -34,7 +34,7 @@ body.loaded {
     font-size: 24px;
     text-align: center;
     padding-top: 200px;
-  }
+  } */
 
 /* 导航栏样式 */
 nav.bar {
