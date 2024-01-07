@@ -27,8 +27,7 @@
             align-items: center;
             width: 100%;
             height: 100vh;
-            font-size: 24px;
-            font-weight: bold;
+            background-color: #F5F5F5;
         }
 
         .hidden {
@@ -39,7 +38,7 @@
 </head>
 
 <body>
-    <div class="loading">加载中...</div>
+    <div class="loading">Loading...</div>
     <div class="hidden">
         <header>
             <nav class="bar">
@@ -406,13 +405,14 @@
     </div>
     <script src="index.js"></script>
     <!-- <script>
-        window.addEventListener('load', function () {
+        window.onload = function () {
+            console.log('load')
             var loading = document.querySelector('.loading');
-            var main = document.querySelector('main');
+            var main = document.querySelector('.hidden');
             document.body.classList.add('loaded');
             loading.style.display = 'none';
             main.classList.remove('hidden')
-        });
+        };
     </script> -->
     <script src="banner.js"></script>
     <script src="timeline.js"></script>
