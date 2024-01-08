@@ -31,8 +31,9 @@ nav.bar {
     height: 11vh;
     /* margin-left: 0vw; */
     z-index: 10;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
     background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+    opacity: 1;
 }
 
 nav.bar.bar-fixed {
@@ -43,6 +44,7 @@ nav.bar.bar-fixed {
     background-image: none;
     border-radius: 20px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0.8;
 }
 
 nav.bar ul {

@@ -99,7 +99,7 @@
 /* background区域样式 */
 .banner-slide:first-child {
   background-color: #FFFFFF;
-  background-image: linear-gradient(135deg, #9be8ff84, #64a8d8a5);
+  background-image: linear-gradient(135deg, #9be8ff, #64a8d8);
   /* padding: 100px 0; */
   text-align: center;
   width: 100%;
@@ -123,12 +123,12 @@
 }
 
 .card {
-  width: 70%;
-  height: 70%;
+  width: 80%;
+  height: 80%;
   transition: all 0.2s;
   position: absolute;
-  top: 20%;
-  left: 15%;
+  top: 15%;
+  left: 10%;
 }
 
 .card-inner {
@@ -154,7 +154,7 @@
 .circle:nth-child(1) {
   top: -25px;
   left: -25px;
-  background: linear-gradient(135deg,#64A7D8,#9BE7FF);
+  background: linear-gradient(135deg,#9BE7FF,#64A7D8);
 }
 
 .circle:nth-child(2) {
@@ -331,7 +331,7 @@
   }
 
   .card {
-    top: 15%;
+    top: 12%;
   }
 
   .card-inner h1 {

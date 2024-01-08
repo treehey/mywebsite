@@ -299,7 +299,7 @@
                     <div class="photography-grid">
                         <div class="photography-item">
                             <div class="project-image">
-                                <img src="image/3.jpg" alt="Macau">
+                                <img src="image/3.jpg" data-src="image/3.jpg" alt="Macau">
                             </div>
                             <div class="project-details">
                                 <h3 class="project-title">澳门</h3>
@@ -309,7 +309,7 @@
 
                         <div class="photography-item">
                             <div class="project-image">
-                                <img src="image/zhuhai.jpg" alt="Zhuahai">
+                                <img src="image/zhuhai.jpg" data-src="image/zhuhai.jpg" alt="Zhuahai">
                             </div>
                             <div class="project-details">
                                 <h3 class="project-title">珠海</h3>
@@ -319,7 +319,7 @@
 
                         <div class="photography-item">
                             <div class="project-image">
-                                <img src="image/HK.jpg" alt="Hong Kong">
+                                <img src="image/HK.jpg" data-src="image/HK.jpg" alt="Hong Kong">
                             </div>
                             <div class="project-details">
                                 <h3 class="project-title">香港</h3>
@@ -329,7 +329,7 @@
 
                         <div class="photography-item">
                             <div class="project-image">
-                                <img src="image/nanjing.jpg" alt="Nanjing">
+                                <img src="image/nanjing.jpg" data-src="image/nanjing.jpg" alt="Nanjing">
                             </div>
                             <div class="project-details">
                                 <h3 class="project-title">南京</h3>
@@ -339,7 +339,7 @@
 
                         <div class="photography-item">
                             <div class="project-image">
-                                <img src="image/shanghai.jpg" alt="Nanjing">
+                                <img src="image/shanghai.jpg" data-src="image/shanghai.jpg" alt="Shanghai">
                             </div>
                             <div class="project-details">
                                 <h3 class="project-title">上海</h3>
@@ -349,7 +349,7 @@
 
                         <div class="photography-item">
                             <div class="project-image">
-                                <img src="image/panda.jpg" alt="Project 3">
+                                <img src="image/panda.jpg" data-src="image/panda.jpg" alt="Panda">
                             </div>
                             <div class="project-details">
                                 <h3 class="project-title">四川</h3>
@@ -363,7 +363,7 @@
                     <h2>小程序</h2>
                     <div class="mini-program-grid">
                         <a class="mini-program-item" href="https://randomlots.netlify.app/">
-                            <img src="image/random-draw.png" alt="Mini Program 1">
+                            <img src="image/random-draw.png" data-src="image/random-draw.png" alt="Mini Program 1">
                             <h3 class="mini-program-title">抽签小程序</h3>
                             点击进入
                         </a>
@@ -403,17 +403,16 @@
             </footer>
         </main>
     </div>
-    <script src="index.js"></script>
-    <!-- <script>
+    <!-- <script src="index.js"></script> -->
+    <script>
         window.onload = function () {
-            console.log('load')
             var loading = document.querySelector('.loading');
             var main = document.querySelector('.hidden');
             document.body.classList.add('loaded');
             loading.style.display = 'none';
             main.classList.remove('hidden')
         };
-    </script> -->
+    </script>
     <script src="banner.js"></script>
     <script src="timeline.js"></script>
     <script>
