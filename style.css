@@ -39,12 +39,12 @@ nav.bar {
 nav.bar.bar-fixed {
     position: fixed;
     top: 5px;
-    background-color: #FFFFFF;
+    background-color: #ffffff;
     transition: all 0.3s;
     background-image: none;
     border-radius: 20px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
 nav.bar ul {
@@ -214,10 +214,11 @@ footer {
     nav.bar {
         position: fixed;
         height: 8vh;
-        background-color: #FFFFFF;
+        background-color: #ffffff;
         transition: background-image 0.3s ease;
         background-image: none;
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
     }
 
     nav.bar.bar-fixed {
