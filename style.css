@@ -97,7 +97,7 @@ nav.bar.bar-fixed a.active {
 
 nav.bar p {
     font-size: 1.5vw;
-    font-weight: bold;
+    font-weight: normal;
 }
 
 nav.bar.bar-fixed a {

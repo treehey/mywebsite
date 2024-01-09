@@ -54,6 +54,7 @@
 .slide-content h2 {
   color: #FFFFFF;
   font-size: 36px;
+  font-weight: normal;
   margin-bottom: 20px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
@@ -99,7 +100,9 @@
 /* background区域样式 */
 .banner-slide:first-child {
   background-color: #e1f0ff;
-  background-image: linear-gradient(135deg, #9be8ff, #64a8d8);
+  background-image: url(image/shanghai.jpg);
+  background-size: cover;
+  background-position: center 40%;
   /* padding: 100px 0; */
   text-align: center;
   width: 100%;
@@ -108,6 +111,7 @@
 
 .banner-slide:first-child::before {
   background: none;
+  content: '';
 }
 
 .banner-slide:nth-child(2) img{
@@ -123,12 +127,12 @@
 }
 
 .card {
-  width: 80%;
-  height: 80%;
+  width: 100%;
+  height: 100%;
   transition: all 0.2s;
   position: absolute;
-  top: 15%;
-  left: 10%;
+  top: 0;
+  left: 0;
 }
 
 .card-inner {
@@ -137,45 +141,8 @@
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 15px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(5px);
 }
-
-
-.circle {
-  opacity: 0.5;
-  width: 20vw;
-  height: 20vw;
-  
-  border-radius: 50%;
-  position: absolute;
-  animation: move-up 2s ease-in-out infinite alternate-reverse;
-}
-
-.circle:nth-child(1) {
-  top: -25px;
-  left: -25px;
-  background: linear-gradient(135deg,#9BE7FF,#64A7D8);
-}
-
-.circle:nth-child(2) {
-  bottom: -25px;
-  right: -25px;
-  background: linear-gradient(135deg,#9BE7FF,#64A7D8);
-  animation-name: move-down;
-}
-
-@keyframes move-up {
-  to {
-    transform: translateY(-20%);
-  }
-}
-
-@keyframes move-down {
-  to {
-    transform: translateY(20%);
-  }
-}
-
 
 .my-content {
   position: absolute;
@@ -183,37 +150,61 @@
   left: 50%;
   width: 90%;
   transform: translate(-50%, -50%);
+  /* border-top: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 20px 0; */
+}
+
+.my-content:before,
+.my-content:after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 30%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.7); /* 線條顏色 */
+  top: 60%;
+  transform: translateY(-50%);
+}
+
+.my-content:before {
+  left: -2%;
+}
+
+.my-content:after {
+  right: -2%;
 }
 
 .card-inner h1 {
-  color: #202746;
-  font-size: 5vw;
+  color: #FFFFFF;
+  font-size: 4.5vw;
+  font-weight: 500;
   margin-bottom: 20px;
-  text-shadow: rgb(0, 47, 64) 1px 1px 1px;
+  text-shadow: rgb(73, 75, 76) 1px 1px 1px;
+  letter-spacing: 3px;
 }
 
 .card-inner p {
   font-size: 2.5vw;
-  font-weight: 500;
-  margin-bottom: 5%;
+  font-weight: 300;
+  margin-bottom: 0%;
   color: #FFFFFF;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+  letter-spacing: 5px;
 }
 
-.card-inner p span {
-  font-size: 3vw;
+.card-inner .me {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5vw;
   font-weight: bold;
-  color: #0275d8;
-  text-shadow: #82a7cf 2px 2px 3px;
-}
-
-.card-inner p.me  {
-  font-size: 4vw;
+  color: #ffffff;
+  text-shadow: #283039 2px 2px 3px;
+  letter-spacing: 10px;
 }
 
 .learn-more {
   position: absolute;
-  bottom: 10%;
+  bottom: 15%;
   left: 50%;
   transform: translate(-50%);
   display: inline-block;
@@ -240,7 +231,7 @@
   margin: 0;
   width: 3rem;
   height: 3rem;
-  background: #282936;
+  background: #0275d8;
   border-radius: 1.625rem;
 }
 
@@ -282,8 +273,8 @@
   bottom: 0;
   padding: 0.75rem 0;
   margin: 0 0 0 1.85rem;
-  color: #282936;
-  font-weight: 700;
+  color: #d1d1d1;
+  font-weight: 500;
   line-height: 1.6;
   text-align: center;
   text-transform: uppercase;
@@ -331,18 +322,18 @@
   }
 
   .card {
-    top: 12%;
+    
   }
 
   .card-inner h1 {
-    font-size: 6vw;
-    font-weight: bold;
+    font-size: 5.5vw;
+    /* font-weight: bold; */
   }
 
   .card-inner p {
-    font-size: 4.5vw;
+    font-size: 3vw;
   }
-  .card-inner p span{
+  .card-inner .me{
     font-size: 5.5vw;
   }
   .card-inner p.me  {
