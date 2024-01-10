@@ -153,6 +153,8 @@
   /* border-top: 1px solid rgba(255, 255, 255, 0.5);
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
   padding: 20px 0; */
+  display: flex;
+  flex-direction: column;
 }
 
 .my-content:before,
@@ -322,8 +324,8 @@
     font-size: 5vw;
   }
 
-  .card {
-    
+  .card-inner .my-content{
+    gap: 10px;
   }
 
   .card-inner h1 {
@@ -332,7 +334,7 @@
   }
 
   .card-inner p {
-    font-size: 3vw;
+    font-size: 3.5vw;
   }
   .card-inner .me{
     font-size: 5.5vw;
@@ -341,9 +343,9 @@
     font-size: 5vw;
   }
 
-  .card-inner .button {
+  .card-inner .learn-more {
     position: absolute;
-    bottom: 10%;
+    bottom: 15%;
     left: 50%;
     transform: translate(-50%);
   }
