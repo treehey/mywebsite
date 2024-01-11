@@ -76,6 +76,10 @@
     color: gray;
 }
 
+.mini-program-item:hover{
+    transform: scale(1.05);
+}
+
 .mini-program-item img {
     width: 120px;
     height: 120px;
@@ -90,6 +94,7 @@
     color: #333333;
     text-align: center;
 }
+
 
 /* .gotominiprogram{
     background-color: #78C850;

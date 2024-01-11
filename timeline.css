@@ -6,7 +6,6 @@
     background-attachment: fixed;
     background-size: cover;
     background-position: center;
-    background-size: auto;
 }
 
 #shell::before {
