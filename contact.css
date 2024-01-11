@@ -15,6 +15,10 @@
     height: 50%;
     align-items: center;
     justify-content: space-around;
+    position: relative;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%,-50%);
 }
 
 .contact-card i {
