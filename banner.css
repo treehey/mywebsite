@@ -99,7 +99,7 @@
 
 /* background区域样式 */
 .banner-slide:first-child {
-  background-color: #ffffff;
+  background-color: #030f20;
   background-image: url(image/shanghai.jpg);
   background-size: cover;
   background-position: center 40%;
@@ -142,6 +142,7 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   border-radius: 15px;
   backdrop-filter: blur(5px);
+  /* filter: blur(5px); */
 }
 
 .my-content {
@@ -180,7 +181,7 @@
 .card-inner h1 {
   color: #FFFFFF;
   font-size: 4.5vw;
-  font-weight: 500;
+  font-weight: 400;
   margin-bottom: 20px;
   text-shadow: rgb(73, 75, 76) 1px 1px 1px;
   letter-spacing: 3px;
@@ -198,10 +199,11 @@
 .card-inner .me {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 5vw;
-  font-weight: bold;
+  font-weight: 550;
   color: #ffffff;
   text-shadow: #283039 2px 2px 3px;
   letter-spacing: 10px;
+  text-align: center;
 }
 
 .learn-more {

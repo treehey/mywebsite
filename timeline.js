@@ -13,11 +13,30 @@ function timeline() {
         ")";
 
     var itemLength = items.length;
-    window.addEventListener("scroll", function () {
+
+    function throttle(fn, delay = 1000) {
+        // 节流开关				
+        let run = true;
+        // 返回函数				
+        return function () {
+            if (!run) {
+                return;
+            }
+            let timer = setTimeout(() => {
+                fn.apply(this, arguments);
+                window.clearTimeout(timer);
+                run = true;
+            }, delay);
+
+            run = false;
+        }
+    }
+
+    let throttled = throttle(function () {
         var pos = window.scrollY
         items.forEach(function (item, i) {
             var min = item.offsetTop;
-            var max = item.offsetTop + item.offsetHeight/2;
+            var max = item.offsetTop + item.offsetHeight / 2;
             if (
                 i === itemLength - 1 &&
                 pos > min + item.offsetHeight
@@ -30,7 +49,7 @@ function timeline() {
                         .getAttribute("src") +
                     ")";
                 items[items.length - 1].classList.add(activeClass);
-            } else if (pos >= min + item.offsetHeight/1.5 && pos < min + item.offsetHeight*1.5) {
+            } else if (pos >= min + item.offsetHeight / 1.5 && pos < min + item.offsetHeight * 1.5) {
                 id.style.backgroundImage =
                     "url(" +
                     item.querySelector(img).getAttribute("src") +
@@ -42,6 +61,9 @@ function timeline() {
             }
         });
     });
+
+
+    window.addEventListener("scroll", throttled);
 
 
     function removeActiveClass(items) {

@@ -75,4 +75,4 @@ function handleTouchEnd() {
   change = setInterval(changeBanner, 10000);
 }
 
-// change = setInterval(changeBanner, 10000);
+change = setInterval(changeBanner, 10000);
