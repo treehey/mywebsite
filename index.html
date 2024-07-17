@@ -5,19 +5,20 @@
     <title>TreeHey's website</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" type="text/css" href="banner.css">
-    <link rel="stylesheet" type="text/css" href="skills.css">
-    <link rel="stylesheet" type="text/css" href="timeline.css">
-    <link rel="stylesheet" type="text/css" href="portfolio.css">
-    <link rel="stylesheet" type="text/css" href="contact.css">
-    <link rel="stylesheet" type="text/css" href="cv.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/banner.css">
+    <link rel="stylesheet" type="text/css" href="css/skills.css">
+    <link rel="stylesheet" type="text/css" href="css/timeline.css">
+    <link rel="stylesheet" type="text/css" href="css/portfolio.css">
+    <link rel="stylesheet" type="text/css" href="css/contact.css">
+    <link rel="stylesheet" type="text/css" href="css/cv.css">
     <!-- 引入Font Awesome图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
 
     <script src="https://kit.fontawesome.com/6514fb9248.js" crossorigin="anonymous"></script>
     <!-- 引入bootstrap图标库 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"> -->
     <link rel="icon" href="favicon.png" type="image/x-icon">
 
 
@@ -35,7 +36,7 @@
             display: none;
         }
     </style>
-    <script src="navbar.js"></script>
+    <script src="js/navbar.js"></script>
 </head>
 
 <body>
@@ -45,20 +46,27 @@
             <nav class="bar">
                 <ul>
                     <li><a href="#" class="active"><i class="bi bi-house-door"></i>
-                            <p>首页</p>
+                            <p id="bar_home">首页</p>
                         </a></li>
                     <li><a href="#about"><i class="bi bi-person"></i>
-                            <p>关于我</p>
+                            <p id="bar_about">关于我</p>
                         </a></li>
                     <li><a href="#skills"><i class="bi bi-bookmark-check"></i>
-                            <p>技能</p>
+                            <p id="bar_skills">技能</p>
                         </a></li>
                     <li><a href="#portfolio"><i class="bi bi-folder2-open"></i>
-                            <p>作品</p>
+                            <p id="bar_portfolio">作品</p>
                         </a></li>
                     <li><a href="#contact"><i class="bi bi-chat-left"></i>
-                            <p>联系我</p>
+                            <p id="bar_contact">联系我</p>
                         </a></li>
+                    <li>
+                        <select name="language-select" id="language" aria-label="Choose language">
+                            <option value="zh_CN">简体中文</option>
+                            <option value="zh_TW">繁体中文</option>
+                            <option value="en">English</option>
+                        </select>
+                    </li>
                 </ul>
             </nav>
         </header>
@@ -71,15 +79,15 @@
                         <div class="card">
                             <div class="card-inner">
                                 <div class="my-content">
-                                    <h1>你好，我是</h1>
-                                    <h1 class="me">TREE HEY</h1>
-                                    <p>一个热爱编程和摄影的人</p>
+                                    <h1 id="Hi">你好，我是</h1>
+                                    <h1 class="me" id="my_name">TREE HEY</h1>
+                                    <p id="my_description">一个热爱编程和摄影的人</p>
                                 </div>
                                 <a class="learn-more" href="#about">
                                     <span class="button-circle" aria-hidden="true">
                                         <span class="icon arrow"></span>
                                     </span>
-                                    <span class="button-text">了解更多</span>
+                                    <span class="button-text" id="learn-more">了解更多</span>
                                 </a>
                             </div>
                         </div>
@@ -87,22 +95,22 @@
                     <div class="banner-slide">
                         <img loading="lazy" src="image/3.jpg" data-src="image/3.jpg" alt="Macua">
                         <div class="slide-content">
-                            <h2>澳门</h2>
-                            <p>路氹区</p>
+                            <h2 id="Macau">澳门</h2>
+                            <p id="Macau_subtitle">路氹区</p>
                         </div>
                     </div>
                     <div class="banner-slide">
                         <img loading="lazy" src="image/zhuhai.jpg" data-src="image/zhuhai.jpg" alt="Zhuhai">
                         <div class="slide-content">
-                            <h2>珠海</h2>
-                            <p>爱情邮局</p>
+                            <h2 id="Zhuahai">珠海</h2>
+                            <p id="Zhuahai_subtitle">爱情邮局</p>
                         </div>
                     </div>
                     <div class="banner-slide">
                         <img loading="lazy" src="image/panda.jpg" data-src="image/panda.jpg" alt="panda">
                         <div class="slide-content">
-                            <h2>四川</h2>
-                            <p>大熊猫</p>
+                            <h2 id="Sichuan">四川</h2>
+                            <p id="Sichuan_subtitle">大熊猫</p>
                         </div>
                     </div>
                 </div>
@@ -113,12 +121,19 @@
             </div>
         </section>
         <main>
-            <a href="#about" class="floating-arrow"><i class="bi bi-chevron-double-down"></i></a>
+            <div class="scroll-down">
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 640 512"> -->
+                <path
+                    d="M560 160A80 80 0 1 0 560 0a80 80 0 1 0 0 160zM55.9 512l325.2 0 75 0 122.8 0c33.8 0 61.1-27.4 61.1-61.1c0-11.2-3.1-22.2-8.9-31.8l-132-216.3C495 196.1 487.8 192 480 192s-15 4.1-19.1 10.7l-48.2 79L286.8 81c-6.6-10.6-18.3-17-30.8-17s-24.1 6.4-30.8 17L8.6 426.4C3 435.3 0 445.6 0 456.1C0 487 25 512 55.9 512z" />
+                </svg>
+
+                <a href="#about" class="floating-arrow"><i class="bi bi-chevron-double-down"></i></a>
+            </div>
             <section class="about hidden" id="about">
 
                 <div class="section-content" id="shell">
                     <div class="about-header">
-                        <h2 class="title">我的故事</h2>
+                        <h2 class="title" id="my_story">我的故事</h2>
                         <!-- <h3 class="subtitle">在这里你可以看到我的经验、技能和激情。</p> -->
                     </div>
                     <div class="timeline">
@@ -128,7 +143,7 @@
                                     class="img">
                                 <i class="fa fa-birthday-cake content-title"></i>
                                 <h2 class="content-desc">BORN</h2>
-                                <p class="content-desc">2006年出生在中国澳门，故事从此开始。</p>
+                                <p class="content-desc" id="born">2006年出生在中国澳门，故事从此开始。</p>
                             </div>
                         </div>
 
@@ -138,7 +153,7 @@
                                     alt="school" class="img">
                                 <i class="fa fa-child content-title"></i>
                                 <h2 class="content-desc">SCHOOL</h2>
-                                <p class="content-desc">入读澳门圣保禄学校。</p>
+                                <p class="content-desc" id="school">入读澳门圣保禄学校。</p>
                             </div>
                         </div>
 
@@ -149,7 +164,7 @@
                                 <img loading="lazy" class="content-title" src="about/Minecraft.png"
                                     alt="Minecraft"></img loading="lazy">
                                 <h2 class="content-desc">Minecraft</h2>
-                                <p class="content-desc">
+                                <p class="content-desc" id="minecraft">
                                     从小学开始喜爱我的世界，高小开始研究各种红石机械，六年级至初一开始研究指令，并尝试各种算法，进行地图创作，可以说是我的世界是带领我进入编程的大门。</p>
                             </div>
                         </div>
@@ -160,7 +175,7 @@
                                     class="img">
                                 <i class="fa fa-code content-title" style="text-shadow: black 0px 1px 4px;"></i>
                                 <h2 class="content-desc">SCRATCH</h2>
-                                <p class="content-desc">初一接触scratch，制作了很多2D小游戏，例如贪吃蛇，对战小游戏等等，编程之旅就此展开！</p>
+                                <p class="content-desc" id="scratch">初一接触scratch，制作了很多2D小游戏，例如贪吃蛇，对战小游戏等等，编程之旅就此展开！</p>
                             </div>
                         </div>
 
@@ -170,7 +185,8 @@
                                     class="img">
                                 <i class="fa-brands fa-python content-title"></i>
                                 <h2 class="content-desc">PYTHON</h2>
-                                <p class="content-desc">初三开始自学python，与同学中其他编程爱好者交流和学习，写了些小程序以及小游戏，为我未来向计算机领域发展奠定基础。</p>
+                                <p class="content-desc" id="python">
+                                    初三开始自学python，与同学中其他编程爱好者交流和学习，写了些小程序以及小游戏，为我未来向计算机领域发展奠定基础。</p>
                             </div>
                         </div>
 
@@ -180,10 +196,10 @@
                                     class="img">
                                 <i class="bi bi-pc-display content-title"></i>
                                 <h2 class="content-desc">MBOT & SCHOOL TEAM</h2>
-                                <p class="content-desc">
+                                <p class="content-desc" id="school_team_1">
                                     初三参加STEAM及IoT创意解难赛（MBOT机器车），深入了解了IoT（物联网）技术的应用和创新潜力，虽然只获得了最佳外形设计奖，但对我来说仍然是一次宝贵的经历,并激励我在下一年更加努力。
                                 </p>
-                                <p class="content-desc">高一加入学校电脑校队，开始学习各种电脑知识。</p>
+                                <p class="content-desc" id="school_team_2">高一加入学校电脑校队，开始学习各种电脑知识。</p>
                                 </p>
                             </div>
                         </div>
@@ -194,10 +210,10 @@
                                     alt="steam&iot awards" class="img">
                                 <i class="bi bi-award content-title"></i>
                                 <h2 class="content-desc">AWARDS & HONOR</h2>
-                                <p class="content-desc">
+                                <p class="content-desc" id="awards_1">
                                     高一时考取Python证书，参加Python解难赛，并获得全澳第五名的成绩。并以我在MBOT的经验，在团队之中积极参与并提供指导，带领我校队伍在STEAM及IoT创意解难赛获得亚军。
                                 </p>
-                                <p class="content-desc">高二参加电子装置制作比赛，获得评判推荐奖。</p>
+                                <p class="content-desc" id="awards_2">高二参加电子装置制作比赛，获得评判推荐奖。</p>
                                 </p>
                             </div>
                         </div>
@@ -209,7 +225,7 @@
                                 <img loading="lazy" class="content-title" src="about/SPSSA會徽.png" alt="学生会会徽"></img
                                     loading="lazy">
                                 <h2 class="content-desc">SP STUDENT ASSOCIATION</h2>
-                                <p class="content-desc">
+                                <p class="content-desc" id="student_association">
                                     高二时有幸被学生会破例录取，成为其中的一员。这对我来说是一次难得的机会，让我能够深入参与学校事务，并为同学们提供服务。这个经验来说具有重要的意义。
                                 </p>
                             </div>
@@ -221,9 +237,10 @@
                                         data-src="image/panda.jpg" alt="panda" class="img"></a>
                                 <i class="bi bi-camera content-title"></i>
                                 <h2 class="content-desc">PHOTOGRAPHY</h2>
-                                <p class="content-desc">对摄影充满兴趣，自学摄影，Photoshop，Lightroom等后期软件，担任了学生会多项活动的摄影师。</p>
-                                <p class="content-desc">通过镜头，我能够捕捉到生活中的珍贵瞬间，记录下令我心动和印象深刻的画面。</p>
-                                <p class="content-desc">无论去哪旅游，我都会带着我的相机，它记录着我的足迹，未来也会带着它踏上新旅程。</p>
+                                <p class="content-desc" id="photography_1">
+                                    对摄影充满兴趣，自学摄影，Photoshop，Lightroom等后期软件，担任了学生会多项活动的摄影师。</p>
+                                <p class="content-desc" id="photography_2">通过镜头，我能够捕捉到生活中的珍贵瞬间，记录下令我心动和印象深刻的画面。</p>
+                                <p class="content-desc" id="photography_3">无论去哪旅游，我都会带着我的相机，它记录着我的足迹，未来也会带着它踏上新旅程。</p>
                                 </p>
                             </div>
                         </div>
@@ -234,9 +251,10 @@
                                     class="img">
                                 <i class="bi bi-award content-title"></i>
                                 <h2 class="content-desc">POWERPOINT</h2>
-                                <p class="content-desc">高一就展现出极高的PPT天赋，在老师推荐下参加OFFICE软件技能比赛，有幸获得全澳季军的成绩。</p>
-                                <p class="content-desc">也考取了MOS PowerPoint2016及PowerPoint2019证书。</p>
-                                <p class="content-desc">制作的PPT幻灯片也取得了全校最高评分。</p>
+                                <p class="content-desc" id="PowerPoint_1">
+                                    高一就展现出极高的PPT天赋，在老师推荐下参加OFFICE软件技能比赛，有幸获得全澳季军的成绩。</p>
+                                <p class="content-desc" id="PowerPoint_2">也考取了MOS PowerPoint2016及PowerPoint2019证书。</p>
+                                <p class="content-desc" id="PowerPoint_3">制作的PPT幻灯片也取得了全校最高评分。</p>
                                 </p>
                             </div>
                         </div>
@@ -250,10 +268,10 @@
                                 </div>
                                 <i class="bi bi-book content-title"></i>
                                 <h2 class="content-desc">FORM SIX</h2>
-                                <p class="content-desc">高三参加全澳中学生资讯科技知识问答比赛，从一百多支队伍中脱颖而出，获得季军。</p>
-                                <p class="content-desc">
+                                <p class="content-desc" id="formsix_1">高三参加全澳中学生资讯科技知识问答比赛，从一百多支队伍中脱颖而出，获得季军。</p>
+                                <p class="content-desc" id="formsix_2">
                                     同时，开始学习网页前端知识，参加全澳学生手机网页技术技能比赛，取得全澳亚军的成绩。我也为老师和同学们制作了一些小程序，想通过我的网页知识，为大家制造便利。</p>
-                                <p class="content-desc">现在正在校园气象监测比赛的工作，对收集的数据进行分析，并写了邮件报错系统程序。</p>
+                                <p class="content-desc" id="formsix_3">现在正在校园气象监测比赛的工作，对收集的数据进行分析，并写了邮件报错系统程序。</p>
                                 </p>
                             </div>
                         </div>
@@ -265,52 +283,52 @@
             <section class="skills" id="skills">
 
                 <div class="section-content">
-                    <h2>技能</h2>
+                    <h2 id="skills_title">技能</h2>
                     <div class="skills-grid">
                         <div class="skill-item">
                             <i class="bi bi-cpu"></i>
-                            <span>电脑</span>
-                            <span class="hover-text">软、硬件</span>
+                            <span id="computer">电脑</span>
+                            <span class="hover-text" id="computer_sub">软、硬件</span>
                         </div>
                         <div class="skill-item">
                             <i class="bi bi-braces"></i>
-                            <span>前端开发</span>
-                            <span class="hover-text">website设计</span>
+                            <span id="front-end-development">前端开发</span>
+                            <span class="hover-text" id="front-end-development_sub">website设计</span>
                         </div>
                         <div class="skill-item">
                             <i class="fa-brands fa-python"></i>
-                            <span>Python</span>
-                            <span class="hover-text">熟练掌握</span>
+                            <span id="Python">Python</span>
+                            <span class="hover-text" id="Python_sub">熟练掌握</span>
                         </div>
                         <div class="skill-item">
                             <i class="fa-brands fa-linux"></i>
-                            <span>Linux</span>
-                            <span class="hover-text">了解基础</span>
+                            <span id="Linux">Linux</span>
+                            <span class="hover-text" id="Linux_sub">了解基础</span>
                         </div>
                         <div class="skill-item">
                             <i class="bi bi-file-earmark-ppt"></i>
                             <span>PowerPoint</span>
-                            <span class="hover-text">精通</span>
+                            <span class="hover-text" id="mastery">精通</span>
                         </div>
                         <div class="skill-item">
                             <i class="bi bi-file-earmark-excel"></i>
                             <span>Excel</span>
-                            <span class="hover-text">精通</span>
+                            <span class="hover-text" id="mastery">精通</span>
                         </div>
                         <div class="skill-item">
                             <i class="bi bi-file-earmark-word"></i>
                             <span>Word</span>
-                            <span class="hover-text">精通</span>
+                            <span class="hover-text" id="mastery">精通</span>
                         </div>
                         <div class="skill-item">
                             <i class="bi bi-camera"></i>
-                            <span>摄影</span>
-                            <span class="hover-text">热爱</span>
+                            <span id="photography">摄影</span>
+                            <span class="hover-text" id="photography_sub">热爱</span>
                         </div>
                         <div class="skill-item">
                             <i class="bi bi-pencil-square"></i>
-                            <span>后期</span>
-                            <span class="hover-text">修图、剪辑</span>
+                            <span id="post-production">后期</span>
+                            <span class="hover-text" id="post-production_sub">修图、剪辑</span>
                         </div>
                     </div>
                 </div>
@@ -319,15 +337,15 @@
             <section class="portfolio" id="portfolio">
 
                 <div class="section-content">
-                    <h2>摄影作品</h2>
+                    <h2 id="portfolio_title_1">摄影作品</h2>
                     <div class="photography-grid">
                         <a class="photography-item" href="image/3.jpg" target="_blank">
                             <div class="project-image">
                                 <img loading="lazy" src="image/3.jpg" data-src="image/3.jpg" alt="Macau">
                             </div>
                             <div class="project-details">
-                                <h3 class="project-title">澳门</h3>
-                                <p class="project-location">路氹</p>
+                                <h3 class="project-title" id="Macau">澳门</h3>
+                                <p class="project-location" id="Macau_subtitle">路氹</p>
                             </div>
                         </a>
 
@@ -336,8 +354,8 @@
                                 <img loading="lazy" src="image/zhuhai.jpg" data-src="image/zhuhai.jpg" alt="Zhuahai">
                             </div>
                             <div class="project-details">
-                                <h3 class="project-title">珠海</h3>
-                                <p class="project-location">爱情邮局</p>
+                                <h3 class="project-title" id="Zhuahai">珠海</h3>
+                                <p class="project-location" id="Zhuahai_subtitle">爱情邮局</p>
                             </div>
                         </a>
 
@@ -346,8 +364,8 @@
                                 <img loading="lazy" src="image/HK.jpg" data-src="image/HK.jpg" alt="Hong Kong">
                             </div>
                             <div class="project-details">
-                                <h3 class="project-title">香港</h3>
-                                <p class="project-location">旺角</p>
+                                <h3 class="project-title" id="HongKong">香港</h3>
+                                <p class="project-location" id="HongKong_subtitle">旺角</p>
                             </div>
                         </a>
 
@@ -356,18 +374,19 @@
                                 <img loading="lazy" src="image/nanjing.jpg" data-src="image/nanjing.jpg" alt="Nanjing">
                             </div>
                             <div class="project-details">
-                                <h3 class="project-title">南京</h3>
-                                <p class="project-location">南京大屠杀遇难同胞纪念馆</p>
+                                <h3 class="project-title" id="Nanjing">南京</h3>
+                                <p class="project-location" id="Nanjing_subtitle">南京大屠杀遇难同胞纪念馆</p>
                             </div>
                         </a>
 
                         <a class="photography-item" href="image/shanghai.jpg" target="_blank">
                             <div class="project-image">
-                                <img loading="lazy" src="image/shanghai.jpg" data-src="image/shanghai.jpg" alt="Shanghai">
+                                <img loading="lazy" src="image/shanghai.jpg" data-src="image/shanghai.jpg"
+                                    alt="Shanghai">
                             </div>
                             <div class="project-details">
-                                <h3 class="project-title">上海</h3>
-                                <p class="project-location">陆家嘴</p>
+                                <h3 class="project-title" id="Shanghai">上海</h3>
+                                <p class="project-location" id="Shanghai_subtitle">陆家嘴</p>
                             </div>
                         </a>
 
@@ -376,25 +395,26 @@
                                 <img loading="lazy" src="image/panda.jpg" data-src="image/panda.jpg" alt="Panda">
                             </div>
                             <div class="project-details">
-                                <h3 class="project-title">四川</h3>
-                                <p class="project-location">大熊猫</p>
+                                <h3 class="project-title" id="Sichuan">四川</h3>
+                                <p class="project-location" id="Sichuan_subtitle">大熊猫</p>
                             </div>
                         </a>
 
                     </div>
 
 
-                    <h2>小程序</h2>
+                    <h2 id="portfolio_title_2">小程序</h2>
                     <div class="mini-program-grid">
                         <a class="mini-program-item" href="https://randomlots.netlify.app/" target="_blank">
-                            <img loading="lazy" src="image/random-draw.png" data-src="image/random-draw.png" alt="抽签小程序">
-                            <h3 class="mini-program-title">抽签小程序</h3>
-                            <p>点击进入</p>
+                            <img loading="lazy" src="image/random-draw.png" data-src="image/random-draw.png"
+                                alt="抽签小程序">
+                            <h3 class="mini-program-title" id="random_draw">抽签小程序</h3>
+                            <p id="click">点击进入</p>
                         </a>
                         <a class="mini-program-item" href="https://daysmatter.netlify.app/" target="_blank">
                             <img loading="lazy" src="image/daysmatter.png" alt="Days Matter">
-                            <h3 class="mini-program-title">Days Matter</h3>
-                            <p>点击进入</p>
+                            <h3 class="mini-program-title" id="days_matter">Days Matter</h3>
+                            <p id="click">点击进入</p>
                         </a>
                         <a class="mini-program-item" style="display: none;">
                             <img loading="lazy" src="" alt="Mini Program 3">
@@ -407,14 +427,14 @@
             <section class="contact" id="contact">
 
                 <div class="section-content">
-                    <h2>联系我</h2>
+                    <h2 id="contact_title">联系我</h2>
                     <div class="contact-card">
                         <a target="_blank" href="https://www.instagram.com/tree_hey/"
                             class="social-link1 social-link"><i class="bi bi-instagram"></i></a>
                         <a target="_blank" href="https://www.facebook.com/chihei.lio"
                             class="social-link2 social-link"><i class="bi bi-facebook"></i></a>
-                        <a target="_blank" href="https://discordapp.com/users/922784416856670248"
-                            class="social-link3 social-link"><i class="bi bi-discord"></i></a>
+                        <!-- <a target="_blank" href="https://discordapp.com/users/922784416856670248"
+                            class="social-link3 social-link"><i class="bi bi-discord"></i></a> -->
                         <a target="_blank" href="https://github.com/treehey" class="social-link4 social-link"><i
                                 class="bi bi-github"></i></a>
                         <a target="_blank" href="mailto:123kevinlio@gmail.com" class="social-link5 social-link"><i
@@ -440,8 +460,11 @@
             imgs.forEach((load) => load.loading = "eager")
         };
     </script>
-    <script src="banner.js"></script>
-    <script src="timeline.js"></script>
+    <script src="js/banner.js"></script>
+    <script src="js/timeline.js"></script>
+    <script src="https://unpkg.com/i18next/dist/umd/i18next.min.js"></script>
+
+    <script src="js/language.js"></script>
     <script>
         const currentYear = new Date().getFullYear();
         document.getElementById("current-year").textContent = currentYear;
