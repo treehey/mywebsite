@@ -8,7 +8,21 @@
     background-position: center;
 }
 
-#shell::before {
+
+#shell .shell-background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    transition: 0.3 ease 0s;
+    filter: blur(5px);
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+}
+
+#shell .shell-background::before {
     position: absolute;
     left: 0;
     top: 0;

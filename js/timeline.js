@@ -1,11 +1,12 @@
 function timeline() {
     var id = document.querySelector('#shell')
+    var background = id.querySelector('.shell-background')
     var items = id.querySelectorAll(".item");
     var activeClass = "item--active";
     var img = "img";
 
     items[0].classList.add(activeClass);
-    id.style.backgroundImage =
+    background.style.backgroundImage =
         "url(" +
         items[0]
             .querySelector(img)
@@ -42,7 +43,7 @@ function timeline() {
                 pos > min + item.offsetHeight
             ) {
                 // removeActiveClass(items);
-                id.style.backgroundImage =
+                background.style.backgroundImage =
                     "url(" +
                     items[items.length - 1]
                         .querySelector(img)
@@ -50,7 +51,7 @@ function timeline() {
                     ")";
                 items[items.length - 1].classList.add(activeClass);
             } else if (pos >= min + item.offsetHeight / 1.5 && pos < min + item.offsetHeight * 1.5) {
-                id.style.backgroundImage =
+                background.style.backgroundImage =
                     "url(" +
                     item.querySelector(img).getAttribute("src") +
                     ")";

@@ -19,7 +19,7 @@ async function loadTranslations() {
 // 初始化i18next
 async function initI18next() {
     const resources = await loadTranslations();
-    console.log(resources)
+    // console.log(resources)
 
     i18next.init({
         lng: 'zh_CN', // 设置默认语言
@@ -56,7 +56,7 @@ function switchLanguage(lang) {
 initI18next().catch(err => console.error('Initialization failed', err));
 
 // 语言切换
-document.getElementById('language').addEventListener('change', function(event) {
-    let selectedLang = event.target.value;
-    switchLanguage(selectedLang);
-});
+// document.getElementById('language').addEventListener('change', function(event) {
+//     let selectedLang = event.target.value;
+//     switchLanguage(selectedLang);
+// });

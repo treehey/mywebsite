@@ -41,6 +41,7 @@ nav.bar.bar-fixed {
     top: 5px;
     left: 0.5vw;
     width: 99vw;
+    height: 8vh;
     background-color: #ffffff;
     transition: all 0.3s;
     background-image: none;
@@ -49,7 +50,11 @@ nav.bar.bar-fixed {
     opacity: 0.95;
 }
 
-nav.bar ul {
+nav.bar.bar-fixed.bar-hidden {
+    transform: translateY(-100%);
+}
+
+nav.bar>ul {
     position: absolute;
     top: 0;
     left: 0;
@@ -64,14 +69,14 @@ nav.bar ul {
     align-items: center;
 }
 
-nav.bar.bar-fixed ul {
+nav.bar.bar-fixed>ul {
     padding: 0 10%;
 }
 
-nav.bar li {
+nav.bar ul>li {
     /* margin-right: 20px; */
     flex: 1 0 13%;
-    max-width: 14%;
+    /* max-width: 14%; */
     text-align: center;
     height: 100%;
     display: flex;
@@ -125,44 +130,76 @@ nav.bar a:hover {
     color: #007AFF;
 }
 
-#language {
+.language-select {
     position: absolute;
     right: 4%;
-    max-width: 10vw;
-}
-
-select {
-    appearance: none;
-    /* 隐藏默认箭头在多数现代浏览器 */
-    -webkit-appearance: none;
-    /* 针对 WebKit 内核（如 Safari） */
-    -moz-appearance: none;
-    /* 针对 Firefox */
-    outline: none;
-    /* 移除轮廓 */
-    box-sizing: border-box;
-    width: 100%;
-    padding: 0.5em 1em;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
+    display: flex;
+    align-items: center;
+    border: none;
+    background: none;
+    color: #FFFFFF;
     cursor: pointer;
-    transition: all 0.3s ease;
+}
+
+nav.bar.bar-fixed .language-select {
+    color: #333333;
+}
+
+.language-select::after {
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    border-left: .3em solid transparent;
 }
 
 
-/* 鼠标悬停效果 */
-select:hover {
-    border-color: #888;
+nav.bar .language-menu {
+    position: absolute;
+    top: 70%;
+    right: 0;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    /* border: 1px solid #ccc; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影 */
+    border-radius: 4px; /* 圆角 */
+    z-index: 1000; /* 确保菜单在最前面 */
+    width: 100%; /* 宽度自适应 */
+    max-width: 200px; /* 最大宽度限制 */
+    display: none; /* 默认隐藏 */
 }
 
-/* 选中状态 */
-select:focus {
-    box-shadow: 0 0 2px 1px rgba(0, 140, 230, 0.2);
+nav.bar.bar-fixed .language-menu {
+    top: 100%;
+    background-color: white;
 }
 
+
+.language-menu button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    padding: 0.5em 1em;
+    color: #333;
+    font-size: 1em;
+    display: block;
+    outline: none;
+}
+
+nav.bar .language-menu button:hover {
+    background-color: rgba(0, 122, 255, 0.6);
+}
+
+nav.bar.bar-fixed .language-menu button:hover {
+    background-color: #f1f1f1; /* 鼠标悬停时的背景色 */
+}
 
 
 
@@ -310,17 +347,20 @@ footer {
         color: #333333;
     }
 
+
     nav.bar i {
         font-size: 4.5vw;
     }
 
-    /* #language {
-        max-width: 10vw;
-    } */
+    .language-select i {
+        color: #333333;
+    }
+
 
     select {
-        width: calc(100% - 2em); /* 减去左右padding */
+        width: calc(100% - 2em);
+        /* 减去左右padding */
         font-size: 2vw;
-      }
+    }
 
 }
