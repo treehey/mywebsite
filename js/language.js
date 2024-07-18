@@ -1,8 +1,8 @@
 // 异步导入JSON文件
 async function loadTranslations() {
-    const responseZhCn = await fetch('../../lang/zh_cn.json');
-    const responseEn = await fetch('../../lang/en.json');
-    const responseZhTw = await fetch('../../lang/zh_tw.json');
+    const responseZhCn = await fetch('../lang/zh_cn.json');
+    const responseEn = await fetch('../lang/en.json');
+    const responseZhTw = await fetch('../lang/zh_tw.json');
 
     const zh_cn = await responseZhCn.json();
     const en = await responseEn.json();

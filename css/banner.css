@@ -100,7 +100,7 @@
 /* background区域样式 */
 .banner-slide:first-child {
   background-color: #030f20;
-  background-image: url(/image/shanghai.jpg);
+  background-image: url(../image/shanghai.jpg);
   background-size: cover;
   background-position: center 40%;
   /* padding: 100px 0; */

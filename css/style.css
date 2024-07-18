@@ -128,7 +128,7 @@ nav.bar a:hover {
 #language {
     position: absolute;
     right: 4%;
-    max-width: 8vw;
+    max-width: 10vw;
 }
 
 select {
@@ -314,8 +314,13 @@ footer {
         font-size: 4.5vw;
     }
 
+    /* #language {
+        max-width: 10vw;
+    } */
+
     select {
         width: calc(100% - 2em); /* 减去左右padding */
+        font-size: 2vw;
       }
 
 }
