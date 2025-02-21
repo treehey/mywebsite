@@ -20,20 +20,49 @@
     <link rel="stylesheet" href="./bootstrap-icons-1.11.3/font/bootstrap-icons.css">
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"> -->
     <link rel="icon" href="favicon.png" type="image/x-icon">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@4.0.0/index.css"> -->
 
 
     <style>
         .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             height: 100vh;
             background-color: #F5F5F5;
+            z-index: 9999;
+            /* animation: fadeOut 0.5s 1s forwards; */
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--primary-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .hidden {
-            display: none;
+            animation: fadeOut 0.5s forwards;
         }
     </style>
     <script src="js/navbar.js"></script>
@@ -61,7 +90,8 @@
                             <p id="bar_contact">联系我</p>
                         </a></li>
                     <li>
-                        <button class="language-select" onclick="showLanguageMenu()"><i class="bi bi-translate"></i></button>
+                        <button class="language-select" onclick="showLanguageMenu()"><i
+                                class="bi bi-translate"></i></button>
                         <ul class="language-menu" style="display: none;">
                             <li value="zh_CN"><button onclick="switchLanguage('zh_CN')">简体中文</button></option>
                             <li value="zh_TW"><button onclick="switchLanguage('zh_TW')">繁体中文</button></option>
@@ -167,7 +197,7 @@
                                     alt="Minecraft"></img loading="lazy">
                                 <h2 class="content-desc">Minecraft</h2>
                                 <p class="content-desc" id="minecraft">
-                                    从小学开始喜爱我的世界，高小开始研究各种红石机械，六年级至初一开始研究指令，并尝试各种算法，进行地图创作，可以说是我的世界是带领我进入编程的大门。</p>
+                                    从小学开始接触我的世界，研究各种红石机械、指令，并尝试各种算法，进行地图创作。</p>
                             </div>
                         </div>
 
@@ -188,7 +218,7 @@
                                 <i class="fa-brands fa-python content-title"></i>
                                 <h2 class="content-desc">PYTHON</h2>
                                 <p class="content-desc" id="python">
-                                    初三开始自学python，与同学中其他编程爱好者交流和学习，写了些小程序以及小游戏，为我未来向计算机领域发展奠定基础。</p>
+                                    初三开始自学python，与同学中其他编程爱好者交流和学习，写了些小程序以及小游戏，为编程打下基础。</p>
                             </div>
                         </div>
 
@@ -199,7 +229,7 @@
                                 <i class="bi bi-pc-display content-title"></i>
                                 <h2 class="content-desc">MBOT & SCHOOL TEAM</h2>
                                 <p class="content-desc" id="school_team_1">
-                                    初三参加STEAM及IoT创意解难赛（MBOT机器车），深入了解了IoT（物联网）技术的应用和创新潜力，虽然只获得了最佳外形设计奖，但对我来说仍然是一次宝贵的经历,并激励我在下一年更加努力。
+                                    初三加入电脑校队，参加STEAM及IoT创意解难赛，深入了解了IoT（物联网）技术的应用和创新潜力，对我来说是一次宝贵的经历。
                                 </p>
                                 <p class="content-desc" id="school_team_2">高一加入学校电脑校队，开始学习各种电脑知识。</p>
                                 </p>
@@ -228,7 +258,7 @@
                                     loading="lazy">
                                 <h2 class="content-desc">SP STUDENT ASSOCIATION</h2>
                                 <p class="content-desc" id="student_association">
-                                    高二时有幸被学生会破例录取，成为其中的一员。这对我来说是一次难得的机会，让我能够深入参与学校事务，并为同学们提供服务。这个经验来说具有重要的意义。
+                                    高二加入学生会。参与筹办了歌唱比赛、慈善园游会等活动。这个经验来说具有重要的意义。
                                 </p>
                             </div>
                         </div>
@@ -242,7 +272,7 @@
                                 <p class="content-desc" id="photography_1">
                                     对摄影充满兴趣，自学摄影，Photoshop，Lightroom等后期软件，担任了学生会多项活动的摄影师。</p>
                                 <p class="content-desc" id="photography_2">通过镜头，我能够捕捉到生活中的珍贵瞬间，记录下令我心动和印象深刻的画面。</p>
-                                <p class="content-desc" id="photography_3">无论去哪旅游，我都会带着我的相机，它记录着我的足迹，未来也会带着它踏上新旅程。</p>
+                                <p class="content-desc" id="photography_3">镜头记录着我的足迹，未来也会带着它踏上新旅程。</p>
                                 </p>
                             </div>
                         </div>
@@ -254,8 +284,8 @@
                                 <i class="bi bi-award content-title"></i>
                                 <h2 class="content-desc">POWERPOINT</h2>
                                 <p class="content-desc" id="PowerPoint_1">
-                                    高一就展现出极高的PPT天赋，在老师推荐下参加OFFICE软件技能比赛，有幸获得全澳季军的成绩。</p>
-                                <p class="content-desc" id="PowerPoint_2">也考取了MOS PowerPoint2016及PowerPoint2019证书。</p>
+                                    喜欢制作有创意的PPT，在老师推荐下考取了Powerpoint、Excel、Word证书，参加OFFICE软件技能比赛，有幸获得全澳季军的成绩。</p>
+                                <p class="content-desc" id="PowerPoint_2">也考取了MOS PowerPoint2016及PowerPoint2019，以及Excel和Word的证书。</p>
                                 <p class="content-desc" id="PowerPoint_3">制作的PPT幻灯片也取得了全校最高评分。</p>
                                 </p>
                             </div>
@@ -272,8 +302,20 @@
                                 <h2 class="content-desc">FORM SIX</h2>
                                 <p class="content-desc" id="formsix_1">高三参加全澳中学生资讯科技知识问答比赛，从一百多支队伍中脱颖而出，获得季军。</p>
                                 <p class="content-desc" id="formsix_2">
-                                    同时，开始学习网页前端知识，参加全澳学生手机网页技术技能比赛，取得全澳亚军的成绩。我也为老师和同学们制作了一些小程序，想通过我的网页知识，为大家制造便利。</p>
-                                <p class="content-desc" id="formsix_3">现在正在校园气象监测比赛的工作，对收集的数据进行分析，并写了邮件报错系统程序。</p>
+                                    同时，开始学习网页前端知识，参加全澳学生手机网页技术技能比赛，取得全澳亚军的成绩。也为老师和同学们制作了一些小程序。</p>
+                                <p class="content-desc" id="formsix_3">也参与了校园气象监测比赛，对收集的数据进行分析，获得了优异奖，还在澳门中华教育会发表了一篇文章。</p>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="item" data-text="2024">
+                            <div class="content">
+                                <img loading="lazy" src="about/nju.jpg"
+                                    data-src="about/nju.jpg" alt="nju" class="img">
+                                    <i class="bi bi-mortarboard-fill content-title"></i>
+                                <h2 class="content-desc">GRADUATION</h2>
+                                <p class="content-desc" id="NJU">
+                                    毕业于澳门圣保禄中学，进入南京大学。
                                 </p>
                             </div>
                         </div>
@@ -328,9 +370,9 @@
                             <span class="hover-text" id="photography_sub">热爱</span>
                         </div>
                         <div class="skill-item">
-                            <i class="bi bi-pencil-square"></i>
-                            <span id="post-production">后期</span>
-                            <span class="hover-text" id="post-production_sub">修图、剪辑</span>
+                            <i class="fa-solid fa-utensils"></i>
+                            <span id="post-production">干饭</span>
+                            <span class="hover-text" id="post-production_sub">吃吃吃</span>
                         </div>
                     </div>
                 </div>

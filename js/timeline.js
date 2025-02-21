@@ -15,7 +15,7 @@ function timeline() {
 
     var itemLength = items.length;
 
-    function throttle(fn, delay = 1000) {
+    function throttle(fn, delay = 500) {
         // 节流开关				
         let run = true;
         // 返回函数				
@@ -50,15 +50,28 @@ function timeline() {
                         .getAttribute("src") +
                     ")";
                 items[items.length - 1].classList.add(activeClass);
-            } else if (pos >= min + item.offsetHeight / 1.5 && pos < min + item.offsetHeight * 1.5) {
-                background.style.backgroundImage =
-                    "url(" +
-                    item.querySelector(img).getAttribute("src") +
-                    ")";
-                // removeActiveClass(items);
-                item.classList.add(activeClass);
-            } else if (pos < max) {
-                item.classList.remove(activeClass);
+            } else if (window.innerWidth > 767) {
+                if (pos - 200 >= min + item.offsetHeight / 1.5 && pos < min + item.offsetHeight * 3) {
+                    background.style.backgroundImage =
+                        "url(" +
+                        item.querySelector(img).getAttribute("src") +
+                        ")";
+                    // removeActiveClass(items);
+                    item.classList.add(activeClass);
+                } else if (pos < max) {
+                    item.classList.remove(activeClass);
+                }
+            } else if (window.innerWidth <= 767) {
+                if (pos >= min + item.offsetHeight/2 && pos < min + item.offsetHeight * 3) {
+                    background.style.backgroundImage =
+                        "url(" +
+                        item.querySelector(img).getAttribute("src") +
+                        ")";
+                    // removeActiveClass(items);
+                    item.classList.add(activeClass);
+                } else if (pos < max) {
+                    item.classList.remove(activeClass);
+                }
             }
         });
     });
