@@ -65,13 +65,18 @@ window.addEventListener('scroll', function () {
 });
 
 function showLanguageMenu() {
-  var dropdown = document.querySelector('.language-menu');
-  dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+  var container = document.querySelector('.nav-actions') || document;
+  var dropdown = container.querySelector('.language-menu');
+  var trigger = container.querySelector('.language-select');
+  var willOpen = dropdown.style.display !== 'block';
+  dropdown.style.display = willOpen ? 'block' : 'none';
+  if (trigger) trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
 
-    // 如果需要关闭下拉菜单，可以监听窗口点击事件
-    window.addEventListener('click', function(e) {
-        if (!e.target.closest('.language-select') && !e.target.closest('.language-menu')) {
-            dropdown.style.display = 'none';
-        }
-    });
+  // 如果需要关闭下拉菜单，可以监听窗口点击事件
+  window.addEventListener('click', function(e) {
+    if (!e.target.closest('.language-select') && !e.target.closest('.language-menu')) {
+      if (dropdown) dropdown.style.display = 'none';
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    }
+  });
 }

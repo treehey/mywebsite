@@ -87,15 +87,21 @@
                     <li><a href="#contact"><i class="bi bi-chat-left"></i>
                             <p id="bar_contact">联系我</p>
                         </a></li>
-                    <li>
-                        <button class="language-select" onclick="showLanguageMenu()"><i
-                                class="bi bi-translate"></i></button>
-                        <ul class="language-menu" style="display: none;">
-                            <li value="zh_CN"><button onclick="switchLanguage('zh_CN')">简体中文</button></option>
-                            <li value="zh_TW"><button onclick="switchLanguage('zh_TW')">繁体中文</button></option>
-                            <li value="en"><button onclick="switchLanguage('en')">English</button></option>
-                        </ul>
-                        <button class="theme-toggle" aria-label="切换主题" onclick="toggleTheme()"><i class="bi bi-sun"></i></button>
+                    <li class="actions-slot">
+                        <div class="nav-actions" role="group" aria-label="快捷操作">
+                            <button class="language-select" title="切换语言" aria-haspopup="menu" aria-expanded="false" onclick="showLanguageMenu()">
+                                <i class="bi bi-translate"></i>
+                            </button>
+                            <div class="divider" aria-hidden="true"></div>
+                            <button class="theme-toggle" title="切换主题" aria-label="切换主题" onclick="toggleTheme()">
+                                <i class="bi bi-sun"></i>
+                            </button>
+                            <ul class="language-menu" role="menu" style="display: none;">
+                                <li value="zh_CN"><button role="menuitem" onclick="switchLanguage('zh_CN')">简体中文</button></li>
+                                <li value="zh_TW"><button role="menuitem" onclick="switchLanguage('zh_TW')">繁体中文</button></li>
+                                <li value="en"><button role="menuitem" onclick="switchLanguage('en')">English</button></li>
+                            </ul>
+                        </div>
                     </li>
                 </ul>
             </nav>
@@ -160,7 +166,7 @@
 
                 <a href="#about" class="floating-arrow"><i class="bi bi-chevron-double-down"></i></a>
             </div>
-            <section class="about hidden reveal" id="about" aria-labelledby="my_story">
+            <section class="about hidden" id="about" aria-labelledby="my_story">
 
                 <div class="section-content" id="shell">
                     <div class="shell-background"></div>

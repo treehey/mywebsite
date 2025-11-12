@@ -433,11 +433,15 @@
 
   .banner {
     position: relative;
-    height: 82vh;
+    height: 92vh;
   }
 
   .banner-prev,
   .banner-next {
     font-size: 10vw;
+  }
+
+  .banner-dots{
+    bottom : 6vh;
   }
 }
