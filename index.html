@@ -5,6 +5,9 @@
     <title>TreeHey's website</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/banner.css">
     <link rel="stylesheet" type="text/css" href="css/skills.css">
@@ -26,50 +29,45 @@
     <style>
         .loading {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             height: 100vh;
-            background-color: #F5F5F5;
+            /* 背景交由外部 CSS 控制，避免与主题变量冲突 */
+            background: transparent;
             z-index: 9999;
-            /* animation: fadeOut 0.5s 1s forwards; */
         }
 
         @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
+            to { opacity: 0; visibility: hidden; }
         }
 
-        .loading::after {
-            content: '';
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--primary-color);
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
+        .hidden { animation: fadeOut 0.5s forwards; }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .hidden {
-            animation: fadeOut 0.5s forwards;
+        @media (prefers-reduced-motion: reduce) {
+            .hidden { animation: none; display: none; }
         }
     </style>
     <script src="js/navbar.js"></script>
 </head>
 
 <body>
-    <div class="loading">Loading...</div>
+    <div class="loading" role="status" aria-live="polite" aria-label="页面加载中">
+        <div class="loader-shell" aria-hidden="false">
+            <div class="loader-orb" aria-hidden="true">
+                <div class="orb-core"></div>
+                <div class="orb-glow"></div>
+                 <div class="orb-badge" aria-hidden="true"></div>
+            </div>
+            <div class="loader-title">TreeHey</div>
+            <div class="loader-bar" aria-hidden="true">
+                <span class="loader-bar-inner"></span>
+            </div>
+            <div class="loader-percent"><span>0</span>%</div>
+        </div>
+    </div>
     <div class="hidden">
         <header>
             <nav class="bar">
@@ -89,24 +87,31 @@
                     <li><a href="#contact"><i class="bi bi-chat-left"></i>
                             <p id="bar_contact">联系我</p>
                         </a></li>
-                    <li>
-                        <button class="language-select" onclick="showLanguageMenu()"><i
-                                class="bi bi-translate"></i></button>
-                        <ul class="language-menu" style="display: none;">
-                            <li value="zh_CN"><button onclick="switchLanguage('zh_CN')">简体中文</button></option>
-                            <li value="zh_TW"><button onclick="switchLanguage('zh_TW')">繁体中文</button></option>
-                            <li value="en"><button onclick="switchLanguage('en')">English</button></option>
-                        </ul>
+                    <li class="actions-slot">
+                        <div class="nav-actions" role="group" aria-label="快捷操作">
+                            <button class="language-select" title="切换语言" aria-haspopup="menu" aria-expanded="false" onclick="showLanguageMenu()">
+                                <i class="bi bi-translate"></i>
+                            </button>
+                            <div class="divider" aria-hidden="true"></div>
+                            <button class="theme-toggle" title="切换主题" aria-label="切换主题" onclick="toggleTheme()">
+                                <i class="bi bi-sun"></i>
+                            </button>
+                            <ul class="language-menu" role="menu" style="display: none;">
+                                <li value="zh_CN"><button role="menuitem" onclick="switchLanguage('zh_CN')">简体中文</button></li>
+                                <li value="zh_TW"><button role="menuitem" onclick="switchLanguage('zh_TW')">繁体中文</button></li>
+                                <li value="en"><button role="menuitem" onclick="switchLanguage('en')">English</button></li>
+                            </ul>
+                        </div>
                     </li>
                 </ul>
             </nav>
         </header>
 
-        <section class="banner">
+    <section class="banner" aria-label="网站横幅与个人介绍">
 
             <div class="banner">
                 <div class="banner-slides">
-                    <div class="banner-slide">
+                    <div class="banner-slide" id="treehey">
                         <div class="card">
                             <div class="card-inner">
                                 <div class="my-content">
@@ -149,6 +154,7 @@
                     <button class="banner-prev"><i class="bi bi-chevron-left"></i></button>
                     <button class="banner-next"><i class="bi bi-chevron-right"></i></button>
                 </div>
+                <div class="banner-dots" aria-label="轮播页码" role="tablist"></div>
             </div>
         </section>
         <main>
@@ -160,7 +166,7 @@
 
                 <a href="#about" class="floating-arrow"><i class="bi bi-chevron-double-down"></i></a>
             </div>
-            <section class="about hidden" id="about">
+            <section class="about hidden" id="about" aria-labelledby="my_story">
 
                 <div class="section-content" id="shell">
                     <div class="shell-background"></div>
@@ -325,7 +331,7 @@
                 </div>
             </section>
 
-            <section class="skills" id="skills">
+            <section class="skills reveal" id="skills" aria-labelledby="skills_title">
 
                 <div class="section-content">
                     <h2 id="skills_title">技能</h2>
@@ -379,7 +385,7 @@
                 </div>
             </section>
 
-            <section class="portfolio" id="portfolio">
+            <section class="portfolio reveal" id="portfolio" aria-labelledby="portfolio_title_1">
 
                 <div class="section-content">
                     <h2 id="portfolio_title_1">摄影作品</h2>
@@ -480,7 +486,7 @@
                 </div>
             </section>
 
-            <section class="contact" id="contact">
+            <section class="contact reveal" id="contact" aria-labelledby="contact_title">
 
                 <div class="section-content">
                     <h2 id="contact_title">联系我</h2>
@@ -505,22 +511,15 @@
         </main>
     </div>
     <!-- <script src="index.js"></script> -->
-    <script>
-        window.onload = function () {
-            var loading = document.querySelector('.loading');
-            var hiddens = document.querySelectorAll('.hidden');
-            var imgs = document.querySelectorAll('img')
-            document.body.classList.add('loaded');
-            loading.classList.add('hidden');
-            hiddens.forEach((hidden) => hidden.classList.remove('hidden'))
-            imgs.forEach((load) => load.loading = "eager")
-        };
-    </script>
-    <script src="js/banner.js"></script>
-    <script src="js/timeline.js"></script>
+    <script src="js/banner.js" defer></script>
+    <script src="js/timeline.js" defer></script>
     <script src="https://unpkg.com/i18next/dist/umd/i18next.min.js"></script>
 
-    <script src="js/language.js"></script>
+    <script src="js/language.js" defer></script>
+    <script src="js/reveal.js" defer></script>
+    <script src="js/init.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/tilt.js" defer></script>
     <script>
         const currentYear = new Date().getFullYear();
         document.getElementById("current-year").textContent = currentYear;
