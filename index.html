@@ -5,6 +5,9 @@
     <title>TreeHey's website</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="css/banner.css">
     <link rel="stylesheet" type="text/css" href="css/skills.css">
@@ -26,50 +29,45 @@
     <style>
         .loading {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
             height: 100vh;
-            background-color: #F5F5F5;
+            background: linear-gradient(135deg, #f7fafc, #eef2f7);
             z-index: 9999;
-            /* animation: fadeOut 0.5s 1s forwards; */
         }
 
         @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
+            to { opacity: 0; visibility: hidden; }
         }
 
-        .loading::after {
-            content: '';
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--primary-color);
-            border-top-color: transparent;
+        .loader-spinner {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
+            border: 3px solid rgba(0,0,0,0.08);
+            border-top-color: var(--primary-color);
             animation: spin 0.8s linear infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .hidden {
-            animation: fadeOut 0.5s forwards;
+        .hidden { animation: fadeOut 0.5s forwards; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .loader-spinner { animation: none; }
+            .hidden { animation: none; display: none; }
         }
     </style>
     <script src="js/navbar.js"></script>
 </head>
 
 <body>
-    <div class="loading">Loading...</div>
+    <div class="loading" role="status" aria-label="页面加载中">
+        <div class="loader-spinner"></div>
+    </div>
     <div class="hidden">
         <header>
             <nav class="bar">
@@ -102,7 +100,7 @@
             </nav>
         </header>
 
-        <section class="banner">
+    <section class="banner" aria-label="网站横幅与个人介绍">
 
             <div class="banner">
                 <div class="banner-slides">
@@ -160,7 +158,7 @@
 
                 <a href="#about" class="floating-arrow"><i class="bi bi-chevron-double-down"></i></a>
             </div>
-            <section class="about hidden" id="about">
+            <section class="about hidden reveal" id="about" aria-labelledby="my_story">
 
                 <div class="section-content" id="shell">
                     <div class="shell-background"></div>
@@ -325,7 +323,7 @@
                 </div>
             </section>
 
-            <section class="skills" id="skills">
+            <section class="skills reveal" id="skills" aria-labelledby="skills_title">
 
                 <div class="section-content">
                     <h2 id="skills_title">技能</h2>
@@ -379,7 +377,7 @@
                 </div>
             </section>
 
-            <section class="portfolio" id="portfolio">
+            <section class="portfolio reveal" id="portfolio" aria-labelledby="portfolio_title_1">
 
                 <div class="section-content">
                     <h2 id="portfolio_title_1">摄影作品</h2>
@@ -480,7 +478,7 @@
                 </div>
             </section>
 
-            <section class="contact" id="contact">
+            <section class="contact reveal" id="contact" aria-labelledby="contact_title">
 
                 <div class="section-content">
                     <h2 id="contact_title">联系我</h2>
@@ -505,22 +503,13 @@
         </main>
     </div>
     <!-- <script src="index.js"></script> -->
-    <script>
-        window.onload = function () {
-            var loading = document.querySelector('.loading');
-            var hiddens = document.querySelectorAll('.hidden');
-            var imgs = document.querySelectorAll('img')
-            document.body.classList.add('loaded');
-            loading.classList.add('hidden');
-            hiddens.forEach((hidden) => hidden.classList.remove('hidden'))
-            imgs.forEach((load) => load.loading = "eager")
-        };
-    </script>
-    <script src="js/banner.js"></script>
-    <script src="js/timeline.js"></script>
+    <script src="js/banner.js" defer></script>
+    <script src="js/timeline.js" defer></script>
     <script src="https://unpkg.com/i18next/dist/umd/i18next.min.js"></script>
 
-    <script src="js/language.js"></script>
+    <script src="js/language.js" defer></script>
+    <script src="js/reveal.js" defer></script>
+    <script src="js/init.js" defer></script>
     <script>
         const currentYear = new Date().getFullYear();
         document.getElementById("current-year").textContent = currentYear;

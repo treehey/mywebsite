@@ -4,22 +4,28 @@
     padding: 0;
     box-sizing: border-box;
     scroll-behavior: smooth;
-    transition: all 0.5s ease;
 }
 
 :root {
     --primary-color: #007AFF;
+    --primary-600: #0058a5;
+    --accent: #6EE7F9;
     --background-color: #F8F9FA;
+    --background-elev: #FFFFFF;
     --text-color: #1D1D1F;
+    --text-muted: #6b7280;
     --card-background: #FFFFFF;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --radius: 16px;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-soft: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
-    background-color: var(--background-color);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, sans-serif;
+    background: radial-gradient(1200px 800px at 10% -10%, rgba(0,122,255,0.06), transparent 60%),
+                radial-gradient(900px 600px at 110% 10%, rgba(110,231,249,0.06), transparent 60%),
+                var(--background-color);
     color: var(--text-color);
-    /* line-height: 1.6; */
 }
 
 body::-webkit-scrollbar {
@@ -32,45 +38,31 @@ body.loaded {
 
 /* 导航栏样式 */
 nav.bar {
-    padding: 40px;
+    padding: 24px 32px;
     position: fixed;
     top: 0;
+    left: 0;
     width: 100vw;
     height: 11vh;
     z-index: 10;
-    transition: all 0.3s;
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-    opacity: 1;
+    transition: backdrop-filter 0.3s ease, background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: saturate(140%) blur(3px);
+    -webkit-backdrop-filter: saturate(140%) blur(3px);
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0));
 }
 
-/* iOS风格导航栏 */
-/* nav.bar {
-    padding: 1rem 2rem;
-    position: fixed;
-    top: 0;
-    width: 100vw;
-    height: 11vh;
-    z-index: 10;
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    transition: all 0.3s;
-    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
-    opacity: 1;
-} */
-
 nav.bar.bar-fixed {
-    position: fixed;
-    top: 5px;
-    left: 0.5vw;
-    width: 99vw;
-    height: 8vh;
-    background-color: #ffffff;
-    transition: all 0.3s;
-    background-image: none;
-    border-radius: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    opacity: 0.95;
+    top: 8px;
+    left: 0.8vw;
+    width: 98.4vw;
+    height: 64px;
+    background: rgba(255,255,255,0.75);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    opacity: 1;
 }
 
 nav.bar.bar-fixed.bar-hidden {
@@ -113,31 +105,43 @@ nav.bar.bar-fixed li:last-child {
 
 
 nav.bar i {
-    font-size: 2.5vw;
-    /* margin-bottom: 4px; */
+    font-size: clamp(18px, 2.2vw, 28px);
 }
 
 nav.bar a {
+    position: relative;
     width: 100%;
     height: 100%;
-    transition: color 0.3s ease;
     text-decoration: none;
     color: #FFFFFF;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    transition: background-color 0.3s;
+    transition: color 0.25s ease;
 }
 
+
+nav.bar a::after {
+    content: "";
+    position: absolute;
+    left: 16%;
+    right: 16%;
+    bottom: 2px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent));
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform 0.3s ease;
+}
+
+nav.bar a:hover::after {
+    transform: scaleX(1);
+}
 
 nav.bar.bar-fixed a.active {
-    position: relative;
-    background-color: rgba(92, 201, 102, 0.5);
-    border-bottom: 3px solid #78C850;
-    box-shadow: rgba(103, 178, 111, 0.3) 0px 0px 4px 3px;
-    border-radius: 15px;
-    transition: background-color 0.3s;
+    color: #0f172a;
 }
+nav.bar a.active::after { transform: scaleX(1); }
 
 
 
@@ -188,10 +192,10 @@ nav.bar .language-menu {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.72);
     /* border: 1px solid #ccc; */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影 */
-    border-radius: 4px; /* 圆角 */
+    box-shadow: var(--shadow-soft); /* 阴影 */
+    border-radius: 10px; /* 圆角 */
     z-index: 1000; /* 确保菜单在最前面 */
     width: 100%; /* 宽度自适应 */
     max-width: 200px; /* 最大宽度限制 */
@@ -231,7 +235,7 @@ main {
     position: relative;
     margin-top: 120vh;
     z-index: 9;
-    background-color: #FFFFFF;
+    background-color: var(--background-elev);
 }
 
 
@@ -292,18 +296,21 @@ main {
 /* 内容区域样式 */
 section {
     scroll-margin-top: 10vh;
-    box-shadow: rgba(0, 0, 0, 0.5) 0px -1px 50px;
+    box-shadow: 0 -1px 40px rgba(0,0,0,0.18);
 }
 
 .section-content {
-    background-color: #FFFFFF;
-    box-shadow: rgba(0, 0, 0, 0.3) 0px 3px 10px;
-    padding: 40px;
-    margin-bottom: 40px;
+    background-color: var(--card-background);
+    box-shadow: var(--shadow-soft);
+    padding: 48px;
+    /* margin: 48px auto; */
+    margin-bottom: 48px;
+    border-radius: var(--radius);
+    /* max-width: min(1100px, 92vw); */
 }
 
 .section-content>h2 {
-    font-size: 40px;
+    font-size: clamp(28px, 4vw, 40px);
     margin-bottom: 20px;
 }
 
@@ -318,11 +325,32 @@ section {
 footer {
     position: relative;
     z-index: 9;
-    background-color: #FFFFFF;
+    background-color: var(--background-elev);
     padding: 30px;
     text-align: center;
     font-size: 14px;
     color: #666666;
+}
+
+/* Reveal animations */
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .reveal,
+    nav.bar a::after,
+    .floating-arrow {
+        transition: none !important;
+        animation: none !important;
+    }
 }
 
 /* 响应式样式 */
@@ -351,11 +379,13 @@ footer {
     nav.bar {
         position: fixed;
         height: 8vh;
-        background-color: #ffffff;
+        background-color: rgba(255,255,255,0.86);
         transition: background-image 0.3s ease;
         background-image: none;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
-        border-radius: 10px;
+        box-shadow: var(--shadow-soft);
+        border-radius: 12px;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
     }
 
     nav.bar.bar-fixed {
@@ -367,24 +397,16 @@ footer {
         font-size: 2vw;
     }
 
-    nav.bar a {
-        color: #333333;
-    }
+    nav.bar a { color: #333333; }
 
 
-    nav.bar i {
-        font-size: 4.5vw;
-    }
+    nav.bar i { font-size: 4.5vw; }
 
     .language-select i {
         color: #333333;
     }
 
 
-    select {
-        width: calc(100% - 2em);
-        /* 减去左右padding */
-        font-size: 2vw;
-    }
+    select { width: calc(100% - 2em); font-size: 2vw; }
 
 }

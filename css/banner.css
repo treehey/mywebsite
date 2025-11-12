@@ -53,16 +53,17 @@
 
 .slide-content h2 {
   color: #FFFFFF;
-  font-size: 45px;
-  font-weight: normal;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 600;
+  margin-bottom: 12px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 6px 22px rgba(0, 0, 0, 0.55);
 }
 
 .slide-content p {
   color: #FFFFFF;
-  font-size: 23px;
-  text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7);
+  font-size: clamp(14px, 2.6vw, 22px);
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
 }
 
 .banner-nav {
@@ -180,29 +181,29 @@
 
 .card-inner h1 {
   color: #FFFFFF;
-  font-size: 4.5vw;
-  font-weight: 400;
-  margin-bottom: 20px;
-  text-shadow: rgb(73, 75, 76) 1px 1px 1px;
-  letter-spacing: 3px;
+  font-size: clamp(22px, 4.2vw, 56px);
+  font-weight: 500;
+  margin-bottom: 8px;
+  text-shadow: rgba(38,40,42,0.6) 0 4px 18px;
+  letter-spacing: 0.06em;
 }
 
 .card-inner p {
-  font-size: 2.5vw;
+  font-size: clamp(14px, 2.4vw, 24px);
   font-weight: 300;
   margin-bottom: 0%;
   color: #FFFFFF;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-  letter-spacing: 5px;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.65);
+  letter-spacing: 0.3em;
 }
 
 .card-inner .me {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 5vw;
-  font-weight: 550;
+  font-size: clamp(24px, 5vw, 64px);
+  font-weight: 700;
   color: #ffffff;
-  text-shadow: #283039 2px 2px 3px;
-  letter-spacing: 10px;
+  text-shadow: #283039 0 8px 26px;
+  letter-spacing: 0.45em;
   text-align: center;
 }
 
@@ -236,7 +237,7 @@
   margin: 0;
   width: 3rem;
   height: 3rem;
-  background: #0058a5;
+  background: var(--primary-600, #0058a5);
   border-radius: 1.625rem;
 }
 
