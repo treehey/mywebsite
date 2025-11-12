@@ -4,55 +4,57 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
     padding-bottom: 20px;
-    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .photography-item {
+    position: relative;
     display: flex;
     flex-direction: column;
-    border-radius: 20px;
+    border-radius: 22px;
     overflow: hidden;
-    box-shadow: 5px 5px 6px #dadada, -5px -5px 6px #f6f6f6;
-    transition: 0.4s;
-    max-height: 300px;
+    background-color: var(--card-background);
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.6s cubic-bezier(.22,.68,.28,1.02), box-shadow 0.4s ease;
+    max-height: 320px;
     text-decoration: none;
-    color: #333333;
-    background-color: #f5f5f5;
+    color: var(--text-color);
+    outline: 1px solid var(--card-border);
 }
 
 .photography-item:hover {
-    translate: 0 -10px;
-    transform: scale(1.05);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 36px rgba(0,0,0,0.16);
 }
 
 .project-image {
     width: 100%;
     height: 80%;
+    position: relative;
 }
 
 .project-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transform: scale(1.01);
+    transition: transform 0.7s cubic-bezier(.22,.68,.28,1.02), filter 0.4s ease;
+}
+.photography-item:hover .project-image img { transform: scale(1.06); }
+.project-image::after{
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.45), rgba(0,0,0,0.0) 40%);
+    pointer-events: none;
 }
 
 .project-details {
-    padding-top: 10px;
-    padding-left: 15px;
-    background-color: #f5f5f5;
+    padding: 10px 16px 14px 16px;
+    background-color: var(--card-background);
 }
 
-.project-title {
-    font-size: 16px;
-    margin-bottom: 0.2rem;
-}
+.project-title { font-size: 16px; margin-bottom: 0.2rem; }
 
-.project-location {
-    font-size: 12px;
-    margin: 0;
-    color: #999;
-}
+.project-location { font-size: 12px; margin: 0; color: var(--text-muted); }
 
 /* 小程序部分 */
 .mini-program-grid {
@@ -67,17 +69,15 @@
     border-radius: 18px;
     padding: 1.5rem;
     text-align: center;
-    transition: transform 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.5s cubic-bezier(.22,.68,.28,1.02);
+    box-shadow: var(--shadow-soft);
     overflow: hidden;
     text-decoration: none;
-    color: gray;
+    color: var(--text-muted);
+    outline: 1px solid var(--card-border);
 }
 
-.mini-program-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
+.mini-program-item:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 14px 30px rgba(0,0,0,0.14); }
 
 .app-icon {
     position: relative;
@@ -121,19 +121,9 @@
     font-size: 1.8rem;
 }
 
-.mini-program-item p {
-    font-size: 0.9rem;
-    margin: 0;
+.mini-program-item p { font-size: 0.9rem; margin: 0; }
 
-}
-
-.mini-program-title {
-    font-size: 1.1rem;
-    margin: 0.5rem 0;
-    font-weight: bold;
-    color: #333333;
-    text-align: center;
-}
+.mini-program-title { font-size: 1.1rem; margin: 0.5rem 0; font-weight: bold; color: var(--text-color); text-align: center; }
 
 
 /* .gotominiprogram{

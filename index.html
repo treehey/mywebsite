@@ -95,6 +95,7 @@
                             <li value="zh_TW"><button onclick="switchLanguage('zh_TW')">繁体中文</button></option>
                             <li value="en"><button onclick="switchLanguage('en')">English</button></option>
                         </ul>
+                        <button class="theme-toggle" aria-label="切换主题" onclick="toggleTheme()"><i class="bi bi-sun"></i></button>
                     </li>
                 </ul>
             </nav>
@@ -510,6 +511,8 @@
     <script src="js/language.js" defer></script>
     <script src="js/reveal.js" defer></script>
     <script src="js/init.js" defer></script>
+    <script src="js/theme.js" defer></script>
+    <script src="js/tilt.js" defer></script>
     <script>
         const currentYear = new Date().getFullYear();
         document.getElementById("current-year").textContent = currentYear;
