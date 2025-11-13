@@ -1,5 +1,6 @@
 .contact .section-content {
-    background-color: #c0c8cc;
+    /* background-color: #c0c8cc; */
+    background-color: var(--card-background);
     height: 35vh;
 }
 
@@ -82,7 +83,7 @@
 
 @keyframes jump {
     40% {
-        transform: scale(1.2);
+        transform: scale(1.1);
     }
 
     60% {
