@@ -33,9 +33,15 @@
     display: flex;
     justify-content: center;
     align-items: center;
+<<<<<<< Updated upstream
     width: 10rem;
     height: 10rem;
     color: whitesmoke;
+=======
+    width: 8rem;
+    height: 8rem;
+    color: --var(--text-color);
+>>>>>>> Stashed changes
     font-size: 3.5rem;
     text-decoration: none;
     transition: 0.25s;
