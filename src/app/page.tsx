@@ -313,7 +313,7 @@ export default function Home() {
       <div id="top" className="absolute top-0" />
       
       {/* ───── NAV PILL ───── */}
-      <header className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-4 md:px-7 py-3 rounded-full bg-[#0E0E1C]/80 backdrop-blur-2xl border border-[#00F5FF]/15 transition-all w-[90vw] md:w-auto justify-between md:justify-center overflow-hidden">
+      <header className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-4 md:px-7 py-3 rounded-full bg-[#0E0E1C]/80 backdrop-blur-2xl border border-[#00F5FF]/15 transition-all w-[90vw] md:w-auto justify-between md:justify-center overflow-visible">
         <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)} className="shrink-0 font-syne font-bold text-lg text-[#00F5FF] glow-cyan tracking-widest hover:scale-110 transition-transform cursor-pointer" style={{ fontFamily: "var(--font-syne)" }}>TH</a>
         
         {/* Desktop Navigation */}
@@ -377,7 +377,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 15, scale: 0.9 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col bg-[#0E0E1C]/95 backdrop-blur-2xl border border-[#00F5FF]/20 rounded-xl p-2 min-w-[110px] shadow-[0_0_30px_rgba(0,245,255,0.1)] origin-bottom-right md:origin-top"
+                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col bg-[#0E0E1C]/95 backdrop-blur-2xl border border-[#00F5FF]/20 rounded-xl p-2 min-w-[110px] shadow-[0_0_30px_rgba(0,245,255,0.1)] origin-bottom-right md:origin-top z-[1000]"
                 >
                   {['EN', '简', '繁'].map(l => (
                     <button 
