@@ -21,7 +21,15 @@ export function GuestbookWall() {
   const [entries, setEntries] = useState<GuestEntry[]>([]);
 
   useEffect(() => {
-    if (!supabase) return;
+    // 监听来自 DanmakuSystem 表单提交后的即时通知
+    const onNew = (e: Event) => {
+      const entry = (e as CustomEvent<GuestEntry>).detail;
+      if (entry) setEntries(prev => [entry, ...prev].slice(0, 80));
+    };
+    window.addEventListener("guestbook:new", onNew);
+
+    if (!supabase) return () => window.removeEventListener("guestbook:new", onNew);
+
     supabase
       .from("guestbook")
       .select("*")
@@ -38,7 +46,10 @@ export function GuestbookWall() {
       })
       .subscribe();
 
-    return () => { supabase?.removeChannel(channel); };
+    return () => {
+      window.removeEventListener("guestbook:new", onNew);
+      supabase?.removeChannel(channel);
+    };
   }, []);
 
   return (

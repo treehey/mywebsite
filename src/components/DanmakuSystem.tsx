@@ -100,13 +100,17 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
     setStatus("sending");
 
     if (supabase) {
-      const { error } = await supabase.from("guestbook").insert({
+      const { data, error } = await supabase.from("guestbook").insert({
         danmaku_title: title,
         message: messageText.trim() || null,
         nickname: nickname.trim() || null,
         color,
-      });
+      }).select("id, danmaku_title, color").single();
       if (error) { setStatus("err"); return; }
+      // 立即本地追加，不等 Realtime 推送
+      if (data) setTracks(prev => [...prev, toTrack(data as GuestEntry)]);
+      // 通知 GuestbookWall 即时更新
+      window.dispatchEvent(new CustomEvent("guestbook:new", { detail: data }));
     } else {
       setTracks(prev => [...prev, toTrack({ id: Date.now(), danmaku_title: title, color })]);
     }
