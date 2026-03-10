@@ -4,18 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { supabase, type GuestEntry } from "@/lib/supabase";
 
-/* ── Demo entries shown when Supabase is not configured ── */
-const DEMO_ENTRIES: GuestEntry[] = [
-  { id: 1,  danmaku_title: "Cool portfolio! 🔥",       message: "The animations and typography are absolutely insane. Bookmark-worthy.",                          nickname: "Alex",      color: "#00F5FF", created_at: "2025-03-01T10:00:00Z" },
-  { id: 2,  danmaku_title: "这个网站也太帅了吧",          message: "完全没想到会看到这么精致的个人作品集，感觉比很多商业网站都好看。",                                 nickname: "小明",      color: "#FF2D78", created_at: "2025-03-02T12:00:00Z" },
-  { id: 3,  danmaku_title: "Found via GitHub ✦",        message: "Stumbled across your repo while browsing. Really impressive stuff here.",                        nickname: "dev.ray",   color: "#39FF14", created_at: "2025-03-03T14:00:00Z" },
-  { id: 4,  danmaku_title: "NJU软工 牛啊",               message: "同是南大人，看到这网站真的骄傲 haha，加油！",                                                     nickname: "NJU er",    color: "#F5C542", created_at: "2025-03-04T16:00:00Z" },
-  { id: 5,  danmaku_title: "Love the cyberpunk vibe",   message: "The neon + dark palette hits different. Already inspired me to redo my own site.",              nickname: "hustle",    color: "#B200FF", created_at: "2025-03-05T18:00:00Z" },
-  { id: 6,  danmaku_title: "TREE HEY's website 🎮",     message: "Minecraft → Software Eng journey is actually peak origin story. Respect the grind.",            nickname: "retro",     color: "#FF2D78", created_at: "2025-03-06T10:00:00Z" },
-  { id: 7,  danmaku_title: "Full-stack dev 💪",          message: "React, Next.js, Spring Boot, Supabase all in one portfolio. That's the combo.",                 nickname: null,        color: "#00F5FF", created_at: "2025-03-07T11:00:00Z" },
-  { id: 8,  danmaku_title: "Respect the grind",         message: "Macau comp top 5, office competition 3rd, web 2nd... and still shipping. Insane.",               nickname: null,        color: "#39FF14", created_at: "2025-03-08T09:00:00Z" },
-];
-
 /* Random rotation between -6° and +6° using id as seed (deterministic) */
 function getRotation(id: number) {
   const base = ((id * 137 + 31) % 120) - 60; // -60 to +60
@@ -30,7 +18,7 @@ function formatDate(iso: string) {
 }
 
 export function GuestbookWall() {
-  const [entries, setEntries] = useState<GuestEntry[]>(DEMO_ENTRIES);
+  const [entries, setEntries] = useState<GuestEntry[]>([]);
 
   useEffect(() => {
     if (!supabase) return;

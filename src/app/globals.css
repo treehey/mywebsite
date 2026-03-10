@@ -163,15 +163,14 @@ html.light .no-invert {
 
 /* ── DANMAKU SCROLL ── */
 @keyframes danmaku-scroll {
-  0%   { transform: translateX(105vw); opacity: 0; }
-  2%   { opacity: 1; }
-  92%  { opacity: 1; }
-  100% { transform: translateX(-105%);  opacity: 0; }
+  from { transform: translateX(100vw); }
+  to   { transform: translateX(-100%); }
 }
 .danmaku-item {
+  left: 0;
   animation-name: danmaku-scroll;
   animation-timing-function: linear;
-  animation-fill-mode: both;
+  animation-iteration-count: infinite;
 }
 
 /* ── TIMELINE VERTICAL LINE PULSE ── */

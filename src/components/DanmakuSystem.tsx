@@ -4,18 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase, type GuestEntry } from "@/lib/supabase";
 
-/* ── Demo entries shown when Supabase not configured ── */
-const DEMO_ENTRIES: Omit<GuestEntry, "created_at">[] = [
-  { id: -1, danmaku_title: "Cool portfolio! 🔥",         message: "The animations and typography are absolutely insane.",   nickname: "Alex",     color: "#00F5FF" },
-  { id: -2, danmaku_title: "这个网站也太帅了吧",            message: "完全没想到会看到这么精致的个人作品集，感觉比很多商业网站都好看。", nickname: "小明",     color: "#FF2D78" },
-  { id: -3, danmaku_title: "Found via GitHub ✦",         message: null,                                                      nickname: null,       color: "#39FF14" },
-  { id: -4, danmaku_title: "NJU软工 牛啊",                 message: "同是南大人，看到这网站真的骄傲，加油！",                    nickname: "NJU er",   color: "#F5C542" },
-  { id: -5, danmaku_title: "Love the cyberpunk vibe",    message: "The neon + dark palette hits different.",                 nickname: "dev.ray",  color: "#B200FF" },
-  { id: -6, danmaku_title: "Full-stack dev 💪",           message: null,                                                      nickname: null,       color: "#00F5FF" },
-  { id: -7, danmaku_title: "TREE HEY's website 🎮",       message: "Minecraft → Software Eng is peak origin story.",         nickname: "retro",    color: "#FF2D78" },
-  { id: -8, danmaku_title: "Respect the grind",          message: "Macau comp top 5, web 2nd... still cooking.",             nickname: "hustle",   color: "#39FF14" },
-];
-
 const ACCENT_COLORS = [
   "#00F5FF", "#FF2D78", "#39FF14", "#F5C542",
   "#B200FF", "#FF7700", "#00F5FF", "#FF2D78",
@@ -32,6 +20,10 @@ interface DanmakuTrack {
 }
 
 let trackIdCounter = 0;
+// 划分12个水平轨道来防止垂直重叠
+const LANE_COUNT = 12;
+// 各轨道不同速度基础值
+const LANE_DURATIONS = [28, 35, 25, 30, 26, 32, 29, 24, 34, 27, 31, 28];
 
 /* ─────────────────────────────────────────────────── */
 export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject<HTMLElement | null> }) {
@@ -43,21 +35,38 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
   const [status, setStatus]           = useState<"idle" | "sending" | "done" | "err">("idle");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* Convert DB row → animation track */
-  const toTrack = useCallback((e: Pick<GuestEntry, "id" | "danmaku_title" | "color">): DanmakuTrack => ({
-    id: ++trackIdCounter,
-    text: e.danmaku_title.slice(0, 30),
-    color: e.color,
-    top: 5 + Math.random() * 83,
-    duration: 10 + Math.random() * 12,
-    delay: Math.random() * 4,
-    fontSize: 14 + Math.floor(Math.random() * 6),
-  }), []);
+  /* Convert DB row → animation track
+   * batchIndex: position within the batch being loaded (for even spread on page load)
+   * if omitted (real-time new entry), item starts fresh from the right edge */
+  const toTrack = useCallback((
+    e: Pick<GuestEntry, "id" | "danmaku_title" | "color">,
+    batchIndex?: number
+  ): DanmakuTrack => {
+    const uid = ++trackIdCounter;
+    const laneIdx = uid % LANE_COUNT;
+    const duration = LANE_DURATIONS[laneIdx];
 
-  /* ── Seed demo entries + load from Supabase ── */
+    // Golden-ratio spread: distributes N items evenly across the full animation cycle,
+    // so on page load they appear already scattered across the screen (not rushing in together).
+    // New real-time entries (no batchIndex) get a random mid-cycle start.
+    const phase = batchIndex !== undefined
+      ? (batchIndex * 0.618033) % 1.0
+      : Math.random();
+    const delay = -(phase * duration);
+
+    return {
+      id: uid,
+      text: e.danmaku_title.slice(0, 30),
+      color: e.color,
+      top: 4 + laneIdx * 7.5,
+      duration,
+      delay,
+      fontSize: 12 + (laneIdx % 3) * 2,
+    };
+  }, []);
+
+  /* ── Load entries from Supabase ── */
   useEffect(() => {
-    setTracks(DEMO_ENTRIES.map(toTrack));
-
     if (!supabase) return;
 
     supabase
@@ -67,7 +76,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
       .limit(60)
       .then(({ data }) => {
         if (data && data.length > 0) {
-          setTracks(prev => [...prev, ...data.map(r => toTrack(r as GuestEntry))]);
+          setTracks(prev => [...prev, ...data.map((r, i) => toTrack(r as GuestEntry, i))]);
         }
       });
 
@@ -112,7 +121,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
   return (
     <>
       {/* ── Danmaku rendering layer ── */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[5]" aria-hidden="true">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[20]" aria-hidden="true">
         {tracks.map(track => (
           <DanmakuItem key={track.id} track={track} />
         ))}
@@ -124,7 +133,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 2 }}
         onClick={() => { setShowInput(v => !v); resetPanel(); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="absolute bottom-24 right-6 md:right-12 z-[15] flex items-center gap-2 px-4 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 pointer-events-auto hover:scale-105"
+        className="absolute bottom-24 right-6 md:right-12 z-[25] flex items-center gap-2 px-4 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 pointer-events-auto hover:scale-105"
         style={{
           background: "rgba(14,14,28,0.88)",
           borderColor: "rgba(0,245,255,0.35)",
@@ -145,7 +154,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.95 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-40 right-6 md:right-12 z-[15] pointer-events-auto w-[min(380px,90vw)] rounded-[1.5rem] overflow-hidden"
+            className="absolute bottom-40 right-6 md:right-12 z-[25] pointer-events-auto w-[min(380px,90vw)] rounded-[1.5rem] overflow-hidden"
             style={{
               background: "rgba(7,7,15,0.94)",
               border: "1px solid rgba(0,245,255,0.2)",
@@ -249,18 +258,27 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
 function DanmakuItem({ track }: { track: DanmakuTrack }) {
   return (
     <div
-      className="danmaku-item absolute whitespace-nowrap font-mono font-bold select-none"
+      className="danmaku-item absolute whitespace-nowrap flex items-center gap-2.5 px-4 py-2 rounded-full border border-opacity-30 select-none shadow-sm transition-transform hover:scale-105"
       style={{
         top: `${track.top}%`,
         color: track.color,
-        fontSize: `${track.fontSize}px`,
-        textShadow: `0 0 10px ${track.color}80, 0 0 24px ${track.color}40`,
+        background: `color-mix(in srgb, ${track.color} 8%, transparent)`,
+        borderColor: `color-mix(in srgb, ${track.color} 30%, transparent)`,
+        backdropFilter: "blur(6px)",
         animationDuration: `${track.duration}s`,
         animationDelay: `${track.delay}s`,
-        opacity: 0,
       }}
     >
-      {track.text}
+      <span 
+        className="w-1.5 h-1.5 rounded-full animate-pulse" 
+        style={{ backgroundColor: track.color, boxShadow: `0 0 8px ${track.color}` }} 
+      />
+      <span 
+        className="font-mono font-bold tracking-widest text-[#E2E2EC]" 
+        style={{ fontSize: `${track.fontSize}px`, textShadow: `0 0 12px ${track.color}60` }}
+      >
+        {track.text}
+      </span>
     </div>
   );
 }
