@@ -56,7 +56,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
 
     return {
       id: uid,
-      text: e.danmaku_title.slice(0, 30),
+      text: (e.danmaku_title ?? "").slice(0, 30),
       color: e.color,
       top: 4 + laneIdx * 7.5,
       duration,
@@ -72,6 +72,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
     supabase
       .from("guestbook")
       .select("id, danmaku_title, color, created_at")
+      .not("danmaku_title", "is", null)
       .order("created_at", { ascending: false })
       .limit(60)
       .then(({ data }) => {
@@ -84,7 +85,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
       .channel("guestbook-danmaku")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "guestbook" }, (payload) => {
         const row = payload.new as GuestEntry;
-        setTracks(prev => [...prev.slice(-60), toTrack(row)]);
+        if (row.danmaku_title) setTracks(prev => [...prev.slice(-60), toTrack(row)]);
       })
       .subscribe();
 
@@ -94,25 +95,26 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
   /* ── Submit ── */
   const handleSubmit = async () => {
     const title = titleText.trim().slice(0, 30);
-    if (!title) return;
+    const msg   = messageText.trim();
+    if (!title && !msg) return;
 
     const color = ACCENT_COLORS[Math.floor(Math.random() * ACCENT_COLORS.length)];
     setStatus("sending");
 
     if (supabase) {
       const { data, error } = await supabase.from("guestbook").insert({
-        danmaku_title: title,
-        message: messageText.trim() || null,
+        danmaku_title: title || null,
+        message: msg || null,
         nickname: nickname.trim() || null,
         color,
-      }).select("id, danmaku_title, color").single();
+      }).select("id, danmaku_title, message, nickname, color, created_at").single();
       if (error) { setStatus("err"); return; }
-      // 立即本地追加，不等 Realtime 推送
-      if (data) setTracks(prev => [...prev, toTrack(data as GuestEntry)]);
-      // 通知 GuestbookWall 即时更新
-      window.dispatchEvent(new CustomEvent("guestbook:new", { detail: data }));
+      // 立即本地追加弹幕（仅当有标题时）
+      if (data?.danmaku_title) setTracks(prev => [...prev, toTrack(data as GuestEntry)]);
+      // 通知 GuestbookWall 即时更新（仅当有留言时）
+      if (data?.message) window.dispatchEvent(new CustomEvent("guestbook:new", { detail: data }));
     } else {
-      setTracks(prev => [...prev, toTrack({ id: Date.now(), danmaku_title: title, color })]);
+      if (title) setTracks(prev => [...prev, toTrack({ id: Date.now(), danmaku_title: title, color })]);
     }
 
     setStatus("done");
@@ -179,7 +181,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
               {/* Danmaku title */}
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">弹幕标题 *</label>
+                  <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">弹幕标题 <span className="text-[#E2E2EC]/30">可选</span></label>
                   <span className="font-mono text-[10px] text-[#E2E2EC]/30">{titleText.length}/30</span>
                 </div>
                 <input
@@ -192,7 +194,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
                   placeholder="一句话，就这样飞过屏幕…"
                   className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
                 />
-                <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">将显示在 Hero 页弹幕中</p>
+                <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">填写则飞过 Hero 页 · 也可不填仅留留言</p>
               </div>
 
               {/* Message */}
@@ -236,7 +238,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
                 </span>
                 <button
                   onClick={handleSubmit}
-                  disabled={!titleText.trim() || status === "sending"}
+                  disabled={(!titleText.trim() && !messageText.trim()) || status === "sending"}
                   className="flex items-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-300 disabled:opacity-40 active:scale-95"
                   style={{
                     background: status === "done" ? "rgba(57,255,20,0.15)" : "rgba(0,245,255,0.12)",

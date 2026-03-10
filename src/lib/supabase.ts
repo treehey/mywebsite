@@ -8,7 +8,7 @@ export const supabase = url && anon ? createClient(url, anon) : null;
 /** One visitor submission — maps to `guestbook` table */
 export interface GuestEntry {
   id: number;
-  danmaku_title: string;   // short, shown in hero scroll
+  danmaku_title: string | null;   // short, shown in hero scroll (optional)
   message: string | null;  // long, shown in guestbook wall
   nickname: string | null; // display name
   color: string;           // random accent colour
