@@ -4,15 +4,81 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase, type GuestEntry } from "@/lib/supabase";
 
+const TL_GW: Record<string, Record<string, string>> = {
+  EN: {
+    title: "GUESTBOOK",
+    subtitle: "Every sticky note is a greeting from the internet.",
+    writeBtn: "WRITE",
+    closeBtn: "CLOSE",
+    msgLabel: "Message *",
+    msgPlaceholder: "Greetings, feedback, wishes...",
+    dmkLabel: "Danmaku Title",
+    optional: "Optional",
+    dmkPlaceholder: "Will also fly across the Hero page...",
+    nickLabel: "Nickname",
+    nickPlaceholder: "Anonymous",
+    send: "Launch →",
+    done: "Launched ✓",
+    err: "Failed ✗",
+    empty: "No messages yet, be the first!",
+    anon: "Anonymous"
+  },
+  "简": {
+    title: "留言墙",
+    subtitle: "每一张便利贴都是来自互联网的问候",
+    writeBtn: "写留言",
+    closeBtn: "收起",
+    msgLabel: "详细留言 *",
+    msgPlaceholder: "留下你的问候、评价、祝福…",
+    dmkLabel: "弹幕标题",
+    optional: "可选",
+    dmkPlaceholder: "填写则同时以弹幕飞过 Hero 页…",
+    nickLabel: "昵称",
+    nickPlaceholder: "匿名访客",
+    send: "发送 →",
+    done: "已发送 ✓",
+    err: "失败 ✗",
+    empty: "还没有留言，成为第一个！",
+    anon: "匿名访客"
+  },
+  "繁": {
+    title: "留言牆",
+    subtitle: "每一張便利貼都是來自互聯網的問候",
+    writeBtn: "寫留言",
+    closeBtn: "收起",
+    msgLabel: "詳細留言 *",
+    msgPlaceholder: "留下你的問候、評價、祝福…",
+    dmkLabel: "彈幕標題",
+    optional: "可選",
+    dmkPlaceholder: "填寫則同時以彈幕飛過 Hero 頁…",
+    nickLabel: "暱稱",
+    nickPlaceholder: "匿名訪客",
+    send: "發送 →",
+    done: "已發送 ✓",
+    err: "失敗 ✗",
+    empty: "還沒有留言，成為第一個！",
+    anon: "匿名訪客"
+  }
+};
+
 const ACCENT_COLORS = [
-  "#00F5FF", "#FF2D78", "#39FF14", "#F5C542",
-  "#B200FF", "#FF7700",
+  "#00F5FF", // Cyan
+  "#FF2D78", // Pink
+  "#9D4EDD", // Purple 
+  "#39FF14", // Neon Green
+  "#48CAE4", // Soft Tech Blue
 ];
 
-/* Random rotation between -6° and +6° using id as seed (deterministic) */
-function getRotation(id: number) {
-  const base = ((id * 137 + 31) % 120) - 60; // -60 to +60
-  return (base / 10).toFixed(1);              // -6 to +6
+/* Random transforms using id as seed (deterministic) */
+function getTransform(id: number) {
+  const rotBase = ((id * 137 + 31) % 120) - 60; // -60 to +60
+  const x = ((id * 193 + 71) % 160) - 80;        // -80 to +80 spread
+  const y = ((id * 257 + 39) % 120) - 60;        // -60 to +60 spread
+  const zIndex = id % 100;
+  return {
+    rotate: Number((rotBase / 6).toFixed(1)),
+    x, y, zIndex
+  };
 }
 
 /* Format date to friendly string */
@@ -22,7 +88,8 @@ function formatDate(iso: string) {
   } catch { return ""; }
 }
 
-export function GuestbookWall() {
+export function GuestbookWall({ lang = "简" }: { lang?: string }) {
+  const tr = TL_GW[lang] ?? TL_GW["简"];
   const [entries, setEntries] = useState<GuestEntry[]>([]);
   const [showForm, setShowForm]     = useState(false);
   const [messageText, setMessageText] = useState("");
@@ -97,6 +164,11 @@ export function GuestbookWall() {
     setTimeout(() => { setShowForm(false); setStatus("idle"); }, 1500);
   };
 
+  const cols = entries.length === 0 ? 3
+    : entries.length <= 2 ? entries.length
+    : Math.max(2, Math.min(5, Math.ceil(Math.sqrt(entries.length * 1.4))));
+  const wallHeight = Math.ceil(entries.length / cols) * 280 + 220;
+
   return (
     <section className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden">
       {/* Background grid */}
@@ -127,10 +199,10 @@ export function GuestbookWall() {
           <div className="flex items-end justify-between gap-6 flex-wrap">
             <div>
               <h2 className="font-grotesk font-black text-5xl md:text-7xl text-[#E2E2EC] leading-[1] mb-4">
-                留言墙
+                {tr.title}
               </h2>
               <p className="font-grotesk text-[#E2E2EC]/40 text-base max-w-sm">
-                每一张便利贴都是来自互联网的问候
+                {tr.subtitle}
               </p>
             </div>
             {/* Write button */}
@@ -148,7 +220,7 @@ export function GuestbookWall() {
               }}
             >
               <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: showForm ? "#FF2D78" : "#00F5FF" }} />
-              {showForm ? "收起" : "写留言"}
+              {showForm ? tr.closeBtn : tr.writeBtn}
             </motion.button>
           </div>
         </motion.div>
@@ -176,7 +248,7 @@ export function GuestbookWall() {
                   {/* Message (required) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF2D78]">详细留言 *</label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF2D78]">{tr.msgLabel}</label>
                       <span className="font-mono text-[10px] text-[#E2E2EC]/30">{messageText.length}/150</span>
                     </div>
                     <textarea
@@ -185,14 +257,14 @@ export function GuestbookWall() {
                       onChange={e => setMessageText(e.target.value)}
                       maxLength={150}
                       rows={3}
-                      placeholder="留下你的问候、评价、祝福…"
+                      placeholder={tr.msgPlaceholder}
                       className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
                     />
                   </div>
                   {/* Danmaku title (optional) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">弹幕标题 <span className="text-[#E2E2EC]/30">可选</span></label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">{tr.dmkLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
                       <span className="font-mono text-[10px] text-[#E2E2EC]/30">{titleText.length}/30</span>
                     </div>
                     <input
@@ -201,20 +273,20 @@ export function GuestbookWall() {
                       onChange={e => setTitleText(e.target.value)}
                       onKeyDown={e => e.key === "Enter" && handleSubmit()}
                       maxLength={30}
-                      placeholder="填写则同时以弹幕飞过 Hero 页…"
+                      placeholder={tr.dmkPlaceholder}
                       className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
                     />
                   </div>
                   {/* Nickname + submit */}
                   <div className="flex items-end gap-4">
                     <div className="flex-1">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#39FF14] mb-2 block">昵称 <span className="text-[#E2E2EC]/30">可选</span></label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#39FF14] mb-2 block">{tr.nickLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
                       <input
                         type="text"
                         value={nickname}
                         onChange={e => setNickname(e.target.value)}
                         maxLength={20}
-                        placeholder="匿名访客"
+                        placeholder={tr.nickPlaceholder}
                         className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
                       />
                     </div>
@@ -229,7 +301,7 @@ export function GuestbookWall() {
                       }}
                     >
                       {status === "sending" && <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />}
-                      {status === "done" ? "已发送 ✓" : status === "err" ? "失败 ✗" : "发送 →"}
+                      {status === "done" ? tr.done : status === "err" ? tr.err : tr.send}
                     </button>
                   </div>
                 </div>
@@ -238,17 +310,17 @@ export function GuestbookWall() {
           )}
         </AnimatePresence>
 
-        {/* Sticky note masonry grid */}
-        <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-5 space-y-5">
+        {/* Sticky note freeform wall */}
+        <div className="relative w-full" style={{ minHeight: `${wallHeight}px` }}>
           {entries.map((entry, i) => (
-            <StickyNote key={entry.id} entry={entry} index={i} />
+            <StickyNote key={entry.id} entry={entry} index={i} total={entries.length} cols={cols} tr={tr} />
           ))}
         </div>
 
         {/* Empty state */}
         {entries.length === 0 && (
           <div className="text-center py-32">
-            <p className="font-mono text-[#E2E2EC]/20 text-sm">还没有留言，成为第一个！</p>
+            <p className="font-mono text-[#E2E2EC]/20 text-sm">{tr.empty}</p>
           </div>
         )}
       </div>
@@ -257,48 +329,114 @@ export function GuestbookWall() {
 }
 
 /* ── Individual sticky note ── */
-function StickyNote({ entry, index }: { entry: GuestEntry; index: number }) {
-  const rotation = getRotation(entry.id);
-  const delay = (index % 12) * 0.06;
+function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; index: number; total: number; cols: number; tr: Record<string, string> }) {
+  const id = entry.id;
+
+  // Use the color saved in the database, fallback to a derived one just in case
+  const accentColor = entry.color || ACCENT_COLORS[id % ACCENT_COLORS.length];
+
+  // Grid zone base position, with heavy multi-prime jitter for organic chaos
+  const col = index % cols;
+  const row = Math.floor(index / cols);
+  const cellW = 100 / cols; // percent
+
+  // Jitter inside the cell using different primes per axis — up to 60% of cell width
+  const jitterX = ((id * 317 + col * 89 + 43) % Math.round(cellW * 6)) / 10; // 0 to ~60% of cellW
+  const jitterY = ((id * 251 + row * 73 + 17) % 100) - 50;  // ±50px vertical chaos
+
+  // Stagger odd cols downward for a more organic staircase feel
+  const colStagger = (col % 2) * 70 + (col % 3) * 30;
+
+  const leftPct = cellW * col + cellW * 0.05 + jitterX;
+  const topPx   = row * 310 + 40 + jitterY + colStagger;
+
+  // Rotation: more variance with secondary harmonic
+  const rotBase = ((id * 137 + 31) % 120) - 60;
+  const rotHarm = ((id * 79 + 13) % 40) - 20;
+  const rotate  = Number(((rotBase + rotHarm * 0.3) / 7).toFixed(1)); // ±12deg
+
+  const delay  = (index % 12) * 0.06;
+  const zIndex = (total - index) + (id % 30);
+
+  const isFew   = total <= 3;
+  const isMedium = total > 3 && total <= 8;
+  const noteW   = isFew ? 340 : isMedium ? 290 : 230;
+  const textSize = isFew ? "text-base" : "text-sm";
+
+  // Tape angle varies per note
+  const tapeAngle = ((id * 41 + 13) % 14) - 7;
+  const tapeOffX  = ((id * 53 + 7) % 60) - 30; // tape can be off-center
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, rotate: 0 }}
-      whileInView={{ opacity: 1, y: 0, rotate: Number(rotation) }}
-      whileHover={{ scale: 1.05, rotate: 0, zIndex: 10 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}
-      className="sticky-note break-inside-avoid inline-block w-full cursor-default"
+      initial={{ opacity: 0, scale: 0.7, rotate: rotate - 15, y: -30 }}
+      whileInView={{ opacity: 1, scale: 1, rotate: rotate, y: 0 }}
+      whileHover={{ scale: 1.07, rotate: 0, zIndex: 1000 }}
+      whileTap={{ scale: 1.03, rotate: 0, zIndex: 1000 }}
+      viewport={{ once: true, margin: "80px" }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute cursor-pointer"
       style={{
-        "--note-color": entry.color,
-      } as React.CSSProperties}
+        left: `calc(${leftPct}% + 0px)`,
+        top: `${topPx}px`,
+        width: `${noteW}px`,
+        zIndex,
+      }}
     >
+      {/* Tape strip — positioned off-center with rotation */}
       <div
-        className="relative p-5 rounded-2xl overflow-hidden"
+        className="absolute -top-4 z-10 w-14 h-6"
         style={{
-          background: "rgba(12,12,22,0.85)",
-          border: `1px solid ${entry.color}30`,
-          backdropFilter: "blur(10px)",
-          boxShadow: `0 0 28px ${entry.color}12, 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 ${entry.color}20`,
+          left: `calc(50% + ${tapeOffX}px)`,
+          transform: `translateX(-50%) rotate(${tapeAngle}deg)`,
+          background: "linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08), rgba(255,255,255,0.18))",
+          backdropFilter: "blur(4px)",
+          borderRadius: "1px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)",
+        }}
+      />
+
+      <div
+        className="relative p-5 rounded-md overflow-hidden"
+        style={{
+          // More visible, slightly warm dark card bg — clearly distinct from page bg
+          background: `linear-gradient(145deg, rgba(32,28,52,0.97) 0%, rgba(18,16,36,0.99) 100%)`,
+          borderTop: `3px solid ${accentColor}`,
+          border: `1.5px solid ${accentColor}44`,
+          backdropFilter: "blur(16px)",
+          boxShadow: `
+            0 16px 40px rgba(0,0,0,0.7),
+            0 4px 12px rgba(0,0,0,0.5),
+            0 0 0 1px rgba(255,255,255,0.04),
+            inset 0 1px 0 rgba(255,255,255,0.1),
+            0 0 30px ${accentColor}22
+          `,
         }}
       >
-        {/* Color accent bar on top */}
+        {/* Subtle paper noise */}
         <div
-          className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl"
-          style={{ background: `linear-gradient(90deg, ${entry.color}, transparent)` }}
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')" }}
         />
 
-        {/* Message body */}
-        <p className="font-grotesk text-[#E2E2EC]/75 text-sm leading-relaxed mb-4">
+        {/* Accent tint wash */}
+        <div
+          className="absolute inset-0 opacity-[0.06] pointer-events-none rounded-md"
+          style={{ background: `radial-gradient(ellipse at top left, ${accentColor}, transparent 70%)` }}
+        />
+
+        <p
+          className={`relative z-10 font-grotesk text-[#E8E8F0] leading-relaxed tracking-wide mb-4 break-words ${textSize}`}
+          style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
+        >
           {entry.message}
         </p>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#E2E2EC]/8">
-          <span className="font-mono text-[10px]" style={{ color: `${entry.color}90` }}>
-            {entry.nickname ?? "匿名访客"}
+        <div className="relative z-10 flex items-center justify-between pt-3 border-t" style={{ borderColor: `${accentColor}30` }}>
+          <span className="font-mono text-xs font-semibold tracking-wider" style={{ color: accentColor }}>
+            {entry.nickname ?? tr.anon}
           </span>
-          <span className="font-mono text-[9px] text-[#E2E2EC]/20">
+          <span className="font-mono text-[10px] text-[#E2E2EC]/50">
             {formatDate(entry.created_at)}
           </span>
         </div>
@@ -306,3 +444,4 @@ function StickyNote({ entry, index }: { entry: GuestEntry; index: number }) {
     </motion.div>
   );
 }
+

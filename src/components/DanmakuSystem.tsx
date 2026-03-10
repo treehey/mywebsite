@@ -19,6 +19,12 @@ interface DanmakuTrack {
   fontSize: number;
 }
 
+const TL_DM: Record<string, Record<string, string>> = {
+  EN:  { btn: "Leave a Trace", panelTitle: "Leave a Trace", danmakuLabel: "Danmaku Title", optional: "optional", danmakuPlaceholder: "A line to fly across the screen…", danmakuHint: "Will fly through Hero · or skip for message only", messageLabel: "Message", messagePlaceholder: "Greetings, feedback, wishes…", messageHint: "Will appear on the Guestbook Wall", nicknameLabel: "Nickname", nicknamePlaceholder: "Anonymous", persist: "Saved forever", demo: "Demo mode", send: "Launch →", done: "Launched ✓", err: "Failed ✗" },
+  "简": { btn: "留下足迹", panelTitle: "留下足迹", danmakuLabel: "弹幕标题", optional: "可选", danmakuPlaceholder: "一句话，就这样飞过屏幕…", danmakuHint: "填写则飞过 Hero 页 · 也可不填仅留留言", messageLabel: "详细留言", messagePlaceholder: "更多想说的话、评价、祝福…", messageHint: "将展示在留言墙便利贴中", nicknameLabel: "昵称", nicknamePlaceholder: "匿名访客", persist: "永久保存", demo: "演示模式", send: "发射 →", done: "已发射 ✓", err: "失败 ✗" },
+  "繁": { btn: "留下足跡", panelTitle: "留下足跡", danmakuLabel: "彈幕標題", optional: "可選", danmakuPlaceholder: "一句話，就這樣飛過屏幕…", danmakuHint: "填寫則飛過 Hero 頁 · 也可不填僅留留言", messageLabel: "詳細留言", messagePlaceholder: "更多想說的話、評價、祝福…", messageHint: "將展示在留言牆便利貼中", nicknameLabel: "暱稱", nicknamePlaceholder: "匿名訪客", persist: "永久保存", demo: "演示模式", send: "發射 →", done: "已發射 ✓", err: "失敗 ✗" },
+};
+
 let trackIdCounter = 0;
 // 划分12个水平轨道来防止垂直重叠
 const LANE_COUNT = 12;
@@ -26,7 +32,8 @@ const LANE_COUNT = 12;
 const LANE_DURATIONS = [28, 35, 25, 30, 26, 32, 29, 24, 34, 27, 31, 28];
 
 /* ─────────────────────────────────────────────────── */
-export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject<HTMLElement | null> }) {
+export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: React.RefObject<HTMLElement | null>; lang?: string }) {
+  const tr = TL_DM[lang] ?? TL_DM["简"];
   const [tracks, setTracks]           = useState<DanmakuTrack[]>([]);
   const [showInput, setShowInput]     = useState(false);
   const [titleText, setTitleText]     = useState("");
@@ -149,7 +156,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
         }}
       >
         <span className="w-1.5 h-1.5 rounded-full bg-[#00F5FF] animate-pulse" />
-        留下足迹
+        {tr.btn}
       </motion.button>
 
       {/* ── Input panel ── */}
@@ -172,7 +179,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
             <div className="px-6 pt-5 pb-4 border-b border-[#E2E2EC]/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#FF2D78] animate-pulse" />
-                <span className="font-mono text-xs text-[#E2E2EC]/60 uppercase tracking-widest">留下足迹</span>
+                <span className="font-mono text-xs text-[#E2E2EC]/60 uppercase tracking-widest">{tr.panelTitle}</span>
               </div>
               <button onClick={() => setShowInput(false)} className="text-[#E2E2EC]/30 hover:text-[#E2E2EC] transition-colors text-lg leading-none">×</button>
             </div>
@@ -181,7 +188,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
               {/* Danmaku title */}
               <div>
                 <div className="flex justify-between mb-2">
-                  <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">弹幕标题 <span className="text-[#E2E2EC]/30">可选</span></label>
+                  <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">{tr.danmakuLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
                   <span className="font-mono text-[10px] text-[#E2E2EC]/30">{titleText.length}/30</span>
                 </div>
                 <input
@@ -191,17 +198,17 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
                   onChange={e => setTitleText(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   maxLength={30}
-                  placeholder="一句话，就这样飞过屏幕…"
+                placeholder={tr.danmakuPlaceholder}
                   className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
                 />
-                <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">填写则飞过 Hero 页 · 也可不填仅留留言</p>
+                <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">{tr.danmakuHint}</p>
               </div>
 
               {/* Message */}
               <div>
                 <div className="flex justify-between mb-2">
                   <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF2D78]">
-                    详细留言 <span className="text-[#E2E2EC]/30">可选</span>
+                    {tr.messageLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span>
                   </label>
                   <span className="font-mono text-[10px] text-[#E2E2EC]/30">{messageText.length}/150</span>
                 </div>
@@ -210,23 +217,23 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
                   onChange={e => setMessageText(e.target.value)}
                   maxLength={150}
                   rows={3}
-                  placeholder="更多想说的话、评价、祝福…"
+                  placeholder={tr.messagePlaceholder}
                   className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
                 />
-                <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">将展示在留言墙便利贴中</p>
+                <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">{tr.messageHint}</p>
               </div>
 
               {/* Nickname */}
               <div>
                 <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#39FF14] mb-2 block">
-                  昵称 <span className="text-[#E2E2EC]/30">可选</span>
+                  {tr.nicknameLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span>
                 </label>
                 <input
                   type="text"
                   value={nickname}
                   onChange={e => setNickname(e.target.value)}
                   maxLength={20}
-                  placeholder="匿名访客"
+                  placeholder={tr.nicknamePlaceholder}
                   className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
                 />
               </div>
@@ -234,7 +241,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
               {/* Submit */}
               <div className="flex items-center justify-between pt-1">
                 <span className="font-mono text-[9px] text-[#E2E2EC]/25">
-                  {supabase ? "永久保存" : "演示模式"}
+                  {supabase ? tr.persist : tr.demo}
                 </span>
                 <button
                   onClick={handleSubmit}
@@ -249,7 +256,7 @@ export function DanmakuSystem({ containerRef }: { containerRef?: React.RefObject
                   {status === "sending" && (
                     <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
                   )}
-                  {status === "done" ? "已发射 ✓" : status === "err" ? "失败 ✗" : "发射 →"}
+                  {status === "done" ? tr.done : status === "err" ? tr.err : tr.send}
                 </button>
               </div>
             </div>

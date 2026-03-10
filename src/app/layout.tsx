@@ -3,6 +3,7 @@ import { Syne, Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "../components/SmoothScroll";
 import LoadingScreen from "../components/LoadingScreen";
+import { SlothScrollIndicator } from "../components/SlothScrollIndicator";
 
 const syne = Syne({
   subsets: ["latin"],
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         style={{ fontFamily: "var(--font-grotesk), system-ui, sans-serif" }}
       >
         <LoadingScreen />
+        <SlothScrollIndicator />
         <SmoothScroll>{children}</SmoothScroll>
       </body>
     </html>

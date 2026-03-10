@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 
@@ -491,7 +491,7 @@ export default function Home() {
         </div>
 
         {/* ── Danmaku Layer ── */}
-        <DanmakuSystem />
+        <DanmakuSystem lang={lang} />
 
       </section>
 
@@ -656,11 +656,11 @@ export default function Home() {
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mt-auto">
                 <div>
                   <motion.h3 
-                    className="font-syne font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl text-[#E2E2EC] leading-[0.9] mb-4"
+                    className="font-syne font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl text-[#E2E2EC] leading-[1.1] pb-2 mb-4"
                     style={{ fontFamily: "var(--font-syne)" }}
                   >
                     {work.title.split(' ').map((word, wi) => (
-                      <span key={wi} className="block overflow-hidden">
+                      <span key={wi} className="block overflow-visible relative pt-2 -mt-2">
                         <motion.span 
                           className="block group-hover:translate-x-2 transition-transform duration-500"
                           style={{ transitionDelay: `${wi * 60}ms` }}
@@ -699,7 +699,7 @@ export default function Home() {
             {/* Panel 1: Huge Manifesto */}
             <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0">
               <div className="max-w-6xl w-full">
-                <h2 className="font-syne font-black text-[12vw] md:text-[7vw] leading-[0.9] text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>
+                <h2 className="font-syne font-black text-[12vw] md:text-[7vw] leading-[1.1] pb-2 text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>
                   <ScrambleText text={t.gallery.m1} className="block" />
                   <span className="block text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00F5FF,#FF2D78)" }}>
                     <ScrambleText text={t.gallery.m2} margin="0px" />
@@ -795,7 +795,7 @@ export default function Home() {
                     MODULE_{String(i + 1).padStart(2, '0')}
                   </span>
                   
-                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute md:bottom-8 lg:-rotate-90 lg:origin-left group-hover/card:rotate-0 lg:translate-x-4 lg:mb-8 group-hover/card:translate-x-0 group-hover/card:mb-0 lg:translate-y-[-50px] group-hover/card:relative group-hover/card:translate-y-0" style={{ fontFamily: "var(--font-syne)", color: "#E2E2EC" }}>
+                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-24 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "#E2E2EC" }}>
                     {t.skills.items[i].split('·')[0]?.trim()}
                   </h3>
                   
@@ -821,7 +821,7 @@ export default function Home() {
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
         <section id="guestbook" className="relative min-h-screen">
-          <GuestbookWall />
+          <GuestbookWall lang={lang} />
         </section>
 
       {/* ════════════════════════════════════
@@ -916,12 +916,25 @@ export default function Home() {
         </div>
 
         {/* Footer strip */}
-        <div className="w-full border-t border-[#E2E2EC]/10 px-6 md:px-12 py-4 flex items-center justify-between">
-          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest">© 2026 TREEHEY — ALL RIGHTS RESERVED</span>
-          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest">BUILT WITH NEXT.JS + FRAMER MOTION</span>
+        <div className="relative w-full border-t border-[#E2E2EC]/10 px-6 md:px-12 py-4 flex items-center justify-between">
+          <motion.div 
+            className="absolute right-12 bottom-full mb-0 w-24 h-24 origin-bottom overflow-hidden cursor-pointer"
+            whileHover={{ y: -5 }}
+            transition={{ type: "spring", stiffness: 200 }}
+          >
+            <motion.img 
+              src={`${B}/sloth2.svg`} 
+              alt="Sleepy Sloth" 
+              className="w-full h-full object-contain filter invert opacity-50 hover:opacity-100 transition-opacity"
+              animate={{ rotate: [-2, 2, -2] }}
+              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            />
+          </motion.div>
+          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">© 2026 TREEHEY — ALL RIGHTS RESERVED</span>
+          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">BUILT WITH NEXT.JS + FRAMER MOTION</span>
         </div>
       </section>
-      
+
     </main>
   );
 }
