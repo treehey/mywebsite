@@ -138,27 +138,40 @@ html.light .no-invert {
   height: 200vh;
   bottom: -50vh;
   left: -50vw;
+  /* Use a completely smooth grid gradient to prevent sub-pixel flicker */
   background-image: 
-    linear-gradient(to right, rgba(0, 245, 255, 0.15) 1px, transparent 1px),
-    linear-gradient(to top, rgba(0, 245, 255, 0.15) 1px, transparent 1px);
-  background-size: 60px 60px;
-  transform: perspective(600px) rotateX(70deg) translateY(-100px) translateZ(-200px);
+    linear-gradient(to right, rgba(0, 245, 255, 0.25) 2px, transparent 4px),
+    linear-gradient(to top, rgba(0, 245, 255, 0.25) 2px, transparent 4px);
+  background-size: 150px 150px;
+  transform: perspective(600px) rotateX(70deg) translateY(-150px) translateZ(-200px);
   animation: gridMove 10s linear infinite;
   pointer-events: none;
   z-index: 0;
+  /* Hardware acceleration hints to prevent sub-pixel jitter */
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 .cyber-grid-overlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top center, transparent 0%, #07070F 70%);
+  /* Make the fade starts much earlier and ends completely opaque at the horizon */
+  background: linear-gradient(
+    to bottom,
+    #07070F 0%,
+    #07070F 35%,
+    transparent 80%,
+    transparent 100%
+  );
   pointer-events: none;
   z-index: 1;
 }
 
 @keyframes gridMove {
   0% { transform: perspective(600px) rotateX(70deg) translateY(0) translateZ(-200px); }
-  100% { transform: perspective(600px) rotateX(70deg) translateY(60px) translateZ(-200px); }
+  100% { transform: perspective(600px) rotateX(70deg) translateY(150px) translateZ(-200px); }
 }
 
 /* ── DANMAKU SCROLL ── */

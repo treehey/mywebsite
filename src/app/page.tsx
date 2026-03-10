@@ -101,7 +101,7 @@ const DICT = {
     skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Computer Sys. · Hardware & Software", "Front-End · Website Design", "Python · Proficiency", "Office Suite · Advanced Mastery", "Photography · Foodie / Life" ] },
     timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
     contact: { sub: "Connect.exe", t1: "INITIATE", t2: "HANDSHAKE." },
-    marquee: "SOFTWARE ENGINEERING — CREATIVE CODING — SIGNAL & NOISE — "
+    marquee: "SOFTWARE ENGINEERING — CREATIVE CODING — SLOTH — "
   },
   '简': {
     nav: { about: '关于', works: '项目', gallery: '画廊', skills: '技能', timeline: '日志', guestbook: '留言墙', contact: '联系' },
@@ -112,7 +112,7 @@ const DICT = {
     skills: { title1: "系统", title2: "概览", items: [ "计算机系统 · 软硬件与Linux", "前端开发 · 现代网站设计", "Python · 代码与运行熟练", "Office 套件 · 深度精通", "人文纪实 · 摄影与干饭热爱" ] },
     timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
     contact: { sub: "连接.exe", t1: "传输", t2: "信号。" },
-    marquee: "现代软件工程 — 创意编程与体验架构 — 信号与噪声 — "
+    marquee: "现代软件工程 — 创意编程与体验架构 — 树懒 — "
   },
   '繁': {
     nav: { about: '關於', works: '項目', gallery: '畫廊', skills: '技能', timeline: '日誌', guestbook: '留言牆', contact: '聯繫' },
@@ -123,7 +123,7 @@ const DICT = {
     skills: { title1: "系統", title2: "概覽", items: [ "計算機系統 · 軟硬件與Linux", "前端開發 · 現代網站設計", "Python · 代碼與運行熟練", "Office 套件 · 深度精通", "人文紀實 · 攝影與乾飯熱愛" ] },
     timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
     contact: { sub: "連接.exe", t1: "傳輸", t2: "信號。" },
-    marquee: "現代軟件工程 — 創意編程與體驗架構 — 信號與噪聲 — "
+    marquee: "現代軟件工程 — 創意編程與體驗架構 — 樹懶 — "
   }
 };
 
@@ -410,11 +410,15 @@ export default function Home() {
           1. HERO (Asymmetric & Interactive)
       ════════════════════════════════════ */}
       <section className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines" id="hero">
-        {/* Animated Cyber Grid */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Animated Cyber Grid with Mouse Parallax */}
+        <motion.div 
+          className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
+          animate={{ x: mDelta.x * -30, y: mDelta.y * -15 }}
+          transition={{ type: "spring", stiffness: 150, damping: 20 }}
+        >
            <div className="cyber-grid" />
            <div className="cyber-grid-overlay" />
-        </div>
+        </motion.div>
 
         <motion.div 
           className="absolute z-0 w-full h-full flex items-center justify-center opacity-[0.05]"
@@ -472,7 +476,7 @@ export default function Home() {
 
           <motion.div 
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 1.2 }}
-            className="mt-16 md:mt-24 flex flex-col md:flex-row gap-6 md:gap-24 w-full max-w-4xl border-t border-[#00F5FF]/20 pt-8 relative before:absolute before:top-[-2px] before:left-0 before:w-16 before:h-[2px] before:bg-[#00F5FF] before:shadow-[0_0_10px_#00F5FF]"
+            className="mt-16 md:mt-24 flex flex-col md:flex-row gap-6 md:gap-24 w-full max-w-4xl border-t border-[#FF2D78]/20 pt-8 relative before:absolute before:top-[-2px] before:left-0 before:w-16 before:h-[2px] before:bg-[#FF2D78] before:shadow-[0_0_10px_#FF2D78]"
           >
             <p className="font-grotesk text-base md:text-lg text-[#E2E2EC]/70 max-w-md leading-relaxed" style={{ fontFamily: "var(--font-grotesk)" }}>
               {t.hero.desc}
