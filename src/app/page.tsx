@@ -1,6 +1,8 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
+
+const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 import { DanmakuSystem } from "@/components/DanmakuSystem";
 import { GuestbookWall } from "@/components/GuestbookWall";
 import {
@@ -125,27 +127,27 @@ const DICT = {
 };
 
 const PHOTOS = [
-  { src: "/images/HK.jpg",       title: "HONG KONG", num: "01" },
-  { src: "/images/shanghai.jpg", title: "SHANGHAI",   num: "02" },
-  { src: "/images/zhuhai.jpg",   title: "ZHUHAI",     num: "03" },
-  { src: "/images/panda.jpg",    title: "SICHUAN",    num: "04" },
+  { src: `${B}/images/HK.jpg`,       title: "HONG KONG", num: "01" },
+  { src: `${B}/images/shanghai.jpg`, title: "SHANGHAI",   num: "02" },
+  { src: `${B}/images/zhuhai.jpg`,   title: "ZHUHAI",     num: "03" },
+  { src: `${B}/images/panda.jpg`,    title: "SICHUAN",    num: "04" },
 ];
 
 const SKILLS = [
-  { name: "Computer",     accent: "#00F5FF", bg: "/images/about/computer-room.jpg" },
-  { name: "Front-End",    accent: "#FF2D78", bg: "/images/about/information-technology.jpg" },
-  { name: "Python",       accent: "#39FF14", bg: "/images/about/python.jpeg" },
-  { name: "Office",       accent: "#F5C542", bg: "/images/about/ppt.jpg" },
-  { name: "Photography",  accent: "#B200FF", bg: "/images/zhuhai.jpg" },
+  { name: "Computer",     accent: "#00F5FF", bg: `${B}/images/about/computer-room.jpg` },
+  { name: "Front-End",    accent: "#FF2D78", bg: `${B}/images/about/information-technology.jpg` },
+  { name: "Python",       accent: "#39FF14", bg: `${B}/images/about/python.jpeg` },
+  { name: "Office",       accent: "#F5C542", bg: `${B}/images/about/ppt.jpg` },
+  { name: "Photography",  accent: "#B200FF", bg: `${B}/images/zhuhai.jpg` },
 ];
 
 const TIMELINE = [
-    { year: "2012", img: "/images/about/Minecraft.jfif" },
-    { year: "2021", img: "/images/about/python.jpeg" },
-    { year: "2022", img: "/images/about/ppt.jpg" },
-    { year: "2022", img: "/images/about/steam&iot.jpg" },
-    { year: "2023", img: "/images/about/information-technology.jpg" },
-    { year: "2024", img: "/images/about/nju.jpg" },
+    { year: "2012", img: `${B}/images/about/Minecraft.jfif` },
+    { year: "2021", img: `${B}/images/about/python.jpeg` },
+    { year: "2022", img: `${B}/images/about/ppt.jpg` },
+    { year: "2022", img: `${B}/images/about/steam&iot.jpg` },
+    { year: "2023", img: `${B}/images/about/information-technology.jpg` },
+    { year: "2024", img: `${B}/images/about/nju.jpg` },
   ];
 
 function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
@@ -552,7 +554,7 @@ export default function Home() {
               className="absolute inset-0"
               initial={{ scale: 1.1 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }}
             >
-              <img src="/images/about/nju.jpg" alt="NJU" className="w-full h-full object-cover grayscale-[30%]" />
+              <img src={`${B}/images/about/nju.jpg`} alt="NJU" className="w-full h-full object-cover grayscale-[30%]" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-[#07070F]/50" />
             </motion.div>
             {/* Floating label badge */}
@@ -568,7 +570,7 @@ export default function Home() {
           {/* Col C — Tag stack + secondary images */}
           <div className="border-l border-[#E2E2EC]/10 flex flex-col">
             <div className="relative overflow-hidden aspect-square border-b border-[#E2E2EC]/10" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-              <img src="/images/about/Minecraft.jfif" alt="Origin" className="w-full h-full object-cover grayscale-[60%] hover:grayscale-0 transition-all duration-700 hover:scale-105" />
+              <img src={`${B}/images/about/Minecraft.jfif`} alt="Origin" className="w-full h-full object-cover grayscale-[60%] hover:grayscale-0 transition-all duration-700 hover:scale-105" />
               <div className="absolute bottom-4 left-4 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest">Origin</div>
             </div>
             <div className="p-6 md:p-8 flex flex-col gap-4 flex-1 justify-end">
@@ -604,8 +606,8 @@ export default function Home() {
 
         {/* Projects — Full-Width Cinematic Rows */}
         {[
-          { ...t.works.items[0], img: "/images/wide-research.png" },
-          { ...t.works.items[1], img: "/images/random-draw.png" },
+          { ...t.works.items[0], img: `${B}/images/wide-research.png` },
+          { ...t.works.items[1], img: `${B}/images/random-draw.png` },
         ].map((work, i) => (
           <motion.a 
             href={work.link}

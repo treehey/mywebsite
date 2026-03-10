@@ -24,7 +24,7 @@ const mono = Space_Mono({
 export const metadata: Metadata = {
   title: "TREE HEY // SIGNAL & NOISE",
   description: "Developer × Photographer. Macau → Nanjing University.",
-  icons: { icon: "/mywebsite/favicon.png" },
+  icons: { icon: process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/favicon.png` : "/favicon.png" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
