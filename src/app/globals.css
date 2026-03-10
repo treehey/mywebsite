@@ -160,3 +160,53 @@ html.light .no-invert {
   0% { transform: perspective(600px) rotateX(70deg) translateY(0) translateZ(-200px); }
   100% { transform: perspective(600px) rotateX(70deg) translateY(60px) translateZ(-200px); }
 }
+
+/* ── DANMAKU SCROLL ── */
+@keyframes danmaku-scroll {
+  0%   { transform: translateX(105vw); opacity: 0; }
+  2%   { opacity: 1; }
+  92%  { opacity: 1; }
+  100% { transform: translateX(-105%);  opacity: 0; }
+}
+.danmaku-item {
+  animation-name: danmaku-scroll;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
+/* ── TIMELINE VERTICAL LINE PULSE ── */
+@keyframes linePulse {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1; }
+}
+.tl-vertical-line {
+  animation: linePulse 3s ease-in-out infinite;
+}
+
+/* ── EDITORIAL SECTION BORDER HOVER ── */
+.editorial-row {
+  transition: background-color 0.4s;
+}
+.editorial-row:hover {
+  background-color: rgba(0, 245, 255, 0.02);
+}
+
+/* ── CONTACT CTA HOVER STATE ── */
+.contact-link-pill {
+  transition: background-color 0.3s, color 0.3s, transform 0.3s;
+}
+.contact-link-pill:hover {
+  transform: translateY(-2px);
+}
+
+/* ── GUESTBOOK STICKY NOTES ── */
+.sticky-note {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.35s ease;
+}
+.sticky-note:hover > div {
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--note-color, #00F5FF) 20%, transparent),
+    0 12px 48px rgba(0,0,0,0.7),
+    inset 0 1px 0 color-mix(in srgb, var(--note-color, #00F5FF) 35%, transparent) !important;
+}

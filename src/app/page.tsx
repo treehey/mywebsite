@@ -1,6 +1,8 @@
 ﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DanmakuSystem } from "@/components/DanmakuSystem";
+import { GuestbookWall } from "@/components/GuestbookWall";
 import {
   motion,
   useScroll,
@@ -88,34 +90,34 @@ function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttri
 ════════════════════════════════════════════════════════ */
 const DICT = {
   'EN': {
-    nav: { about: 'About', works: 'Works', gallery: 'Gallery', skills: 'Skills', timeline: 'Timeline', contact: 'Contact' },
+    nav: { about: 'About', works: 'Works', gallery: 'Gallery', skills: 'Skills', timeline: 'Timeline', guestbook: 'Guestbook', contact: 'Contact' },
     hero: { desc: "Operating from NJU. Engineering robust software architectures and crafting immersive digital experiences.", loc: "Location", locVal: "Macau → Nanjing", foc: "Focus", focVal: "Full-Stack / Creative Dev" },
     about: { sub: "About.exe", title1: "Behind the", title2: "Screen.", p1: "My journey into software engineering didn't start with standard syntax—it began with Redstone in Minecraft. Building virtual logic arrays slowly evolved into writing robust backend frameworks, ultimately leading to architecting expansive modern internet systems.", p2: "Currently operating out of NJU, I thrive at the intersection of logical engineering and raw aesthetic emotion. Photography teaches me about composition and light, while code gives me the tools to build and manipulate entire digital worlds.", tags: ["FULL-STACK WEB", "SYSTEM ARCH", "PHOTOGRAPHY"] },
-    works: { title1: "SELECTED", title2: "WORKS.", archive: "v2.0 // Archive", view: "VIEW PROJECT", items: [ { title: "DaysMatter", desc: "A modern, minimalist countdown dashboard built with React components and dynamic themes.", tag: "WEB APP" }, { title: "Random Draw Core", desc: "Interactive probability visualization module with custom animation physics.", tag: "ALGORITHM / UX" } ] },
+    works: { title1: "SELECTED", title2: "WORKS.", archive: "v2.0 // Archive", view: "VIEW PROJECT", items: [ { title: "Wide Research Finance", desc: "An AI-powered financial intelligence terminal. Automates 17+ global news sources via DeepSeek LLM for real-time sentiment and event analysis.", tag: "AI / AUTOMATION", link: "https://finai.org.cn" }, { title: "Random Draw Core", desc: "Interactive probability visualization module with custom animation physics.", tag: "ALGORITHM / UX", link: "#" } ] },
     gallery: { m1: "I DON'T JUST", m2: "WRITE CODE.", m3: "I ENGINEER", m4: "EMOTIONS.", photos: [ "Mong Kok · Neon & Dust", "Lujiazui · Urban Spine", "Love Post Office · Letter", "Panda · Gentle Power" ] },
-    skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Algorithms · Automation", "Full-Stack · Motion", "Database · Cloud", "Photography · Post", "Server · CLI / Linux" ] },
+    skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Computer Sys. · Hardware & Software", "Front-End · Website Design", "Python · Proficiency", "Office Suite · Advanced Mastery", "Photography · Foodie / Life" ] },
     timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
     contact: { sub: "Connect.exe", t1: "INITIATE", t2: "HANDSHAKE." },
     marquee: "SOFTWARE ENGINEERING — CREATIVE CODING — SIGNAL & NOISE — "
   },
   '简': {
-    nav: { about: '关于', works: '项目', gallery: '画廊', skills: '技能', timeline: '日志', contact: '联系' },
+    nav: { about: '关于', works: '项目', gallery: '画廊', skills: '技能', timeline: '日志', guestbook: '留言墙', contact: '联系' },
     hero: { desc: "坐标南京大学（NJU）。致力于构建可靠的软件架构与沉浸式的现代数字交互体验。", loc: "位置", locVal: "澳门 → 南京", foc: "专注", focVal: "软件工程 / 创意编程" },
     about: { sub: "关于.exe", title1: "屏幕", title2: "背后。", p1: "我的软件工程之旅并非始于标准语法——而是从 Minecraft 的红石电路开始。搭建早期的虚拟逻辑门逐渐演变为编写稳健的后端框架，最终将我引向了构建广阔的现代全栈架构与互联网系统。", p2: "目前坐标南京大学，我游走于严谨的系统抽象与纯粹的视觉交互交汇处。摄影教会我何为构图与光影，而代码则赋予我构筑世界、操控数据的纯粹力量。", tags: ["全栈架构设计", "现代前端工程", "摄影与视觉表达"] },
-    works: { title1: "精选", title2: "项目。", archive: "v2.0 // 归档", view: "查看项目", items: [ { title: "倒数日 DaysMatter", desc: "使用React组件与动态主题构建的现代极简倒数仪表盘面板。", tag: "WEB 应用 / 交互" }, { title: "随机抽签核心", desc: "具备自定义动画物理效果的交互式概率可视化模块。", tag: "算法 / 体验架构" } ] },
+    works: { title1: "精选", title2: "项目。", archive: "v2.0 // 归档", view: "查看项目", items: [ { title: "Wide Research 金融智库", desc: "基于大语言模型（DeepSeek V3）的自动化财经情报系统。全天候聚合17+全球信源，实现深度热点提取与市场情感分析网。", tag: "AI智能分析 / 自动化", link: "https://finai.org.cn" }, { title: "随机抽签核心", desc: "具备自定义动画物理效果的交互式概率可视化模块。", tag: "算法 / 体验架构", link: "#" } ] },
     gallery: { m1: "我不仅仅", m2: "编写代码。", m3: "我更在", m4: "编织情绪。", photos: [ "旺角 · 霓虹与尘埃", "陆家嘴 · 城市脊梁", "爱情邮局 · 一纸情书", "大熊猫 · 温柔力量" ] },
-    skills: { title1: "系统", title2: "概览", items: [ "算法构建 · 自动化", "全栈框架 · 现代流", "数据库 · 云端服务", "纪实摄影 · 后期色感", "Linux 服务器 · 终端" ] },
+    skills: { title1: "系统", title2: "概览", items: [ "计算机系统 · 软硬件与Linux", "前端开发 · 现代网站设计", "Python · 代码与运行熟练", "Office 套件 · 深度精通", "人文纪实 · 摄影与干饭热爱" ] },
     timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
     contact: { sub: "连接.exe", t1: "传输", t2: "信号。" },
     marquee: "现代软件工程 — 创意编程与体验架构 — 信号与噪声 — "
   },
   '繁': {
-    nav: { about: '關於', works: '項目', gallery: '畫廊', skills: '技能', timeline: '日誌', contact: '聯繫' },
+    nav: { about: '關於', works: '項目', gallery: '畫廊', skills: '技能', timeline: '日誌', guestbook: '留言牆', contact: '聯繫' },
     hero: { desc: "座標南京大學（NJU）。致力於構建可靠的軟件架構與沉浸式的現代數字交互體驗。", loc: "位置", locVal: "澳門 → 南京", foc: "專注", focVal: "軟件工程 / 創意編程" },
     about: { sub: "關於.exe", title1: "屏幕", title2: "背後。", p1: "我的軟件工程之旅並非始於標準語法——而是從 Minecraft 的紅石電路開始。搭建早期的虛擬邏輯門逐漸演變為編寫穩健的後端框架，最終將我引向了構建廣闊的現代全棧架構與互聯網系統。", p2: "目前座標南京大學，我遊走於嚴謹的系統抽象與純粹的視覺交互交匯處。攝影教會我何為構圖與光影，而代碼則賦予我構築世界、操控數據的純粹力量。", tags: ["全棧架構設計", "現代前端工程", "攝影與視覺表達"] },
-    works: { title1: "精選", title2: "項目。", archive: "v2.0 // 歸檔", view: "查看項目", items: [ { title: "倒數日 DaysMatter", desc: "使用React組件與動態主題構建的現代極簡倒數儀表盤面板。", tag: "WEB 應用 / 交互" }, { title: "隨機抽籤核心", desc: "具備自定義動畫物理效果的交互式概率可視化模塊。", tag: "算法 / 體驗架構" } ] },
+    works: { title1: "精選", title2: "項目。", archive: "v2.0 // 歸檔", view: "查看項目", items: [ { title: "Wide Research 金融智庫", desc: "基於大語言模型（DeepSeek V3）的自動化財經情報系統。全天候聚合17+全球信源，實現深度熱點提取與市場情感分析網。", tag: "AI智能分析 / 自動化", link: "https://finai.org.cn" }, { title: "隨機抽籤核心", desc: "具備自定義動畫物理效果的交互式概率可視化模塊。", tag: "算法 / 體驗架構", link: "#" } ] },
     gallery: { m1: "我不僅僅", m2: "編寫代碼。", m3: "我更在", m4: "編織情緒。", photos: [ "旺角 · 霓虹與塵埃", "陸家嘴 · 城市脊梁", "愛情郵局 · 一紙情書", "大熊貓 · 溫柔力量" ] },
-    skills: { title1: "系統", title2: "概覽", items: [ "算法構建 · 自動化", "全棧框架 · 現代流", "數據庫 · 雲端服務", "紀實攝影 · 後期色感", "Linux 服務器 · 終端" ] },
+    skills: { title1: "系統", title2: "概覽", items: [ "計算機系統 · 軟硬件與Linux", "前端開發 · 現代網站設計", "Python · 代碼與運行熟練", "Office 套件 · 深度精通", "人文紀實 · 攝影與乾飯熱愛" ] },
     timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
     contact: { sub: "連接.exe", t1: "傳輸", t2: "信號。" },
     marquee: "現代軟件工程 — 創意編程與體驗架構 — 信號與噪聲 — "
@@ -130,11 +132,11 @@ const PHOTOS = [
 ];
 
 const SKILLS = [
-  { name: "Algorithms",   accent: "#00F5FF", bg: "/images/1.jpg" },
-  { name: "Web Dev",      accent: "#FF2D78", bg: "/images/2.jpg" },
-  { name: "Architecture", accent: "#39FF14", bg: "/images/3.jpg" },
-  { name: "Photography",  accent: "#F5C542", bg: "/images/HK.jpg" },
-  { name: "Sys/Linux",    accent: "#B200FF", bg: "/images/shanghai.jpg" },
+  { name: "Computer",     accent: "#00F5FF", bg: "/images/about/computer-room.jpg" },
+  { name: "Front-End",    accent: "#FF2D78", bg: "/images/about/information-technology.jpg" },
+  { name: "Python",       accent: "#39FF14", bg: "/images/about/python.jpeg" },
+  { name: "Office",       accent: "#F5C542", bg: "/images/about/ppt.jpg" },
+  { name: "Photography",  accent: "#B200FF", bg: "/images/zhuhai.jpg" },
 ];
 
 const TIMELINE = [
@@ -146,84 +148,94 @@ const TIMELINE = [
     { year: "2024", img: "/images/about/nju.jpg" },
   ];
 
-function HorizontalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
-  const targetRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: targetRef });
-
-  // Mobile layout adjustment handling can be added, but for simple robust implementation, 
-  // horizontal sticky scroll effect is great for desktop. On mobile, we might just stack them.
-  // For supreme smoothness, let's keep horizontal scroll for all.
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", `-${(TIMELINE.length - 1) * 100}vw`]);
-
+function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
   return (
-    <section id="timeline" ref={targetRef} className="relative bg-[#07070F]" style={{ height: `${TIMELINE.length * 100}vh` }}>
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        <motion.div style={{ x }} className="flex h-full">
-          {TIMELINE.map((node, i) => (
-            <div key={i} className="w-screen h-screen flex items-center justify-center p-6 md:p-24 flex-shrink-0 relative">
-              
-              {/* Background Ambient Image */}
-              <div className="absolute inset-0 w-full h-full opacity-[0.10]">
-                <img src={node.img} className="w-full h-full object-cover blur-[8px]" alt="" />
-                <div className="absolute inset-0 bg-gradient-to-b from-[#07070F] via-transparent to-[#07070F]" />
-                <div className="absolute inset-0 bg-[#07070F]/80" />
-              </div>
-              
-              <div className="relative z-10 w-full max-w-7xl flex flex-col-reverse md:flex-row items-center gap-10 md:gap-20">
-                {/* Text Content */}
-                <div className="flex-1 flex flex-col items-start w-full z-10">
-                  <motion.span 
-                    initial={{ opacity: 0, y: 50 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
-                    className="font-mono text-[60px] md:text-[140px] lg:text-[180px] font-black text-transparent leading-none" 
-                    style={{ WebkitTextStroke: "2px rgba(0, 245, 255, 0.4)" }}
+    <section id="timeline" className="relative bg-[#07070F] py-24 md:py-32 overflow-hidden">
+      
+      {/* Section Header */}
+      <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
+        <span className="font-mono text-xs text-[#39FF14] tracking-[0.5em] uppercase" style={{ textShadow: "0 0 10px rgba(57,255,20,0.5)" }}>
+          {t.timeline.title}
+        </span>
+        <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ 00{TIMELINE.length} ENTRIES</span>
+      </div>
+
+      {/* Background large year ghost */}
+      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-[#E2E2EC]/[0.02] pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)" }}>
+        LOG
+      </div>
+
+      <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
+        {/* Vertical Glow Line */}
+        <div className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-gradient-to-b from-[#00F5FF]/10 via-[#FF2D78]/30 to-[#39FF14]/10" />
+
+        <div className="flex flex-col gap-0">
+          {TIMELINE.map((node, i) => {
+            const accent = i % 3 === 0 ? '#00F5FF' : i % 3 === 1 ? '#FF2D78' : '#39FF14';
+            const item = t.timeline.items[i];
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ duration: 0.7, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-start gap-6 md:gap-10 group border-b border-[#E2E2EC]/5 py-8 md:py-12 relative"
+                onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+              >
+                {/* Dot + connector */}
+                <div className="relative flex-shrink-0 flex flex-col items-center pt-1">
+                  <div 
+                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-500 group-hover:scale-110 bg-[#07070F] z-10 relative"
+                    style={{ borderColor: accent, boxShadow: `0 0 12px ${accent}60` }}
+                  >
+                    <div className="w-2 h-2 rounded-full transition-all duration-300 group-hover:scale-150" style={{ backgroundColor: accent }} />
+                  </div>
+                </div>
+
+                {/* Year */}
+                <div className="flex-shrink-0 w-16 md:w-24 pt-1.5">
+                  <span 
+                    className="font-mono text-lg md:text-2xl font-bold transition-all duration-300"
+                    style={{ color: accent, textShadow: `0 0 20px ${accent}40` }}
                   >
                     {node.year}
-                  </motion.span>
-                  <motion.h3 
-                    initial={{ opacity: 0, x: -50 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
-                    className="font-syne text-3xl md:text-5xl lg:text-7xl text-[#E2E2EC] font-bold mt-[-1rem] md:mt-[-3rem] mb-4 md:mb-6"
-                    style={{ fontFamily: "var(--font-syne)" }}
-                  >
-                    {t.timeline.items[i].label}
-                  </motion.h3>
-                  <motion.p 
-                    initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.4 }}
-                    className="font-mono text-sm md:text-xl lg:text-2xl text-[#E2E2EC]/70 max-w-lg leading-relaxed mix-blend-difference md:mix-blend-normal"
-                  >
-                    {t.timeline.items[i].detail}
-                  </motion.p>
-                  
-                  <motion.div 
-                    initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ duration: 0.8, delay: 0.6 }}
-                    className="mt-6 md:mt-8 font-mono text-[#00F5FF] text-[10px] md:text-sm tracking-[0.3em] uppercase border border-[#00F5FF]/30 bg-[#00F5FF]/10 px-4 py-2 rounded-full box-glow-cyan"
-                  >
-                    Milestone_{String(i + 1).padStart(2, '0')} // Logging
-                  </motion.div>
+                  </span>
                 </div>
-                
-                {/* Floating Image Gallery */}
-                <div className="flex-1 w-[80%] md:w-full flex justify-center items-center">
-                   <div 
-                     className="w-full max-w-[300px] md:max-w-[450px] lg:max-w-[550px] aspect-[4/5] object-cover rounded-2xl overflow-hidden relative group/timeline-img border border-[#E2E2EC]/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
-                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-                   >
-                     <img src={node.img} className="w-full h-full object-cover transition-transform duration-1000 group-hover/timeline-img:scale-110 grayscale-[60%] group-hover/timeline-img:grayscale-0" alt="" />
-                     
-                     {/* Cyberpunk Scanline */}
-                     <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,rgba(0,245,255,0.05)_50%)] bg-[length:100%_4px] pointer-events-none" />
-                     
-                     <div className="absolute inset-0 bg-[#00F5FF]/10 mix-blend-overlay opacity-0 group-hover/timeline-img:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                   </div>
-                </div>
-              </div>
 
-            </div>
-          ))}
-        </motion.div>
-        
-        {/* Global Progress Bar */}
-        <div className="absolute bottom-6 md:bottom-12 left-6 right-6 md:left-24 md:right-24 h-1 bg-[#E2E2EC]/10 rounded-full overflow-hidden z-20">
-           <motion.div className="h-full bg-[#00F5FF] box-glow-cyan" style={{ scaleX: scrollYProgress, transformOrigin: "0% 50%" }} />
+                {/* Content */}
+                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-0">
+                  <div className="flex-1">
+                    <h3 
+                      className="font-syne font-black text-2xl md:text-4xl text-[#E2E2EC] leading-none mb-2 group-hover:translate-x-2 transition-transform duration-500"
+                      style={{ fontFamily: "var(--font-syne)" }}
+                    >
+                      {item.label}
+                    </h3>
+                    <p className="font-mono text-sm text-[#E2E2EC]/50 tracking-wide">
+                      {item.detail}
+                    </p>
+                  </div>
+
+                  {/* Thumbnail */}
+                  <div className="w-24 h-16 md:w-40 md:h-28 rounded-lg overflow-hidden flex-shrink-0 border border-[#E2E2EC]/10 group-hover:border-opacity-50 transition-all duration-500 md:ml-auto relative"
+                    style={{ borderColor: `${accent}30` }}>
+                    <img src={node.img} alt={item.label} className="w-full h-full object-cover grayscale-[70%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#07070F]/60" />
+                  </div>
+                </div>
+
+                {/* Milestone badge */}
+                <div 
+                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0"
+                  style={{ color: accent, borderColor: `${accent}40`, backgroundColor: `${accent}0D` }}
+                >
+                  <span className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
+                  MILESTONE_{String(i + 1).padStart(2, '0')}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
@@ -308,6 +320,7 @@ export default function Home() {
             { id: 'gallery', label: t.nav.gallery },
             { id: 'skills', label: t.nav.skills },
             { id: 'timeline', label: t.nav.timeline },
+            { id: 'guestbook', label: t.nav.guestbook },
             { id: 'contact', label: t.nav.contact },
           ].map(item => (
             <a key={item.id} href={`#${item.id}`}
@@ -393,7 +406,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           1. HERO (Asymmetric & Interactive)
       ════════════════════════════════════ */}
-      <section className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines">
+      <section className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines" id="hero">
         {/* Animated Cyber Grid */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
            <div className="cyber-grid" />
@@ -425,25 +438,30 @@ export default function Home() {
             
             {/* Split Title with mouse parallax */}
             <motion.div 
-              className="flex flex-wrap gap-0 relative leading-[0.85] justify-center"
+              className="flex flex-wrap lg:flex-nowrap gap-x-[4vw] lg:gap-x-0 relative leading-[0.85] justify-center"
               animate={{ x: mDelta.x * 30, y: mDelta.y * 30 }}
               transition={{ type: "tween", ease: "easeOut", duration: 0.5 }}
               onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             >
-              {HERO_CHARS.map((ch, i) => (
-                <div key={i} className="relative inline-block overflow-visible group">
-                  <motion.span className="rgb-r font-syne font-black select-none text-[15vw] md:text-[13rem] z-0 group-hover:text-[#00F5FF] transition-colors" 
-                    style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>
-                    {ch === " " ? "\u00A0" : ch}
-                  </motion.span>
-                  <motion.span className="rgb-b font-syne font-black select-none text-[15vw] md:text-[13rem] z-0 group-hover:text-[#FF2D78] transition-colors" 
-                    style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>
-                    {ch === " " ? "\u00A0" : ch}
-                  </motion.span>
-                  <span className="relative z-10 font-syne font-black text-[15vw] md:text-[13rem] text-[#E2E2EC] group-hover:opacity-0 transition-opacity duration-300 drop-shadow-[0_0_20px_rgba(226,226,236,0.3)]" 
-                    style={{ fontFamily: "var(--font-syne)" }}>
-                    {ch === " " ? "\u00A0" : ch}
-                  </span>
+              {['TREE', 'HEY'].map((word, wIdx) => (
+                <div key={wIdx} className="flex">
+                  {word.split("").map((ch, i) => (
+                    <div key={`${wIdx}-${i}`} className="relative inline-block overflow-visible group">
+                      <motion.span className="rgb-r font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#00F5FF] transition-colors" 
+                        style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>
+                        {ch}
+                      </motion.span>
+                      <motion.span className="rgb-b font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#FF2D78] transition-colors" 
+                        style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>
+                        {ch}
+                      </motion.span>
+                      <span className="relative z-10 font-syne font-black text-[18vw] md:text-[14vw] lg:text-[11rem] text-[#E2E2EC] group-hover:opacity-0 transition-opacity duration-300 drop-shadow-[0_0_20px_rgba(226,226,236,0.3)]" 
+                        style={{ fontFamily: "var(--font-syne)" }}>
+                        {ch}
+                      </span>
+                    </div>
+                  ))}
+                  {wIdx === 0 && <div className="w-[4vw] lg:w-[6vw] inline-block" />} {/* Space between words on desktop */}
                 </div>
               ))}
             </motion.div>
@@ -468,155 +486,203 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
+
+        {/* ── Danmaku Layer ── */}
+        <DanmakuSystem />
+
       </section>
 
       {/* ════════════════════════════════════
-          1.5 ABOUT / GENESIS
+          1.5 ABOUT / EDITORIAL LAYOUT
       ════════════════════════════════════ */}
-      <section id="about" className="relative z-10 w-full py-24 md:py-32 px-6 md:px-12 bg-[#07070F] overflow-hidden">
-        {/* Background Decorative */}
-        <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[40vw] h-[40vw] rounded-full bg-[#00F5FF]/5 blur-[150px] pointer-events-none" />
+      <section id="about" className="relative z-10 w-full bg-[#07070F] overflow-hidden">
         
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-16 md:gap-24 items-center">
-          <motion.div 
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="w-full md:w-1/2 relative"
-            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-          >
-            {/* Holographic Collage */}
-            <div className="relative w-full aspect-[4/5] md:aspect-square flex items-center justify-center pointer-events-none md:pointer-events-auto">
-              
-              {/* Main prominent image */}
-              <motion.div 
-                className="absolute w-[65%] h-[75%] z-20 left-[15%] top-[10%] rounded-2xl overflow-hidden border border-[#00F5FF]/30 shadow-[0_0_50px_rgba(0,245,255,0.15)] group"
-                whileHover={{ scale: 1.05, zIndex: 30 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                 <img src="/images/about/Minecraft.jfif" alt="Minecraft Origin" className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] to-transparent opacity-60 pointer-events-none" />
-                 <div className="absolute bottom-4 left-4">
-                    <p className="font-mono text-[#00F5FF] text-[10px] uppercase tracking-[0.3em] bg-[#00F5FF]/10 px-2 py-1 rounded backdrop-blur-md border border-[#00F5FF]/20">Origin</p>
-                 </div>
-              </motion.div>
-              
-              {/* Secondary image top right */}
-              <motion.div 
-                className="absolute w-[45%] h-[45%] z-10 right-[5%] top-0 rounded-2xl overflow-hidden border border-[#39FF14]/30 shadow-[0_0_30px_rgba(57,255,20,0.1)] group"
-                whileHover={{ scale: 1.1, zIndex: 30 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                 <img src="/images/about/nju.jpg" alt="NJU" className="w-full h-full object-cover grayscale-[70%] group-hover:grayscale-0 transition-all duration-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] to-transparent opacity-50 pointer-events-none" />
-                 <div className="absolute top-4 right-4">
-                    <p className="font-mono text-[#39FF14] text-[10px] uppercase tracking-[0.3em] bg-[#39FF14]/10 px-2 py-1 rounded backdrop-blur-md border border-[#39FF14]/20">Present</p>
-                 </div>
-              </motion.div>
-              
-              {/* Tertiary image bottom left */}
-              <motion.div 
-                className="absolute w-[50%] h-[40%] z-10 left-[5%] bottom-[5%] rounded-2xl overflow-hidden border border-[#FF2D78]/30 shadow-[0_0_30px_rgba(255,45,120,0.1)] group"
-                whileHover={{ scale: 1.1, zIndex: 30 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                 <img src="/images/about/steam&iot.jpg" alt="Steam" className="w-full h-full object-cover grayscale-[80%] group-hover:grayscale-0 transition-all duration-700" />
-                 <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] to-transparent opacity-60 pointer-events-none" />
-                 <div className="absolute bottom-4 left-4">
-                    <p className="font-mono text-[#FF2D78] text-[10px] uppercase tracking-[0.3em] bg-[#FF2D78]/10 px-2 py-1 rounded backdrop-blur-md border border-[#FF2D78]/20">Journey</p>
-                 </div>
-              </motion.div>
-
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="w-full md:w-1/2 flex flex-col gap-8 relative z-10"
-          >
-            <div className="flex items-center gap-4 mb-4">
-               <div className="w-8 h-[1px] bg-[#39FF14]" />
-               <span className="font-mono text-xs uppercase tracking-[0.4em] text-[#39FF14]">{t.about.sub}</span>
-            </div>
-
-            <h2 className="font-syne font-black text-4xl md:text-6xl uppercase leading-[1.1]">
-              {t.about.title1} <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F5FF] to-[#39FF14]">{t.about.title2}</span>
-            </h2>
-            
-            <div className="flex flex-col gap-6 font-grotesk text-[#E2E2EC]/60 text-base md:text-lg leading-relaxed">
-              <p>{t.about.p1}</p>
-              <p>{t.about.p2}</p>
-            </div>
-            
-            <div className="flex flex-wrap gap-4 mt-4">
-              {t.about.tags.map(tag => (
-                <div key={tag} className="px-4 py-2 border border-[#E2E2EC]/10 rounded-full font-mono text-xs text-[#E2E2EC]/50 hover:border-[#00F5FF] hover:text-[#00F5FF] transition-colors cursor-default bg-[#E2E2EC]/[0.02]">
-                  {tag}
-                </div>
-              ))}
-            </div>
-          </motion.div>
+        {/* Row 1 — Full-bleed chapter label */}
+        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <span className="font-mono text-xs text-[#00F5FF] tracking-[0.5em] uppercase glow-cyan">{t.about.sub}</span>
+          <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ 001 — IDENTITY</span>
         </div>
-      </section>
-
-      {/* ════════════════════════════════════
-          1.8 WORKS / PROJECTS
-      ════════════════════════════════════ */}
-      <section id="works" className="relative z-10 w-full py-24 md:py-32 px-6 md:px-12 bg-[#0A0A14] border-t border-[#E2E2EC]/10">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-12 md:mb-20">
-            <h2 className="font-syne font-black text-5xl md:text-7xl leading-[0.9]">
-              <span className="text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#FF2D78,#00F5FF)" }}>{t.works.title1}</span><br/>{t.works.title2}
-            </h2>
-            <span className="font-mono text-sm text-[#E2E2EC]/30 tracking-widest hidden md:block border-b border-[#E2E2EC]/20 pb-2">{t.works.archive}</span>
+        
+        {/* Row 2 — Oversized editorial heading split */}
+        <div className="w-full px-6 md:px-12 pt-16 md:pt-24 pb-0 overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-0">
+            <motion.h2 
+              initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-syne font-black text-[14vw] md:text-[9vw] leading-[0.85] text-[#E2E2EC] uppercase"
+              style={{ fontFamily: "var(--font-syne)" }}
+            >
+              {t.about.title1}
+            </motion.h2>
+            <motion.div 
+              initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }}
+              className="md:mb-4 flex flex-col items-start md:items-end gap-2"
+            >
+              <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split('.')[0]}.</p>
+            </motion.div>
           </div>
+          <motion.h2 
+            initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="font-syne font-black text-[14vw] md:text-[9vw] leading-[0.85] text-transparent uppercase" 
+            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "2px rgba(0,245,255,0.6)" }}
+          >
+            {t.about.title2}
+          </motion.h2>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        {/* Row 3 — Three column editorial grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-0 border-t border-[#E2E2EC]/10 mt-12 md:mt-16">
+          
+          {/* Col A — Stat blocks */}
+          <div className="border-r border-[#E2E2EC]/10 p-6 md:p-10 flex flex-col justify-between gap-8">
             {[
-              { ...t.works.items[0], img: "/images/daysmatter.png" },
-              { ...t.works.items[1], img: "/images/random-draw.png" },
-            ].map((work, i) => (
-               <motion.div 
-                 key={i}
-                 initial={{ opacity: 0, y: 50 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 viewport={{ once: true, margin: "-50px" }}
-                 transition={{ duration: 0.6, delay: i * 0.2 }}
-                 className="group cursor-pointer"
-                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-               >
-                 <div className="w-full aspect-[4/3] rounded-xl overflow-hidden relative neon-card mb-6">
-                   <img src={work.img} alt={work.title} className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-700 origin-center" />
-                   {/* Tech Overlay */}
-                   <div className="absolute inset-0 bg-[#07070F]/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center backdrop-blur-sm">
-                     <span className="font-mono text-[#00F5FF] text-sm tracking-widest uppercase border border-[#00F5FF]/50 px-6 py-3 rounded-full translate-y-4 group-hover:translate-y-0 transition-all duration-500">
-                       {t.works.view}
-                     </span>
-                   </div>
-                   <div className="absolute top-4 left-4">
-                     <span className="font-mono text-[10px] bg-[#07070F]/80 text-[#E2E2EC]/80 px-3 py-1 rounded backdrop-blur-md border border-[#E2E2EC]/10">
-                       {work.tag}
-                     </span>
-                   </div>
-                 </div>
-                 
-                 <div className="flex justify-between items-start">
-                   <div className="max-w-[80%]">
-                     <h3 className="font-syne font-bold text-2xl md:text-3xl text-[#E2E2EC] group-hover:text-[#00F5FF] transition-colors">{work.title}</h3>
-                     <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 mt-3">{work.desc}</p>
-                   </div>
-                   <div className="w-12 h-12 rounded-full border border-[#E2E2EC]/20 flex items-center justify-center group-hover:bg-[#00F5FF] group-hover:border-[#00F5FF] group-hover:text-[#07070F] transition-all shrink-0">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                   </div>
-                 </div>
-               </motion.div>
+              { label: "BASE", val: "Macau → NJU" },
+              { label: "FOCUS", val: "Full-Stack" },
+              { label: "ORIGIN", val: "Minecraft" },
+            ].map(stat => (
+              <motion.div key={stat.label} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+                <p className="font-mono text-[10px] text-[#E2E2EC]/40 uppercase tracking-[0.4em] mb-2">{stat.label}</p>
+                <p className="font-syne font-bold text-xl md:text-2xl text-[#E2E2EC]">{stat.val}</p>
+              </motion.div>
             ))}
           </div>
+          
+          {/* Col B — Large featured image with text overlay */}
+          <div className="relative overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[500px]" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
+            <motion.div 
+              className="absolute inset-0"
+              initial={{ scale: 1.1 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }}
+            >
+              <img src="/images/about/nju.jpg" alt="NJU" className="w-full h-full object-cover grayscale-[30%]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-[#07070F]/50" />
+            </motion.div>
+            {/* Floating label badge */}
+            <div className="absolute top-6 left-6 z-10 font-mono text-xs text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-3 py-1.5 uppercase tracking-[0.3em]">PRESENT // NJU</div>
+            <motion.div 
+              initial={{ y: 30, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.4 }}
+              className="absolute bottom-8 left-8 right-8 z-10"
+            >
+              <p className="font-grotesk text-base text-[#E2E2EC]/80 leading-relaxed">{t.about.p2}</p>
+            </motion.div>
+          </div>
+          
+          {/* Col C — Tag stack + secondary images */}
+          <div className="border-l border-[#E2E2EC]/10 flex flex-col">
+            <div className="relative overflow-hidden aspect-square border-b border-[#E2E2EC]/10" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
+              <img src="/images/about/Minecraft.jfif" alt="Origin" className="w-full h-full object-cover grayscale-[60%] hover:grayscale-0 transition-all duration-700 hover:scale-105" />
+              <div className="absolute bottom-4 left-4 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest">Origin</div>
+            </div>
+            <div className="p-6 md:p-8 flex flex-col gap-4 flex-1 justify-end">
+              <p className="font-mono text-[10px] text-[#E2E2EC]/40 uppercase tracking-[0.4em]">Modules</p>
+              <div className="flex flex-col gap-2">
+                {t.about.tags.map((tag, i) => (
+                  <motion.div 
+                    key={tag} initial={{ x: 20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-3 group cursor-default"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00F5FF]/50 group-hover:bg-[#00F5FF] transition-colors" />
+                    <span className="font-mono text-xs text-[#E2E2EC]/50 group-hover:text-[#00F5FF] transition-colors uppercase tracking-widest">{tag}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      {/* ════════════════════════════════════
+          1.8 WORKS / CINEMATIC FULL-WIDTH
+      ════════════════════════════════════ */}
+      <section id="works" className="relative z-10 w-full bg-[#0A0A14]">
+        
+        {/* Section Header Row */}
+        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg, #FF2D78, #00F5FF)", fontFamily: "var(--font-syne)" }}>
+            {t.works.title1} {t.works.title2}
+          </h2>
+          <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest hidden md:block">{t.works.archive}</span>
+        </div>
+
+        {/* Projects — Full-Width Cinematic Rows */}
+        {[
+          { ...t.works.items[0], img: "/images/wide-research.png" },
+          { ...t.works.items[1], img: "/images/random-draw.png" },
+        ].map((work, i) => (
+          <motion.a 
+            href={work.link}
+            target={work.link !== "#" ? "_blank" : undefined}
+            rel="noopener noreferrer"
+            key={i}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-150px" }}
+            transition={{ duration: 0.6 }}
+            className="group relative flex w-full border-b border-[#E2E2EC]/10 overflow-hidden cursor-pointer block"
+            style={{ minHeight: "min(70vh, 600px)" }}
+            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+          >
+            {/* Full-bleed image with parallax-like scale */}
+            <div className="absolute inset-0 overflow-hidden">
+              <motion.img 
+                src={work.img} alt={work.title} 
+                className="w-full h-full object-cover grayscale-[60%] group-hover:grayscale-0 transition-[filter] duration-[1.2s]"
+                initial={{ scale: 1.05 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A14] via-[#0A0A14]/80 to-transparent" />
+              <div className="absolute inset-0 bg-[#0A0A14]/30 group-hover:bg-[#0A0A14]/10 transition-colors duration-700" />
+            </div>
+
+            {/* Diagonal accent line */}
+            <div className="absolute bottom-0 right-0 w-[30vw] h-[1px] bg-gradient-to-l from-transparent via-[#00F5FF]/40 to-transparent group-hover:via-[#00F5FF]/80 transition-all duration-700" />
+
+            {/* Content overlay */}
+            <div className="relative z-10 w-full flex flex-col justify-between p-8 md:p-16 lg:p-20">
+              <div className="flex items-start justify-between">
+                {/* Index */}
+                <span 
+                  className="font-syne font-black text-[20vw] md:text-[16vw] lg:text-[12vw] leading-none text-transparent pointer-events-none select-none"
+                  style={{ WebkitTextStroke: "1px rgba(255,255,255,0.06)", fontFamily: "var(--font-syne)" }}
+                >
+                  0{i + 1}
+                </span>
+                {/* Tag */}
+                <span className="font-mono text-xs text-[#FF2D78] border border-[#FF2D78]/40 bg-[#FF2D78]/10 px-3 py-1.5 tracking-widest uppercase mt-2">
+                  {work.tag}
+                </span>
+              </div>
+
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mt-auto">
+                <div>
+                  <motion.h3 
+                    className="font-syne font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl text-[#E2E2EC] leading-[0.9] mb-4"
+                    style={{ fontFamily: "var(--font-syne)" }}
+                  >
+                    {work.title.split(' ').map((word, wi) => (
+                      <span key={wi} className="block overflow-hidden">
+                        <motion.span 
+                          className="block group-hover:translate-x-2 transition-transform duration-500"
+                          style={{ transitionDelay: `${wi * 60}ms` }}
+                        >
+                          {word}
+                        </motion.span>
+                      </span>
+                    ))}
+                  </motion.h3>
+                  <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 max-w-lg leading-relaxed group-hover:text-[#E2E2EC]/70 transition-colors duration-500">
+                    {work.desc}
+                  </p>
+                </div>
+                
+                {/* View CTA */}
+                <div className="flex items-center gap-4 text-[#E2E2EC]/60 group-hover:text-[#00F5FF] transition-colors duration-500 shrink-0">
+                  <span className="font-mono text-xs md:text-sm tracking-[0.3em] uppercase">{t.works.view}</span>
+                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-current flex items-center justify-center transform group-hover:rotate-[-45deg] group-hover:bg-[#00F5FF] group-hover:text-[#07070F] group-hover:border-[#00F5FF] transition-all duration-500">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.a>
+        ))}
       </section>
 
       {/* ════════════════════════════════════
@@ -746,39 +812,108 @@ export default function Home() {
       {/* 
           TIMELINE (Horizontal Parallax Scroll)
        */}
-      <HorizontalTimeline t={t} setCursorBig={setCursorBig} TIMELINE={TIMELINE} />
+      <VerticalTimeline t={t} setCursorBig={setCursorBig} TIMELINE={TIMELINE} />
 
       {/* ════════════════════════════════════
-          4. CONTACT (Massive Input Terminal)
+          GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
-      <section id="contact" className="relative z-10 min-h-screen flex flex-col justify-end py-20 px-6 md:px-12 bg-[#0A0A14] border-t border-[#E2E2EC]/10">
-        <div className="w-full max-w-7xl mx-auto flex flex-col gap-10">
-          <div className="font-mono text-sm text-[#00F5FF] tracking-[0.4em] uppercase">{t.contact.sub}</div>
+      <GuestbookWall />
+
+      {/* ════════════════════════════════════
+          4. CONTACT — Immersive Terminal
+      ════════════════════════════════════ */}
+      <section id="contact" className="relative z-10 min-h-screen flex flex-col bg-[#07070F] border-t border-[#E2E2EC]/10 overflow-hidden">
+        
+        {/* Section label row */}
+        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <span className="font-mono text-xs text-[#FF2D78] tracking-[0.5em] uppercase glow-pink">{t.contact.sub}</span>
+          <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ FIN — HANDSHAKE</span>
+        </div>
+
+        {/* Giant headline */}
+        <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-20 py-20 md:py-28 relative">
           
-          <h2 
+          {/* Ambient blobs */}
+          <div className="absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full bg-[#FF2D78]/5 blur-[120px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] rounded-full bg-[#00F5FF]/5 blur-[100px] pointer-events-none" />
+
+          <motion.h2
+            initial={{ opacity: 0, y: 60 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-            className="font-syne font-black text-[12vw] leading-[0.8] text-[#E2E2EC] w-full break-words hover:text-[#00F5FF] transition-colors duration-500 cursor-pointer" 
-            style={{ fontFamily: "var(--font-syne)" }}>
-            {t.contact.t1}
-            <br />
-            <span className="text-transparent" style={{ WebkitTextStroke: "2px #E2E2EC" }}>{t.contact.t2}</span>
-          </h2>
-
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mt-20 gap-8">
-            <MagneticButton 
-              href="mailto:treehey@example.com" 
-              className="font-mono text-lg md:text-2xl border-b border-[#00F5FF] pb-2 text-[#00F5FF] hover:bg-[#00F5FF] hover:text-[#07070F] transition-all inline-block px-4 pt-4" 
-              style={{ fontFamily: "var(--font-mono)" }}
+            className="font-syne font-black leading-[0.85] text-[#E2E2EC] mb-16 relative z-10"
+            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3rem, 12vw, 10rem)" }}
+          >
+            {t.contact.t1}<br />
+            <span
+              className="text-transparent hover:text-[#FF2D78] transition-colors duration-700"
+              style={{ WebkitTextStroke: "2px rgba(255,45,120,0.7)" }}
             >
-              TREEHEY@NJU.EDU.CN {`->`}
-            </MagneticButton>
+              {t.contact.t2}
+            </span>
+          </motion.h2>
 
-            <div className="flex flex-wrap gap-4 md:gap-8 font-mono text-sm uppercase tracking-widest text-[#E2E2EC]/50">
-              {['Github', 'Instagram', 'WeChat'].map(link => (
-                <MagneticButton key={link} href="#" className="hover:text-[#39FF14] transition-colors p-2">{link}</MagneticButton>
-              ))}
-            </div>
+          {/* Grid divider */}
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 md:gap-0 border-t border-[#E2E2EC]/10 pt-10">
+            
+            {/* Email CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
+              className="flex flex-col gap-3"
+            >
+              <span className="font-mono text-xs text-[#E2E2EC]/40 tracking-[0.4em] uppercase">Primary Channel</span>
+              <MagneticButton
+                href="mailto:123kevinlio@gmail.com"
+                className="group inline-flex items-center gap-4 font-mono text-base md:text-xl text-[#00F5FF] hover:text-[#07070F] hover:bg-[#00F5FF] px-5 py-3 border border-[#00F5FF]/40 transition-all duration-300 self-start"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                <span>123KEVINLIO@GMAIL.COM</span>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </MagneticButton>
+            </motion.div>
+
+            {/* Divider vertical */}
+            <div className="hidden md:block w-[1px] bg-[#E2E2EC]/10 mx-12" />
+
+            {/* Social links */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.15 }}
+              className="flex flex-col gap-3"
+            >
+              <span className="font-mono text-xs text-[#E2E2EC]/40 tracking-[0.4em] uppercase">Networks</span>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { name: 'Github',    url: 'https://github.com/treehey',                      accent: '#39FF14' },
+                  { name: 'Instagram', url: 'https://www.instagram.com/tree_hey/',              accent: '#FF2D78' },
+                  { name: 'Facebook',  url: 'https://www.facebook.com/chihei.lio',              accent: '#00F5FF' },
+                ].map((link, li) => (
+                  <motion.div
+                    key={link.name}
+                    initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
+                    transition={{ delay: 0.2 + li * 0.08 }}
+                  >
+                    <MagneticButton
+                      href={link.url} target="_blank" rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-mono text-sm uppercase tracking-widest border px-4 py-2.5 transition-all duration-300 hover:text-[#07070F]"
+                      style={{
+                        color: link.accent,
+                        borderColor: `${link.accent}40`,
+                        backgroundColor: `${link.accent}0D`,
+                      }}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: link.accent }} />
+                      {link.name}
+                    </MagneticButton>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
+        </div>
+
+        {/* Footer strip */}
+        <div className="w-full border-t border-[#E2E2EC]/10 px-6 md:px-12 py-4 flex items-center justify-between">
+          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest">© 2026 TREEHEY — ALL RIGHTS RESERVED</span>
+          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest">BUILT WITH NEXT.JS + FRAMER MOTION</span>
         </div>
       </section>
       
