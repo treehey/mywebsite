@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 
 export const SlothScrollIndicator = () => {
   const { scrollYProgress } = useScroll();
   const [isHovered, setIsHovered] = useState(false);
-  const [isScrolling, setIsScrolling] = useState(false);
 
   // Smooth out the scroll to prevent jitter
   const smoothProgress = useSpring(scrollYProgress, {
@@ -18,19 +17,6 @@ export const SlothScrollIndicator = () => {
   // Calculate top offset based on scroll progress
   // We map 0-1 progress to 0-85vh so it stays within viewport
   const yPosition = useTransform(smoothProgress, [0, 1], ["0vh", "80vh"]);
-
-  // Detect scrolling for animation states
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-    const handleScroll = () => {
-      setIsScrolling(true);
-      clearTimeout(timeout);
-      timeout = setTimeout(() => setIsScrolling(false), 200);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -48,33 +34,52 @@ export const SlothScrollIndicator = () => {
         }}
       />
       
-      {/* The Sloth */}
+      {/* Sloth / Dot */}
       <motion.div
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer pointer-events-auto flex flex-col items-center p-2 mt-[-5px]"
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer pointer-events-auto flex items-center justify-center w-12 h-12 mt-[-24px]"
         style={{ top: yPosition }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={scrollToTop}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        animate={isScrolling ? { rotate: [-5, 5, -5] } : { rotate: 0 }}
-        transition={{ repeat: isScrolling ? Infinity : 0, duration: 2 }}
-        title="I'm lazy... click to climb up!"
+        onClick={scrollToTop}
+        title="Click to scroll to top"
       >
-        <div className="relative w-12 h-12 md:w-14 md:h-14 drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={isHovered ? "hover" : "normal"}
-              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/sloth_${isHovered ? "2" : "1"}.png`}
-              alt="Sloth Scroll"
-              className="w-full h-full object-contain filter"
-              initial={{ opacity: 0, scale: 0.8 }}
+        <AnimatePresence mode="wait">
+          {!isHovered ? (
+            <motion.div
+              key="dot"
+              className="w-2 h-2 rounded-full absolute"
+              initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
+              exit={{ opacity: 0, scale: 0 }}
               transition={{ duration: 0.2 }}
+              style={{
+                background: "rgba(0, 245, 255, 1)",
+                boxShadow: "0 0 8px rgba(0, 245, 255, 0.9), 0 0 20px rgba(0, 245, 255, 0.4)",
+              }}
             />
-          </AnimatePresence>
-        </div>
+          ) : (
+            <motion.svg
+              key="sloth"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+              className="w-8 h-8 absolute"
+              fill="#00F5FF"
+              style={{ filter: "drop-shadow(0 0 6px rgba(0,245,255,0.8))", opacity: 0.9 }}
+              initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
+              animate={{ opacity: 1, scale: 1.2, rotate: 0 }}
+              exit={{ opacity: 0, scale: 0.5, rotate: -20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <g><g>
+              <path d="m351.574 146.456c-18.17-.073-36.183 4.527-52.059 13.388l-17.666 9.86c-16.186 9.033-35.512 9.033-51.698 0l-17.667-9.86c-15.876-8.86-33.894-13.531-52.059-13.388-23.52.133-46.625 8.229-65.059 22.796-18.494 14.614-31.641 35.245-37.018 58.091-2.86 12.147-4.31 24.572-4.31 36.929 0 89.601 72.895 162.495 162.495 162.495h78.932c89.6 0 162.495-72.895 162.495-162.495 0-12.356-1.45-24.781-4.31-36.929-5.377-22.846-18.524-43.477-37.018-58.091-18.432-14.567-41.538-22.663-65.058-22.796zm-278.625 84.324c1.465-6.225 3.559-12.162 6.195-17.76h92.373c23.69 0 42.963 19.272 42.963 42.962 0 21.612-16.171 39.939-37.616 42.629-33.03 4.143-62.972 19.606-85.331 43.862-14.243-22.685-22.495-49.496-22.495-78.202.001-11.201 1.316-22.468 3.911-33.491zm366.102 0c2.595 11.022 3.91 22.29 3.91 33.491 0 28.705-8.251 55.516-22.494 78.201-22.359-24.256-52.302-39.718-85.332-43.861-21.444-2.689-37.615-21.017-37.615-42.629 0-23.689 19.273-42.962 42.962-42.962h53.233c4.142 0 7.5-3.357 7.5-7.5s-3.358-7.5-7.5-7.5h-53.233c-31.96 0-57.962 26.002-57.962 57.962 0 29.158 21.817 53.884 50.748 57.512 30.571 3.835 58.178 18.532 78.352 41.578-27.022 34.49-69.043 56.694-116.154 56.694h-78.932c-47.111 0-89.132-22.204-116.154-56.694 20.174-23.046 47.781-37.743 78.351-41.578 28.932-3.628 50.749-28.354 50.749-57.512 0-31.96-26.002-57.962-57.963-57.962h-83.405c16.506-22.346 42.974-36.398 72.398-36.564.168-.001.335-.002.503-.002 15.427 0 30.688 3.969 44.161 11.487l17.667 9.86c20.765 11.589 45.557 11.588 66.319 0l17.666-9.86c13.475-7.52 28.733-11.487 44.161-11.487.167 0 .336.001.503.002 42.002.237 78.009 28.744 87.561 69.324z"/>
+              <path d="m495.359 181.026c-11.042-26.515-26.978-50.217-47.365-70.45l-.486-.482c-5.028-4.99-10.314-9.84-15.711-14.415-3.16-2.68-7.893-2.288-10.57.871-2.679 3.159-2.289 7.893.871 10.57 5.1 4.323 10.094 8.906 14.846 13.621l.486.482c37.857 37.572 59.57 89.712 59.57 143.048 0 111.126-90.408 201.534-201.534 201.534h-78.932c-111.126.001-201.534-90.408-201.534-201.534 0-53.337 21.713-105.476 59.569-143.046l.489-.484c48.439-48.072 112.698-74.547 180.942-74.547 47.226 0 93.498 13.004 133.812 37.606 3.536 2.158 8.151 1.04 10.309-2.495 2.158-3.536 1.041-8.151-2.495-10.31-42.669-26.037-91.642-39.801-141.626-39.801-35.706 0-70.549 6.896-103.562 20.498-33.013 13.601-62.603 33.25-87.944 58.4l-.489.484c-20.386 20.232-36.322 43.935-47.364 70.45-11.042 26.516-16.641 54.524-16.641 83.245 0 57.838 22.523 112.215 63.421 153.112 40.898 40.898 95.274 63.422 153.113 63.422h78.932c57.838 0 112.215-22.523 153.113-63.422 40.898-40.897 63.421-95.274 63.421-153.112 0-28.722-5.599-56.729-16.641-83.245z"/>
+              <path d="m167.607 283.548c14.486 0 26.271-11.785 26.271-26.271s-11.785-26.271-26.271-26.271-26.271 11.785-26.271 26.271 11.786 26.271 26.271 26.271zm0-37.541c6.214 0 11.271 5.056 11.271 11.271s-5.056 11.271-11.271 11.271-11.271-5.056-11.271-11.271 5.057-11.271 11.271-11.271z"/>
+              <path d="m344.393 231.007c-14.486 0-26.271 11.785-26.271 26.271s11.785 26.271 26.271 26.271 26.271-11.785 26.271-26.271-11.786-26.271-26.271-26.271zm0 37.541c-6.214 0-11.271-5.056-11.271-11.271s5.056-11.271 11.271-11.271 11.271 5.056 11.271 11.271-5.057 11.271-11.271 11.271z"/>
+              <path d="m240.705 307.027c-6.776 0-13.188 2.955-17.59 8.108-4.055 4.749-5.994 10.79-5.458 17.011s3.479 11.841 8.286 15.825l7.493 6.21c4.485 3.717 9.666 6.159 15.064 7.326v18.8h-10.127c-8.351 0-16.604-2.178-23.867-6.297l-11.521-6.534c-3.602-2.044-8.18-.779-10.224 2.823-2.043 3.604-.779 8.181 2.824 10.224l11.521 6.534c9.515 5.397 20.327 8.25 31.267 8.25h35.254c10.94 0 21.752-2.853 31.267-8.25l11.521-6.534c3.603-2.043 4.868-6.62 2.824-10.224s-6.623-4.868-10.224-2.823l-11.522 6.534c-7.263 4.119-15.516 6.297-23.867 6.297h-10.126v-18.8c5.398-1.167 10.579-3.608 15.064-7.326l7.492-6.21c4.808-3.984 7.75-9.604 8.287-15.825s-1.402-12.262-5.458-17.012c-4.402-5.152-10.813-8.107-17.589-8.107zm36.774 17.851c1.426 1.669 2.107 3.794 1.919 5.98-.188 2.188-1.223 4.163-2.914 5.564l-7.492 6.21c-7.529 6.239-18.457 6.238-25.985 0l-7.493-6.21c-1.69-1.401-2.725-3.377-2.913-5.564s.493-4.312 1.918-5.979c1.548-1.812 3.803-2.852 6.185-2.852h30.591c2.383 0 4.637 1.039 6.184 2.851z"/>
+              </g></g>
+            </motion.svg>
+          )}
+        </AnimatePresence>
       </motion.div>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   useSpring,
   useInView,
   useMotionValue,
+  useMotionValueEvent,
   AnimatePresence,
   type Variants,
 } from "framer-motion";
@@ -23,20 +24,27 @@ import {
 function useScramble(text: string, trigger: boolean) {
   const [display, setDisplay] = useState(text);
   useEffect(() => {
-    if (!trigger) return;
+    if (!trigger) {
+      setDisplay(text);
+      return;
+    }
     const CHARS = "0123456789ABCDEFabcdef#@%!?/|\\[]{}~<>^*";
     let frame = 0;
-    const total = text.length * 3;
+    let rafCount = 0;
+    const SPEED = 4; // advance logic frame every N RAF calls
+    const total = 60; // fixed total logic frames so all texts animate at same duration
     let raf: number;
     const update = () => {
+      rafCount++;
+      if (rafCount % SPEED === 0) frame++;
       setDisplay(
         text.split("").map((ch, i) => {
           if (ch === " ") return " ";
-          if (frame >= i * 3) return ch;
+          const resolveAt = Math.floor((i / text.length) * total);
+          if (frame >= resolveAt) return ch;
           return CHARS[Math.floor(Math.random() * CHARS.length)];
         }).join("")
       );
-      frame++;
       if (frame <= total) raf = requestAnimationFrame(update);
     };
     raf = requestAnimationFrame(update);
@@ -45,11 +53,12 @@ function useScramble(text: string, trigger: boolean) {
   return display;
 }
 
-function ScrambleText({ text, className, margin = "-100px" }: { text: string; className?: string; margin?: string }) {
+function ScrambleText({ text, className, margin = "-100px", trigger: externalTrigger }: { text: string; className?: string; margin?: string; trigger?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   // @ts-ignore
-  const inView = useInView(ref, { once: true, margin });
-  const display = useScramble(text, inView);
+  const inView = useInView(ref, { once: false, margin: "-20%" });
+  const trigger = externalTrigger !== undefined ? externalTrigger : inView;
+  const display = useScramble(text, trigger);
   return <span ref={ref} className={className}>{display}</span>;
 }
 
@@ -96,7 +105,7 @@ const DICT = {
     nav: { about: 'About', works: 'Works', gallery: 'Gallery', skills: 'Skills', timeline: 'Timeline', guestbook: 'Guestbook', contact: 'Contact' },
     hero: { desc: "Operating from NJU. Engineering robust software architectures and crafting immersive digital experiences.", loc: "Location", locVal: "Macau → Nanjing", foc: "Focus", focVal: "Full-Stack / Creative Dev" },
     about: { sub: "About.exe", title1: "Behind the", title2: "Screen.", p1: "My journey into software engineering didn't start with standard syntax—it began with Redstone in Minecraft. Building virtual logic arrays slowly evolved into writing robust backend frameworks, ultimately leading to architecting expansive modern internet systems.", p2: "Currently operating out of NJU, I thrive at the intersection of logical engineering and raw aesthetic emotion. Photography teaches me about composition and light, while code gives me the tools to build and manipulate entire digital worlds.", tags: ["FULL-STACK WEB", "SYSTEM ARCH", "PHOTOGRAPHY"] },
-    works: { title1: "SELECTED", title2: "WORKS.", archive: "v2.0 // Archive", view: "VIEW PROJECT", items: [ { title: "Wide Research Finance", desc: "An AI-powered financial intelligence terminal. Automates 17+ global news sources via DeepSeek LLM for real-time sentiment and event analysis.", tag: "AI / AUTOMATION", link: "https://finai.org.cn" }, { title: "Random Draw Core", desc: "Interactive probability visualization module with custom animation physics.", tag: "ALGORITHM / UX", link: "#" } ] },
+    works: { title1: "SELECTED", title2: "WORKS.", archive: "v2.0 // Archive", view: "VIEW PROJECT", items: [ { title: "Wide Research Finance", desc: "An AI-powered financial intelligence terminal. Automates 17+ global news sources via DeepSeek LLM for real-time sentiment and event analysis.", tag: "AI / AUTOMATION", link: "https://finai.org.cn" }, { title: "Enzyme Explorer", desc: "An immersive science education website exploring enzyme biochemistry across bread, wine, and cheese — built with pure HTML/CSS/JS featuring rich interactive labs.", tag: "SCIENCE / CREATIVE WEB", link: "https://treehey.github.io/Enzyme/" } ] },
     gallery: { m1: "I DON'T JUST", m2: "WRITE CODE.", m3: "I ENGINEER", m4: "EMOTIONS.", photos: [ "Mong Kok · Neon & Dust", "Lujiazui · Urban Spine", "Love Post Office · Letter", "Panda · Gentle Power" ] },
     skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Computer Sys. · Hardware & Software", "Front-End · Website Design", "Python · Proficiency", "Office Suite · Advanced Mastery", "Photography · Foodie / Life" ] },
     timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
@@ -107,7 +116,7 @@ const DICT = {
     nav: { about: '关于', works: '项目', gallery: '画廊', skills: '技能', timeline: '日志', guestbook: '留言墙', contact: '联系' },
     hero: { desc: "坐标南京大学（NJU）。致力于构建可靠的软件架构与沉浸式的现代数字交互体验。", loc: "位置", locVal: "澳门 → 南京", foc: "专注", focVal: "软件工程 / 创意编程" },
     about: { sub: "关于.exe", title1: "屏幕", title2: "背后。", p1: "我的软件工程之旅并非始于标准语法——而是从 Minecraft 的红石电路开始。搭建早期的虚拟逻辑门逐渐演变为编写稳健的后端框架，最终将我引向了构建广阔的现代全栈架构与互联网系统。", p2: "目前坐标南京大学，我游走于严谨的系统抽象与纯粹的视觉交互交汇处。摄影教会我何为构图与光影，而代码则赋予我构筑世界、操控数据的纯粹力量。", tags: ["全栈架构设计", "现代前端工程", "摄影与视觉表达"] },
-    works: { title1: "精选", title2: "项目。", archive: "v2.0 // 归档", view: "查看项目", items: [ { title: "Wide Research 金融智库", desc: "基于大语言模型（DeepSeek V3）的自动化财经情报系统。全天候聚合17+全球信源，实现深度热点提取与市场情感分析网。", tag: "AI智能分析 / 自动化", link: "https://finai.org.cn" }, { title: "随机抽签核心", desc: "具备自定义动画物理效果的交互式概率可视化模块。", tag: "算法 / 体验架构", link: "#" } ] },
+    works: { title1: "精选", title2: "项目。", archive: "v2.0 // 归档", view: "查看项目", items: [ { title: "Wide Research 金融智库", desc: "基于大语言模型（DeepSeek V3）的自动化财经情报系统。全天候聚合17+全球信源，实现深度热点提取与市场情感分析网。", tag: "AI智能分析 / 自动化", link: "https://finai.org.cn" }, { title: "酶学探索平台", desc: "沉浸式生物科学教育展示网站，以面包发酵、葡萄酿酒、奶酪制作为载体，生动呈现酶在食品工业中的奥秘，纯 HTML/CSS/JS 精心打造。", tag: "科学教育 / 创意展示", link: "https://treehey.github.io/Enzyme/" } ] },
     gallery: { m1: "我不仅仅", m2: "编写代码。", m3: "我更在", m4: "编织情绪。", photos: [ "旺角 · 霓虹与尘埃", "陆家嘴 · 城市脊梁", "爱情邮局 · 一纸情书", "大熊猫 · 温柔力量" ] },
     skills: { title1: "系统", title2: "概览", items: [ "计算机系统 · 软硬件与Linux", "前端开发 · 现代网站设计", "Python · 代码与运行熟练", "Office 套件 · 深度精通", "人文纪实 · 摄影与干饭热爱" ] },
     timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
@@ -118,7 +127,7 @@ const DICT = {
     nav: { about: '關於', works: '項目', gallery: '畫廊', skills: '技能', timeline: '日誌', guestbook: '留言牆', contact: '聯繫' },
     hero: { desc: "座標南京大學（NJU）。致力於構建可靠的軟件架構與沉浸式的現代數字交互體驗。", loc: "位置", locVal: "澳門 → 南京", foc: "專注", focVal: "軟件工程 / 創意編程" },
     about: { sub: "關於.exe", title1: "屏幕", title2: "背後。", p1: "我的軟件工程之旅並非始於標準語法——而是從 Minecraft 的紅石電路開始。搭建早期的虛擬邏輯門逐漸演變為編寫穩健的後端框架，最終將我引向了構建廣闊的現代全棧架構與互聯網系統。", p2: "目前座標南京大學，我遊走於嚴謹的系統抽象與純粹的視覺交互交匯處。攝影教會我何為構圖與光影，而代碼則賦予我構築世界、操控數據的純粹力量。", tags: ["全棧架構設計", "現代前端工程", "攝影與視覺表達"] },
-    works: { title1: "精選", title2: "項目。", archive: "v2.0 // 歸檔", view: "查看項目", items: [ { title: "Wide Research 金融智庫", desc: "基於大語言模型（DeepSeek V3）的自動化財經情報系統。全天候聚合17+全球信源，實現深度熱點提取與市場情感分析網。", tag: "AI智能分析 / 自動化", link: "https://finai.org.cn" }, { title: "隨機抽籤核心", desc: "具備自定義動畫物理效果的交互式概率可視化模塊。", tag: "算法 / 體驗架構", link: "#" } ] },
+    works: { title1: "精選", title2: "項目。", archive: "v2.0 // 歸檔", view: "查看項目", items: [ { title: "Wide Research 金融智庫", desc: "基於大語言模型（DeepSeek V3）的自動化財經情報系統。全天候聚合17+全球信源，實現深度熱點提取與市場情感分析網。", tag: "AI智能分析 / 自動化", link: "https://finai.org.cn" }, { title: "酶學探索平台", desc: "沉浸式生物科學教育展示網站，以麵包發酵、葡萄釀酒、奶酪製作為載體，生動呈現酶在食品工業中的奧秘，純 HTML/CSS/JS 精心打造。", tag: "科學教育 / 創意展示", link: "https://treehey.github.io/Enzyme/" } ] },
     gallery: { m1: "我不僅僅", m2: "編寫代碼。", m3: "我更在", m4: "編織情緒。", photos: [ "旺角 · 霓虹與塵埃", "陸家嘴 · 城市脊梁", "愛情郵局 · 一紙情書", "大熊貓 · 溫柔力量" ] },
     skills: { title1: "系統", title2: "概覽", items: [ "計算機系統 · 軟硬件與Linux", "前端開發 · 現代網站設計", "Python · 代碼與運行熟練", "Office 套件 · 深度精通", "人文紀實 · 攝影與乾飯熱愛" ] },
     timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
@@ -305,6 +314,12 @@ export default function Home() {
   /* Horizontal scroll mapping */
   const { scrollYProgress: horizontalProgress } = useScroll({ target: horizontalRef, offset: ["start start", "end end"] });
   const xTransform = useTransform(horizontalProgress, [0, 1], ["0%", "-80%"]); // 5 panels = -80%
+
+  /* Panel 1 (manifesto) visible when horizontal progress < 0.15 */
+  const [panel1Visible, setPanel1Visible] = useState(false);
+  useMotionValueEvent(horizontalProgress, "change", (v) => {
+    setPanel1Visible(v > 0.02 && v < 0.15);
+  });
 
   const HERO_CHARS = "TREE HEY".split("");
 
@@ -672,7 +687,7 @@ export default function Home() {
         {/* Projects — Full-Width Cinematic Rows */}
         {[
           { ...t.works.items[0], img: `${B}/images/wide-research.png` },
-          { ...t.works.items[1], img: `${B}/images/random-draw.png` },
+          { ...t.works.items[1], img: `${B}/images/enzyme.png` },
         ].map((work, i) => (
           <motion.a 
             href={work.link}
@@ -763,13 +778,13 @@ export default function Home() {
             {/* Panel 1: Huge Manifesto */}
             <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0">
               <div className="max-w-6xl w-full">
-                <h2 className="font-syne font-black text-[12vw] md:text-[7vw] leading-[1.1] pb-2 text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>
-                  <ScrambleText text={t.gallery.m1} className="block" />
+                <h2 className="font-syne font-black text-[12vw] md:text-[5.5vw] leading-[1.1] pb-2 text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>
+                  <ScrambleText text={t.gallery.m1} className="block" trigger={panel1Visible} />
                   <span className="block text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00F5FF,#FF2D78)" }}>
-                    <ScrambleText text={t.gallery.m2} margin="0px" />
+                    <ScrambleText text={t.gallery.m2} trigger={panel1Visible} />
                   </span>
-                  <ScrambleText text={t.gallery.m3} className="block" margin="0px" />
-                  <ScrambleText text={t.gallery.m4} className="block text-[#39FF14]" margin="0px" />
+                  <ScrambleText text={t.gallery.m3} className="block" trigger={panel1Visible} />
+                  <ScrambleText text={t.gallery.m4} className="block text-[#39FF14]" trigger={panel1Visible} />
                 </h2>
               </div>
             </div>
@@ -981,19 +996,6 @@ export default function Home() {
 
         {/* Footer strip */}
         <div className="relative w-full border-t border-[#E2E2EC]/10 px-6 md:px-12 py-4 flex items-center justify-between">
-          <motion.div 
-            className="absolute right-12 bottom-full mb-0 w-24 h-24 origin-bottom overflow-hidden cursor-pointer"
-            whileHover={{ y: -5 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          >
-            <motion.img 
-              src={`${B}/sloth2.svg`} 
-              alt="Sleepy Sloth" 
-              className="w-full h-full object-contain filter invert opacity-50 hover:opacity-100 transition-opacity"
-              animate={{ rotate: [-2, 2, -2] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-            />
-          </motion.div>
           <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">© 2026 TREEHEY — ALL RIGHTS RESERVED</span>
           <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">BUILT WITH NEXT.JS + FRAMER MOTION</span>
         </div>
