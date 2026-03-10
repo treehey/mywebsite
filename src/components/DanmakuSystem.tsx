@@ -199,7 +199,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
                   onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   maxLength={30}
                 placeholder={tr.danmakuPlaceholder}
-                  className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
+                  className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
                 />
                 <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">{tr.danmakuHint}</p>
               </div>
@@ -218,7 +218,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
                   maxLength={150}
                   rows={3}
                   placeholder={tr.messagePlaceholder}
-                  className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
+                  className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
                 />
                 <p className="font-mono text-[9px] text-[#E2E2EC]/30 mt-1.5">{tr.messageHint}</p>
               </div>
@@ -234,7 +234,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
                   onChange={e => setNickname(e.target.value)}
                   maxLength={20}
                   placeholder={tr.nicknamePlaceholder}
-                  className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
+                  className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
                 />
               </div>
 

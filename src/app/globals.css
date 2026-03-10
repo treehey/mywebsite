@@ -154,6 +154,12 @@ html.light .no-invert {
   -webkit-backface-visibility: hidden;
 }
 
+@media (max-width: 768px) {
+  .cyber-grid {
+    display: none;
+  }
+}
+
 .cyber-grid-overlay {
   position: absolute;
   inset: 0;

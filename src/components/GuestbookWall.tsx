@@ -164,10 +164,20 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
     setTimeout(() => { setShowForm(false); setStatus("idle"); }, 1500);
   };
 
-  const cols = entries.length === 0 ? 3
-    : entries.length <= 2 ? entries.length
-    : Math.max(2, Math.min(5, Math.ceil(Math.sqrt(entries.length * 1.4))));
-  const wallHeight = Math.ceil(entries.length / cols) * 280 + 220;
+  const [cols, setCols] = useState(3);
+  useEffect(() => {
+    const updateCols = () => {
+      const w = window.innerWidth;
+      if (w < 640) setCols(1);
+      else if (w < 1024) setCols(Math.max(1, Math.min(2, entries.length)));
+      else setCols(entries.length === 0 ? 3 : entries.length <= 2 ? entries.length : Math.max(2, Math.min(5, Math.ceil(Math.sqrt(entries.length * 1.4)))));
+    };
+    updateCols();
+    window.addEventListener("resize", updateCols);
+    return () => window.removeEventListener("resize", updateCols);
+  }, [entries.length]);
+
+  const wallHeight = Math.ceil(entries.length / cols) * 350 + 220;
 
   return (
     <section className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden">
@@ -181,8 +191,8 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
       />
 
       {/* Ambient glow blobs */}
-      <div className="absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FF2D78" }} />
-      <div className="absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#00F5FF" }} />
+      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FF2D78" }} />
+      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#00F5FF" }} />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
@@ -198,7 +208,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
           </p>
           <div className="flex items-end justify-between gap-6 flex-wrap">
             <div>
-              <h2 className="font-grotesk font-black text-5xl md:text-7xl text-[#E2E2EC] leading-[1] mb-4">
+              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-[#E2E2EC] leading-[1] mb-4">
                 {tr.title}
               </h2>
               <p className="font-grotesk text-[#E2E2EC]/40 text-base max-w-sm">
@@ -258,7 +268,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       maxLength={150}
                       rows={3}
                       placeholder={tr.msgPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
                     />
                   </div>
                   {/* Danmaku title (optional) */}
@@ -274,7 +284,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       onKeyDown={e => e.key === "Enter" && handleSubmit()}
                       maxLength={30}
                       placeholder={tr.dmkPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
                     />
                   </div>
                   {/* Nickname + submit */}
@@ -287,7 +297,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                         onChange={e => setNickname(e.target.value)}
                         maxLength={20}
                         placeholder={tr.nickPlaceholder}
-                        className="w-full bg-transparent font-grotesk text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
+                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
                       />
                     </div>
                     <button
@@ -340,15 +350,19 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
   const row = Math.floor(index / cols);
   const cellW = 100 / cols; // percent
 
-  // Jitter inside the cell using different primes per axis — up to 60% of cell width
-  const jitterX = ((id * 317 + col * 89 + 43) % Math.round(cellW * 6)) / 10; // 0 to ~60% of cellW
-  const jitterY = ((id * 251 + row * 73 + 17) % 100) - 50;  // ±50px vertical chaos
+  // Jitter inside the cell using different primes per axis
+  const jitterX = cols === 1 
+    ? ((id * 317 + 43) % 10) - 5 // -5 to +5 pct for single column center
+    : ((id * 317 + col * 89 + 43) % Math.round(cellW * 6)) / 10; // 0 to ~60% of cellW
+  const jitterY = cols === 1 
+    ? ((id * 251 + row * 73 + 17) % 60) - 30 // ±30px vertical chaos on mobile
+    : ((id * 251 + row * 73 + 17) % 100) - 50;  // ±50px vertical chaos
 
   // Stagger odd cols downward for a more organic staircase feel
-  const colStagger = (col % 2) * 70 + (col % 3) * 30;
+  const colStagger = cols === 1 ? 0 : (col % 2) * 70 + (col % 3) * 30;
 
-  const leftPct = cellW * col + cellW * 0.05 + jitterX;
-  const topPx   = row * 310 + 40 + jitterY + colStagger;
+  const leftPct = cols === 1 ? 50 + jitterX : cellW * col + cellW * 0.05 + jitterX;
+  const topPx   = row * 350 + 40 + jitterY + colStagger;
 
   // Rotation: more variance with secondary harmonic
   const rotBase = ((id * 137 + 31) % 120) - 60;
@@ -356,7 +370,7 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
   const rotate  = Number(((rotBase + rotHarm * 0.3) / 7).toFixed(1)); // ±12deg
 
   const delay  = (index % 12) * 0.06;
-  const zIndex = (total - index) + (id % 30);
+  const initialZIndex = (total - index) + (id % 30);
 
   const isFew   = total <= 3;
   const isMedium = total > 3 && total <= 8;
@@ -367,20 +381,35 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
   const tapeAngle = ((id * 41 + 13) % 14) - 7;
   const tapeOffX  = ((id * 53 + 7) % 60) - 30; // tape can be off-center
 
+  const [isFocused, setIsFocused] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.7, rotate: rotate - 15, y: -30 }}
-      whileInView={{ opacity: 1, scale: 1, rotate: rotate, y: 0 }}
-      whileHover={{ scale: 1.07, rotate: 0, zIndex: 1000 }}
-      whileTap={{ scale: 1.03, rotate: 0, zIndex: 1000 }}
+      initial={{ opacity: 0, scale: 0.7, rotate: rotate - 15, y: -30, x: cols === 1 ? "-50%" : 0 }}
+      whileInView={{ 
+        opacity: 1, 
+        scale: isFocused ? 1.05 : 1, 
+        rotate: isFocused ? 0 : rotate, 
+        y: 0, 
+        x: cols === 1 ? "-50%" : 0 
+      }}
+      whileHover={{ scale: 1.05, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
+      whileTap={{ scale: 1.02, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
+      onPointerEnter={() => setHasInteracted(true)}
+      onClick={() => {
+        setHasInteracted(true);
+        setIsFocused(!isFocused);
+      }}
       viewport={{ once: true, margin: "80px" }}
-      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.55, delay: hasInteracted ? 0 : delay, ease: [0.16, 1, 0.3, 1] }}
       className="absolute cursor-pointer"
       style={{
-        left: `calc(${leftPct}% + 0px)`,
+        left: cols === 1 ? `${leftPct}%` : `clamp(10px, ${leftPct}%, calc(100% - ${noteW}px - 10px))`,
         top: `${topPx}px`,
-        width: `${noteW}px`,
-        zIndex,
+        width: "90vw",
+        maxWidth: `${noteW}px`,
+        zIndex: isFocused ? 1000 : initialZIndex,
       }}
     >
       {/* Tape strip — positioned off-center with rotation */}

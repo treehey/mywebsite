@@ -253,6 +253,7 @@ export default function Home() {
   const [theme, setTheme] = useState("dark");
   const [lang, setLang] = useState("简");
   const [langOpen, setLangOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
 
   const t = DICT[lang as keyof typeof DICT];
@@ -312,11 +313,11 @@ export default function Home() {
       <div id="top" className="absolute top-0" />
       
       {/* ───── NAV PILL ───── */}
-      <header className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-4 md:px-7 py-3 rounded-full bg-[#0E0E1C]/80 backdrop-blur-2xl border border-[#00F5FF]/15 transition-all w-[90vw] md:w-auto justify-between md:justify-center">
-        <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)} className="font-syne font-bold text-lg text-[#00F5FF] glow-cyan tracking-widest md:mr-6 hover:scale-110 transition-transform cursor-pointer" style={{ fontFamily: "var(--font-syne)" }}>TH</a>
+      <header className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-4 md:px-7 py-3 rounded-full bg-[#0E0E1C]/80 backdrop-blur-2xl border border-[#00F5FF]/15 transition-all w-[90vw] md:w-auto justify-between md:justify-center overflow-hidden">
+        <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)} className="shrink-0 font-syne font-bold text-lg text-[#00F5FF] glow-cyan tracking-widest hover:scale-110 transition-transform cursor-pointer" style={{ fontFamily: "var(--font-syne)" }}>TH</a>
         
-        {/* Mobile Navigation hidden under a toggle, or just show icons? Let's just show text links but smaller on mobile */}
-        <nav className="flex gap-3 md:gap-7 font-grotesk text-[9px] md:text-[11px] uppercase tracking-widest text-[#E2E2EC]/45">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-7 font-grotesk text-[11px] uppercase tracking-widest text-[#E2E2EC]/45 flex-1 md:flex-none justify-center md:ml-6 md:mr-2">
           {[
             { id: 'about', label: t.nav.about },
             { id: 'works', label: t.nav.works },
@@ -331,15 +332,26 @@ export default function Home() {
                 e.preventDefault(); 
                 document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); 
               }}
-              className={`transition-colors duration-300 ${activeSection === item.id ? 'text-[#00F5FF] font-bold drop-shadow-[0_0_8px_rgba(0,245,255,0.8)] scale-110' : 'hover:text-[#00F5FF]'}`}
+              className={`shrink-0 transition-colors duration-300 ${activeSection === item.id ? 'text-[#00F5FF] font-bold drop-shadow-[0_0_8px_rgba(0,245,255,0.8)] scale-110' : 'hover:text-[#00F5FF]'}`}
               onMouseEnter={() => setCursorBig(true)}
               onMouseLeave={() => setCursorBig(false)}
             >{item.label}</a>
           ))}
         </nav>
 
+        {/* Mobile Menu Toggle */}
+        <div className="flex flex-1 justify-center md:hidden transition-all duration-300">
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`font-mono text-[10px] tracking-[0.2em] uppercase transition-colors px-4 py-1 flex items-center gap-2 rounded-full border ${mobileMenuOpen ? 'text-[#00F5FF] border-[#00F5FF]/30 bg-[#00F5FF]/10' : 'text-[#E2E2EC]/70 border-transparent hover:text-[#E2E2EC]'}`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: mobileMenuOpen ? '#00F5FF' : '#E2E2EC', opacity: mobileMenuOpen ? 1 : 0.4 }}></span>
+            {mobileMenuOpen ? 'CLOSE' : 'MENU'}
+          </button>
+        </div>
+
         {/* TOGGLES */}
-        <div className="flex items-center gap-2 md:gap-4 border-l border-[#E2E2EC]/20 pl-3 md:pl-6 ml-3 md:ml-6">
+        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-[#E2E2EC]/20 pl-4 md:pl-6">
           <button aria-label="Toggle Theme" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-[#E2E2EC]/50 hover:text-[#00F5FF] text-xs md:text-sm transition-colors" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
             {theme === 'dark' ? (
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -384,6 +396,46 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* ───── MOBILE EXPANDABLE MENU ───── */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-[980] w-[85vw] max-w-sm rounded-[1.5rem] bg-[#0E0E1C]/95 backdrop-blur-3xl border border-[#00F5FF]/20 shadow-[0_10px_40px_rgba(0,0,0,0.5),_0_0_20px_rgba(0,245,255,0.1)] overflow-hidden"
+          >
+            <div className="flex flex-col py-4">
+              {[
+                { id: 'about', label: t.nav.about },
+                { id: 'works', label: t.nav.works },
+                { id: 'gallery', label: t.nav.gallery },
+                { id: 'skills', label: t.nav.skills },
+                { id: 'timeline', label: t.nav.timeline },
+                { id: 'guestbook', label: t.nav.guestbook },
+                { id: 'contact', label: t.nav.contact },
+              ].map((item, i) => (
+                <button
+                  key={item.id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMobileMenuOpen(false);
+                    setTimeout(() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }), 300);
+                  }}
+                  className={`w-full px-6 py-3.5 flex items-center justify-between text-left transition-colors border-b border-[#E2E2EC]/5 last:border-0 ${activeSection === item.id ? 'bg-[#00F5FF]/10 text-[#00F5FF]' : 'text-[#E2E2EC]/70 hover:bg-[#E2E2EC]/5 hover:text-[#E2E2EC]'}`}
+                >
+                  <span className="font-syne font-bold tracking-widest text-sm uppercase">{item.label}</span>
+                  {activeSection === item.id && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00F5FF] box-glow-cyan animate-pulse"></span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ───── CUSTOM CURSOR ───── */}
       <motion.div
@@ -519,11 +571,11 @@ export default function Home() {
         </div>
         
         {/* Row 2 — Oversized editorial heading split */}
-        <div className="w-full px-6 md:px-12 pt-16 md:pt-24 pb-0 overflow-hidden">
+        <div className="w-full px-6 md:px-12 pt-16 md:pt-24 pb-4 md:pb-0 overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-0">
             <motion.h2 
               initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="font-syne font-black text-[14vw] md:text-[9vw] leading-[0.85] text-[#E2E2EC] uppercase"
+              className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-[#E2E2EC] uppercase"
               style={{ fontFamily: "var(--font-syne)" }}
             >
               {t.about.title1}
@@ -537,7 +589,7 @@ export default function Home() {
           </div>
           <motion.h2 
             initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="font-syne font-black text-[14vw] md:text-[9vw] leading-[0.85] text-transparent uppercase" 
+            className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-transparent uppercase" 
             style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "2px rgba(0,245,255,0.6)" }}
           >
             {t.about.title2}
@@ -746,7 +798,7 @@ export default function Home() {
                     <div className="overflow-hidden">
                       <motion.h3 
                         initial={{ y: "100%" }} whileInView={{ y: 0 }} transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
-                        className="font-syne font-black text-4xl md:text-7xl text-[#E2E2EC] leading-none mb-2" style={{ fontFamily: "var(--font-syne)" }}>
+                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl text-[#E2E2EC] leading-none mb-2" style={{ fontFamily: "var(--font-syne)" }}>
                         {t.gallery.photos[i]}
                       </motion.h3>
                     </div>
@@ -782,7 +834,7 @@ export default function Home() {
       ════════════════════════════════════ */}
       <section id="skills" className="relative z-10 py-32 px-4 md:px-12 bg-[#07070F] flex flex-col items-center">
         <div className="w-full max-w-7xl mb-10 md:mb-16">
-          <h2 className="font-syne font-black text-5xl md:text-8xl text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-[#00F5FF]">{t.skills.title2}</span></h2>
+          <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-[#00F5FF]">{t.skills.title2}</span></h2>
         </div>
 
 <div className="w-full max-w-7xl flex flex-col gap-16">
