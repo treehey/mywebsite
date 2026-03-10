@@ -62,6 +62,25 @@ function ScrambleText({ text, className, margin = "-100px", trigger: externalTri
   return <span ref={ref} className={className}>{display}</span>;
 }
 
+function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    let cur = 0;
+    const step = 16;
+    const inc = to / (1400 / step);
+    const t = setInterval(() => {
+      cur += inc;
+      if (cur >= to) { setVal(to); clearInterval(t); }
+      else setVal(Math.floor(cur));
+    }, step);
+    return () => clearInterval(t);
+  }, [inView, to]);
+  return <span ref={ref}>{val}{suffix}</span>;
+}
+
 /* ════════════════════════════════════════════════════════
    MAGNETIC BUTTON HOOK
 ════════════════════════════════════════════════════════ */
@@ -263,6 +282,9 @@ export default function Home() {
   const [lang, setLang] = useState("简");
   const [langOpen, setLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const aboutRef = useRef<HTMLElement>(null);
+  const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
+  const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
 
   const t = DICT[lang as keyof typeof DICT];
@@ -575,99 +597,279 @@ export default function Home() {
       </section>
 
       {/* ════════════════════════════════════
-          1.5 ABOUT / EDITORIAL LAYOUT
+          1.5 ABOUT / INTERACTIVE IDENTITY
       ════════════════════════════════════ */}
-      <section id="about" className="relative z-10 w-full bg-[#07070F] overflow-hidden">
-        
-        {/* Row 1 — Full-bleed chapter label */}
-        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+      <section
+        id="about"
+        ref={aboutRef}
+        className="relative z-10 w-full bg-[#07070F] overflow-hidden"
+        onMouseMove={(e) => {
+          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+          setAboutMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        }}
+      >
+        {/* Mouse spotlight */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{ background: `radial-gradient(700px circle at ${aboutMouse.x}px ${aboutMouse.y}px, rgba(0,245,255,0.05), transparent 65%)` }}
+        />
+
+        {/* Row 1 — Section header with animated line */}
+        <div className="relative w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
           <span className="font-mono text-xs text-[#00F5FF] tracking-[0.5em] uppercase glow-cyan">{t.about.sub}</span>
-          <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ 001 — IDENTITY</span>
+          <div className="flex items-center gap-4">
+            <motion.div
+              className="h-[1px] bg-gradient-to-r from-transparent to-[#00F5FF]/60 origin-left"
+              initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
+              transition={{ duration: 1.4, ease: "easeOut" }}
+              style={{ width: "80px" }}
+            />
+            <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ 001 — IDENTITY</span>
+          </div>
         </div>
-        
-        {/* Row 2 — Oversized editorial heading split */}
-        <div className="w-full px-6 md:px-12 pt-16 md:pt-24 pb-4 md:pb-0 overflow-hidden">
+
+        {/* Row 2 — Oversized heading with glitch on hover */}
+        <div className="relative w-full px-6 md:px-12 pt-16 md:pt-24 pb-4 md:pb-0 overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-0">
-            <motion.h2 
-              initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-              className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-[#E2E2EC] uppercase"
+            <motion.h2
+              initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-[#E2E2EC] uppercase cursor-default select-none"
               style={{ fontFamily: "var(--font-syne)" }}
+              whileHover={{ x: [0, -5, 5, -3, 3, 0], transition: { duration: 0.35, ease: "easeInOut" } }}
             >
               {t.about.title1}
             </motion.h2>
-            <motion.div 
-              initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.3 }}
+            <motion.div
+              initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="md:mb-4 flex flex-col items-start md:items-end gap-2"
             >
-              <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split('.')[0]}.</p>
+              <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split(".")[0]}.</p>
             </motion.div>
           </div>
-          <motion.h2 
-            initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-transparent uppercase" 
+          <motion.h2
+            initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-transparent uppercase cursor-default select-none"
             style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "2px rgba(0,245,255,0.6)" }}
+            whileHover={{ x: [0, 5, -5, 3, -3, 0], transition: { duration: 0.35 } }}
           >
             {t.about.title2}
           </motion.h2>
         </div>
 
-        {/* Row 3 — Three column editorial grid */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr] gap-0 border-t border-[#E2E2EC]/10 mt-12 md:mt-16">
-          
-          {/* Col A — Stat blocks */}
-          <div className="border-r border-[#E2E2EC]/10 p-6 md:p-10 flex flex-col justify-between gap-8">
+        {/* ── BENTO PHOTO GRID ── */}
+        {/* Desktop: 3-col × 2-row asymmetric  [ NJU(tall) | MC | Assoc ]
+                                               [           | mbot | steam ] */}
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] border-t border-[#E2E2EC]/10 overflow-hidden"
+          style={{ gridTemplateRows: "minmax(260px,35vh) minmax(260px,35vh)" }}>
+
+          {/* Cell A — NJU, spans 2 rows */}
+          <div
+            className="relative md:row-span-2 overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 group"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setAboutImgMouse({ x: ((e.clientX - r.left) / r.width - 0.5) * 22, y: ((e.clientY - r.top) / r.height - 0.5) * 22 });
+            }}
+            onMouseLeave={() => { setAboutImgMouse({ x: 0, y: 0 }); setCursorBig(false); }}
+            onMouseEnter={() => setCursorBig(true)}
+          >
+            <motion.div
+              className="absolute inset-[-4%]"
+              animate={{ x: aboutImgMouse.x, y: aboutImgMouse.y }}
+              transition={{ type: "spring", stiffness: 70, damping: 18 }}
+            >
+              <img src={`${B}/images/about/nju.jpg`} alt="NJU" loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 transition-all duration-700" />
+              <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
+                style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/90 via-[#07070F]/20 to-transparent" />
+            </motion.div>
+            {/* Corner brackets */}
+            <motion.div className="absolute top-5 left-5 z-10 pointer-events-none" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.5 }}>
+              <div className="w-7 h-7 border-t-2 border-l-2 border-[#00F5FF]/50" />
+            </motion.div>
+            <motion.div className="absolute top-5 right-5 z-10 pointer-events-none" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
+              <div className="w-7 h-7 border-t-2 border-r-2 border-[#00F5FF]/50" />
+            </motion.div>
+            {/* Badge */}
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
+            {/* Text overlay at bottom */}
+            <motion.div
+              initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}
+              transition={{ duration: 0.9, delay: 0.45 }}
+              className="absolute bottom-6 left-6 right-6 z-10"
+            >
+              <p className="font-grotesk text-sm text-[#E2E2EC]/75 leading-[1.75]">{t.about.p2}</p>
+            </motion.div>
+            <motion.div className="absolute bottom-5 right-5 z-10 pointer-events-none" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.7 }}>
+              <div className="w-7 h-7 border-b-2 border-r-2 border-[#00F5FF]/50" />
+            </motion.div>
+          </div>
+
+          {/* Cell B — Minecraft, top col 2 */}
+          <div
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-[#E2E2EC]/10 group cursor-default"
+            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+          >
+            <motion.img
+              src={`${B}/images/about/Minecraft.jfif`} alt="Origin" loading="lazy" decoding="async"
+              className="w-full h-full object-cover object-center grayscale-[65%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            />
+            {/* Glitch scan lines on hover */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none overflow-hidden">
+              <motion.div className="absolute left-0 right-0 h-[2px] bg-[#FF2D78]/70"
+                animate={{ top: ["12%","82%","38%","66%","50%"] }}
+                transition={{ duration: 0.45, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.div className="absolute left-0 right-0 h-[1px] bg-[#00F5FF]/50"
+                animate={{ top: ["78%","22%","55%","40%","80%"] }}
+                transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }}
+              />
+              <motion.div className="absolute inset-0 mix-blend-screen"
+                animate={{ x: [0, 3, -3, 2, 0] }}
+                transition={{ duration: 0.25, repeat: Infinity, ease: "linear" }}
+                style={{ background: "rgba(255,45,120,0.09)" }}
+              />
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest">Origin · 2012</div>
+          </div>
+
+          {/* Cell C — Student Association, top col 3 */}
+          <div
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-[#E2E2EC]/10 group cursor-default"
+            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+          >
+            <motion.img
+              src={`${B}/images/about/student-association.jpg`} alt="Student Association" loading="lazy" decoding="async"
+              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#00F5FF] bg-[#00F5FF]/10 border border-[#00F5FF]/30 px-2 py-1 uppercase tracking-widest">Association</div>
+          </div>
+
+          {/* Cell D — mbot robotics, bottom col 2 */}
+          <div
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-[#E2E2EC]/10 group cursor-default"
+            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+          >
+            <motion.img
+              src={`${B}/images/about/mbot.jpg`} alt="Robotics" loading="lazy" decoding="async"
+              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-2 py-1 uppercase tracking-widest">Robotics</div>
+          </div>
+
+          {/* Cell E — STEAM & IoT, bottom col 3 */}
+          <div
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto group cursor-default"
+            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+          >
+            <motion.img
+              src={`${B}/images/about/steam&iot.jpg`} alt="STEAM" loading="lazy" decoding="async"
+              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#F5C542] bg-[#F5C542]/10 border border-[#F5C542]/30 px-2 py-1 uppercase tracking-widest">STEAM · IoT</div>
+          </div>
+        </div>
+
+        {/* ── Info band: p1 text | stat cards | tags ── */}
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] border-t border-[#E2E2EC]/10">
+
+          {/* p1 paragraph */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            transition={{ duration: 0.9 }}
+            className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 flex flex-col justify-center gap-5"
+          >
+            <p className="font-grotesk text-sm md:text-[15px] text-[#E2E2EC]/58 leading-[1.9]">{t.about.p1}</p>
+          </motion.div>
+
+          {/* Stat cards */}
+          <div className="border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 p-6 md:p-8 flex flex-col justify-between gap-4">
             {[
-              { label: "BASE", val: "Macau → NJU" },
-              { label: "FOCUS", val: "Full-Stack" },
-              { label: "ORIGIN", val: "Minecraft" },
-            ].map(stat => (
-              <motion.div key={stat.label} initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-                <p className="font-mono text-[10px] text-[#E2E2EC]/40 uppercase tracking-[0.4em] mb-2">{stat.label}</p>
-                <p className="font-syne font-bold text-xl md:text-2xl text-[#E2E2EC]">{stat.val}</p>
+              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学" },
+              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX" },
+              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code" },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.12 }}
+                className="group relative border border-transparent hover:border-[#00F5FF]/20 p-3 -mx-3 rounded-sm transition-all duration-300 hover:bg-[#00F5FF]/[0.03] cursor-default overflow-hidden"
+              >
+                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#00F5FF] scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-bottom" />
+                <div className="flex items-center gap-2 mb-1">
+                  <motion.div className="w-1.5 h-1.5 rounded-full bg-[#00F5FF]/40"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.6 }}
+                  />
+                  <p className="font-mono text-[10px] text-[#E2E2EC]/35 uppercase tracking-[0.4em]">{stat.label}</p>
+                </div>
+                <p className="font-syne font-bold text-lg md:text-xl text-[#E2E2EC] group-hover:text-[#00F5FF] transition-colors duration-300 pl-1" style={{ fontFamily: "var(--font-syne)" }}>{stat.val}</p>
+                <p className="font-mono text-[10px] text-[#00F5FF]/0 group-hover:text-[#00F5FF]/55 transition-all duration-300 mt-1 pl-1 tracking-widest">→ {stat.sub}</p>
               </motion.div>
             ))}
           </div>
-          
-          {/* Col B — Large featured image with text overlay */}
-          <div className="relative overflow-hidden aspect-[4/3] md:aspect-auto md:min-h-[500px]" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-            <motion.div 
-              className="absolute inset-0"
-              initial={{ scale: 1.1 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }}
-            >
-              <img src={`${B}/images/about/nju.jpg`} alt="NJU" loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[30%]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-[#07070F]/50" />
-            </motion.div>
-            {/* Floating label badge */}
-            <div className="absolute top-6 left-6 z-10 font-mono text-xs text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-3 py-1.5 uppercase tracking-[0.3em]">PRESENT // NJU</div>
-            <motion.div 
-              initial={{ y: 30, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute bottom-8 left-8 right-8 z-10"
-            >
-              <p className="font-grotesk text-base text-[#E2E2EC]/80 leading-relaxed">{t.about.p2}</p>
-            </motion.div>
-          </div>
-          
-          {/* Col C — Tag stack + secondary images */}
-          <div className="border-l border-[#E2E2EC]/10 flex flex-col">
-            <div className="relative overflow-hidden aspect-square border-b border-[#E2E2EC]/10" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-              <img src={`${B}/images/about/Minecraft.jfif`} alt="Origin" loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[60%] hover:grayscale-0 transition-all duration-700 hover:scale-105" />
-              <div className="absolute bottom-4 left-4 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest">Origin</div>
-            </div>
-            <div className="p-6 md:p-8 flex flex-col gap-4 flex-1 justify-end">
-              <p className="font-mono text-[10px] text-[#E2E2EC]/40 uppercase tracking-[0.4em]">Modules</p>
-              <div className="flex flex-col gap-2">
-                {t.about.tags.map((tag, i) => (
-                  <motion.div 
-                    key={tag} initial={{ x: 20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                    className="flex items-center gap-3 group cursor-default"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00F5FF]/50 group-hover:bg-[#00F5FF] transition-colors" />
+
+          {/* Tags with animated progress bars */}
+          <div className="p-6 md:p-8 flex flex-col justify-center gap-5">
+            <p className="font-mono text-[10px] text-[#E2E2EC]/40 uppercase tracking-[0.4em]">Modules</p>
+            <div className="flex flex-col gap-5">
+              {t.about.tags.map((tag, i) => (
+                <motion.div
+                  key={tag}
+                  initial={{ x: 20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.12 }}
+                  className="group cursor-default"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <motion.span
+                      className="w-1.5 h-1.5 rounded-full bg-[#00F5FF]/50 group-hover:bg-[#00F5FF] flex-shrink-0 transition-colors"
+                      animate={{ scale: [1, 1.4, 1] }}
+                      transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.7 }}
+                    />
                     <span className="font-mono text-xs text-[#E2E2EC]/50 group-hover:text-[#00F5FF] transition-colors uppercase tracking-widest">{tag}</span>
-                  </motion.div>
-                ))}
-              </div>
+                  </div>
+                  <div className="ml-4 h-[1px] bg-[#E2E2EC]/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-[#00F5FF]/60 to-[#FF2D78]/40"
+                      initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
+                      transition={{ duration: 1.1, delay: 0.4 + i * 0.15, ease: "easeOut" }}
+                      style={{ transformOrigin: "left", width: `${[88, 92, 78][i]}%` }}
+                    />
+                  </div>
+                </motion.div>
+              ))}
             </div>
           </div>
+        </div>
+
+        {/* ── System metrics ── */}
+        <div className="relative w-full border-t border-[#E2E2EC]/10 grid grid-cols-3">
+          {[
+            { num: 50, suffix: "K+", label: lang === "EN" ? "LINES OF CODE" : "代码行数" },
+            { num: 4,  suffix: "+",  label: lang === "EN" ? "YEARS BUILDING" : "年开发经验" },
+            { num: 10, suffix: "+",  label: lang === "EN" ? "PROJECTS SHIPPED" : "项目上线" },
+          ].map((m, i) => (
+            <motion.div
+              key={m.label}
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className={`group px-6 md:px-10 py-6 md:py-8 flex flex-col gap-1 cursor-default${i < 2 ? " border-r border-[#E2E2EC]/10" : ""}`}
+            >
+              <span
+                className="font-syne font-black text-3xl md:text-4xl text-[#E2E2EC] group-hover:text-[#00F5FF] transition-colors duration-300"
+                style={{ fontFamily: "var(--font-syne)" }}
+              >
+                <CountUp to={m.num} suffix={m.suffix} />
+              </span>
+              <span className="font-mono text-[10px] text-[#E2E2EC]/35 group-hover:text-[#E2E2EC]/60 transition-colors uppercase tracking-[0.3em]">{m.label}</span>
+            </motion.div>
+          ))}
         </div>
       </section>
 
