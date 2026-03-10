@@ -98,7 +98,7 @@ export function GuestbookWall() {
   };
 
   return (
-    <section id="guestbook" className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden">
+    <section className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden">
       {/* Background grid */}
       <div
         className="absolute inset-0 pointer-events-none"

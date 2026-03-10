@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 import { DanmakuSystem } from "@/components/DanmakuSystem";
-import { GuestbookWall } from "@/components/GuestbookWall";
+import dynamic from "next/dynamic";
+const GuestbookWall = dynamic(() => import("@/components/GuestbookWall").then(m => ({ default: m.GuestbookWall })), { ssr: false });
 import {
   motion,
   useScroll,
@@ -222,7 +223,7 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
                   {/* Thumbnail */}
                   <div className="w-24 h-16 md:w-40 md:h-28 rounded-lg overflow-hidden flex-shrink-0 border border-[#E2E2EC]/10 group-hover:border-opacity-50 transition-all duration-500 md:ml-auto relative"
                     style={{ borderColor: `${accent}30` }}>
-                    <img src={node.img} alt={item.label} className="w-full h-full object-cover grayscale-[70%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
+                    <img src={node.img} alt={item.label} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[70%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#07070F]/60" />
                   </div>
                 </div>
@@ -554,7 +555,7 @@ export default function Home() {
               className="absolute inset-0"
               initial={{ scale: 1.1 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }}
             >
-              <img src={`${B}/images/about/nju.jpg`} alt="NJU" className="w-full h-full object-cover grayscale-[30%]" />
+              <img src={`${B}/images/about/nju.jpg`} alt="NJU" loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[30%]" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-[#07070F]/50" />
             </motion.div>
             {/* Floating label badge */}
@@ -570,7 +571,7 @@ export default function Home() {
           {/* Col C — Tag stack + secondary images */}
           <div className="border-l border-[#E2E2EC]/10 flex flex-col">
             <div className="relative overflow-hidden aspect-square border-b border-[#E2E2EC]/10" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-              <img src={`${B}/images/about/Minecraft.jfif`} alt="Origin" className="w-full h-full object-cover grayscale-[60%] hover:grayscale-0 transition-all duration-700 hover:scale-105" />
+              <img src={`${B}/images/about/Minecraft.jfif`} alt="Origin" loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[60%] hover:grayscale-0 transition-all duration-700 hover:scale-105" />
               <div className="absolute bottom-4 left-4 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest">Origin</div>
             </div>
             <div className="p-6 md:p-8 flex flex-col gap-4 flex-1 justify-end">
@@ -724,7 +725,7 @@ export default function Home() {
                   className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card group cursor-pointer"
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                 >
-                  <img src={photo.src} alt={photo.title} className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+                  <img src={photo.src} alt={photo.title} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
                   
                   {/* Overlay gradients & Data */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-transparent opacity-90" />
@@ -782,7 +783,7 @@ export default function Home() {
                 className="relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-[#E2E2EC]/10 hover:border-[#00F5FF]/50"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                <img src={skill.bg} className="absolute inset-0 w-full h-full object-cover grayscale-[80%] group-hover/card:grayscale-0 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
+                <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[80%] group-hover/card:grayscale-0 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
                 
                 {/* Overlays */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-[#07070F]/50 to-transparent opacity-90 group-hover/card:opacity-60 transition-opacity duration-700" />
@@ -819,7 +820,9 @@ export default function Home() {
       {/* ════════════════════════════════════
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
-      <GuestbookWall />
+        <section id="guestbook" className="relative min-h-screen">
+          <GuestbookWall />
+        </section>
 
       {/* ════════════════════════════════════
           4. CONTACT — Immersive Terminal
