@@ -410,15 +410,23 @@ export default function Home() {
           1. HERO (Asymmetric & Interactive)
       ════════════════════════════════════ */}
       <section className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines" id="hero">
-        {/* Animated Cyber Grid with Mouse Parallax */}
-        <motion.div 
-          className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
-          animate={{ x: mDelta.x * -30, y: mDelta.y * -15 }}
-          transition={{ type: "spring", stiffness: 150, damping: 20 }}
-        >
-           <div className="cyber-grid" />
-           <div className="cyber-grid-overlay" />
-        </motion.div>
+        {/* Animated Cyber Grid with 3D Mouse Parallax */}
+        <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ perspective: "1000px" }}>
+          <motion.div 
+            className="w-full h-full relative"
+            animate={{ 
+              rotateX: mDelta.y * -15, 
+              rotateY: mDelta.x * 15,
+              z: mDelta.y * 20, /* Add slight depth pull */
+              scale: 1.4 /* Increased scale to prevent edge clipping during extreme parallax */
+            }}
+            transition={{ type: "spring", stiffness: 45, damping: 15, mass: 0.8 }}
+            style={{ transformStyle: "preserve-3d" }}
+          >
+             <div className="cyber-grid" />
+             <div className="cyber-grid-overlay" />
+          </motion.div>
+        </div>
 
         <motion.div 
           className="absolute z-0 w-full h-full flex items-center justify-center opacity-[0.05]"
