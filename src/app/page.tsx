@@ -406,6 +406,53 @@ export default function Home() {
 
   const HERO_CHARS = "TREE HEY".split("");
 
+  // ── Hero letter explosion & SLOTH easter egg ────────────────────────────
+  const [heroClickedSet, setHeroClickedSet] = useState<Set<string>>(new Set());
+  const [heroExploding, setHeroExploding] = useState<Set<string>>(new Set());
+  const [slothMode, setSlothMode] = useState(false);
+  const heroVectorsRef = useRef<Record<string, { x: number; y: number; rotate: number }>>({});
+  const slothPendingRef = useRef(false);
+
+  useEffect(() => {
+    const r = heroVectorsRef.current;
+    ['TREE', 'HEY'].forEach((word, wIdx) => {
+      word.split('').forEach((_, i) => {
+        r[`${wIdx}-${i}`] = {
+          x: (Math.random() - 0.5) * 400,
+          y: (Math.random() - 0.5) * 280,
+          rotate: (Math.random() - 0.5) * 360,
+        };
+      });
+    });
+    'SLOTH'.split('').forEach((_, i) => {
+      r[`sloth-${i}`] = {
+        x: (Math.random() - 0.5) * 200,
+        y: -(Math.random() * 300 + 150),
+        rotate: (Math.random() - 0.5) * 200,
+      };
+    });
+  }, []);
+
+  function handleHeroCharClick(wIdx: number, charIdx: number) {
+    if (slothMode || slothPendingRef.current) return;
+    const key = `${wIdx}-${charIdx}`;
+    const newClicked = new Set([...heroClickedSet, key]);
+    setHeroClickedSet(newClicked);
+    if (newClicked.size >= 7) {
+      // All 7 chars clicked — scatter ALL then transform to SLOTH
+      slothPendingRef.current = true;
+      setHeroExploding(new Set(['0-0','0-1','0-2','0-3','1-0','1-1','1-2']));
+      setTimeout(() => { setSlothMode(true); slothPendingRef.current = false; }, 700);
+    } else {
+      setHeroExploding(prev => new Set([...prev, key]));
+      setTimeout(() => {
+        if (!slothPendingRef.current)
+          setHeroExploding(prev => { const n = new Set(prev); n.delete(key); return n; });
+      }, 580);
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   // ── Theme wipe (Lightroom-style linear mask) ─────────────────────────────
   function getWipeProps(wipe: { startX: number; startY: number; currentX: number; currentY: number }) {
     const dx = wipe.currentX - wipe.startX, dy = wipe.currentY - wipe.startY;
@@ -765,27 +812,62 @@ export default function Home() {
               transition={{ type: "tween", ease: "easeOut", duration: 0.5 }}
               onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             >
-              {['TREE', 'HEY'].map((word, wIdx) => (
-                <div key={wIdx} className="flex">
-                  {word.split("").map((ch, i) => (
-                    <div key={`${wIdx}-${i}`} className="relative inline-block overflow-visible group">
-                      <motion.span className="rgb-r font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#00F5FF] transition-colors" 
-                        style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>
-                        {ch}
-                      </motion.span>
-                      <motion.span className="rgb-b font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#FF2D78] transition-colors" 
-                        style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>
-                        {ch}
-                      </motion.span>
-                      <span className="relative z-10 font-syne font-black text-[18vw] md:text-[14vw] lg:text-[11rem] text-[#E2E2EC] group-hover:opacity-0 transition-opacity duration-300 drop-shadow-[0_0_20px_rgba(226,226,236,0.3)]" 
-                        style={{ fontFamily: "var(--font-syne)" }}>
-                        {ch}
-                      </span>
-                    </div>
-                  ))}
-                  {wIdx === 0 && <div className="w-[4vw] lg:w-[6vw] inline-block" />} {/* Space between words on desktop */}
+              {slothMode ? (
+                // ── SLOTH easter egg ──
+                <div className="flex">
+                  {"SLOTH".split("").map((ch, i) => {
+                    const v = heroVectorsRef.current[`sloth-${i}`] ?? { x: 0, y: -200, rotate: 0 };
+                    return (
+                      <motion.div
+                        key={`sloth-${i}`}
+                        className="relative inline-block overflow-visible"
+                        initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
+                        animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 190, damping: 16, delay: i * 0.08 }}
+                      >
+                        <span className="rgb-r font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0"
+                          style={{ fontFamily: "var(--font-syne)", color: '#00F5FF', transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>{ch}</span>
+                        <span className="rgb-b font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0"
+                          style={{ fontFamily: "var(--font-syne)", color: '#FF2D78', transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>{ch}</span>
+                        <span className="relative z-10 font-syne font-black text-[18vw] md:text-[14vw] lg:text-[11rem] text-[#E2E2EC] drop-shadow-[0_0_20px_rgba(226,226,236,0.3)]"
+                          style={{ fontFamily: "var(--font-syne)" }}>{ch}</span>
+                      </motion.div>
+                    );
+                  })}
                 </div>
-              ))}
+              ) : (
+                // ── Normal TREE HEY with click explosion ──
+                ['TREE', 'HEY'].map((word, wIdx) => (
+                  <div key={wIdx} className="flex">
+                    {word.split("").map((ch, i) => {
+                      const key = `${wIdx}-${i}`;
+                      const isExploding = heroExploding.has(key);
+                      const v = heroVectorsRef.current[key];
+                      const wasClicked = heroClickedSet.has(key);
+                      return (
+                        <motion.div
+                          key={key}
+                          className="relative inline-block overflow-visible group cursor-pointer"
+                          animate={isExploding
+                            ? { x: v?.x ?? 0, y: v?.y ?? 0, rotate: v?.rotate ?? 0, scale: 0.25, opacity: 0.45 }
+                            : { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 }}
+                          transition={{ type: 'spring', stiffness: 220, damping: 14 }}
+                          onClick={() => handleHeroCharClick(wIdx, i)}
+                          title={wasClicked ? undefined : "click me"}
+                        >
+                          <motion.span className="rgb-r font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#00F5FF] transition-colors"
+                            style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>{ch}</motion.span>
+                          <motion.span className="rgb-b font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#FF2D78] transition-colors"
+                            style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>{ch}</motion.span>
+                          <span className={`relative z-10 font-syne font-black text-[18vw] md:text-[14vw] lg:text-[11rem] group-hover:opacity-0 transition-opacity duration-300 drop-shadow-[0_0_20px_rgba(226,226,236,0.3)] ${wasClicked ? 'text-white/40' : 'text-[#E2E2EC]'}`}
+                            style={{ fontFamily: "var(--font-syne)" }}>{ch}</span>
+                        </motion.div>
+                      );
+                    })}
+                    {wIdx === 0 && <div className="w-[4vw] lg:w-[6vw] inline-block" />}
+                  </div>
+                ))
+              )}
             </motion.div>
           </motion.div>
 
@@ -808,6 +890,36 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
+
+        {/* ── Sloth Easter Egg Mascot ── */}
+        <AnimatePresence>
+          {slothMode && (
+            <motion.div
+              key="sloth-mascot"
+              className="absolute bottom-0 right-0 z-20 select-none cursor-pointer group"
+              initial={{ y: 280, x: 40, rotate: 12, opacity: 0 }}
+              animate={{ y: 0, x: 0, rotate: 0, opacity: 1 }}
+              exit={{ y: 280, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 40, damping: 12, delay: 0.55 }}
+              onClick={() => {
+                setSlothMode(false);
+                setHeroClickedSet(new Set());
+                setHeroExploding(new Set());
+              }}
+            >
+              <motion.img
+                src={`${B}/sloth_2.png`}
+                alt="sloth"
+                className="w-40 md:w-60 lg:w-72 drop-shadow-[0_0_30px_rgba(0,245,255,0.25)] group-hover:drop-shadow-[0_0_50px_rgba(0,245,255,0.5)] transition-filter duration-300"
+                animate={{ rotate: [0, -3, 2, -1, 0] }}
+                transition={{ rotate: { repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 1.2 } }}
+              />
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 font-mono text-[9px] text-white/0 group-hover:text-white/50 tracking-widest transition-colors duration-300 whitespace-nowrap pointer-events-none">
+                click to dismiss
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ── Danmaku Layer ── */}
         <DanmakuSystem lang={lang} />
