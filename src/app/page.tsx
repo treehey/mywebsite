@@ -439,7 +439,7 @@ export default function Home() {
               }}
               onMouseEnter={() => setCursorBig(true)}
               onMouseLeave={() => setCursorBig(false)}
-              className="relative group pt-[2px] pb-[6px]"
+              className="relative group py-1"
             >
               <FlipText
                 text={item.label}
