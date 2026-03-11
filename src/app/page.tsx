@@ -329,7 +329,9 @@ export default function Home() {
     startX: number; startY: number;
     currentX: number; currentY: number;
     completing: boolean;
+    frozen: boolean;
   } | null>(null);
+  const wipeCompletingRef = useRef(false); // ref to prevent stale-closure multi-fire
   const aboutRef = useRef<HTMLElement>(null);
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
@@ -430,32 +432,38 @@ export default function Home() {
 
   function handleThemePointerDown(e: React.PointerEvent<HTMLButtonElement>) {
     e.currentTarget.setPointerCapture(e.pointerId);
-    setThemeWipe({ startX: e.clientX, startY: e.clientY, currentX: e.clientX, currentY: e.clientY, completing: false });
+    wipeCompletingRef.current = false;
+    setThemeWipe({ startX: e.clientX, startY: e.clientY, currentX: e.clientX, currentY: e.clientY, completing: false, frozen: false });
   }
 
   function handleThemePointerMove(e: React.PointerEvent<HTMLButtonElement>) {
-    if (!themeWipe || themeWipe.completing) return;
+    // Use ref to guard against stale-closure multi-fire when coverage > 80%
+    if (wipeCompletingRef.current || !themeWipe || themeWipe.frozen) return;
     const next = { ...themeWipe, currentX: e.clientX, currentY: e.clientY };
     const props = getWipeProps(next);
-    if (props && props.coverage > 0.85) {
-      setThemeWipe({ ...next, completing: true });
-      setTimeout(() => { setTheme(t => t === 'dark' ? 'light' : 'dark'); setThemeWipe(null); }, 280);
+    if (props && props.coverage > 0.80) {
+      wipeCompletingRef.current = true;
+      setThemeWipe({ ...next, completing: true, frozen: false });
+      setTimeout(() => {
+        setTheme(t => t === 'dark' ? 'light' : 'dark');
+        setThemeWipe(null);
+        wipeCompletingRef.current = false;
+      }, 280);
       return;
     }
     setThemeWipe(next);
   }
 
   function handleThemePointerUp(e: React.PointerEvent<HTMLButtonElement>) {
-    if (!themeWipe || themeWipe.completing) return;
+    if (wipeCompletingRef.current || !themeWipe || themeWipe.frozen) return;
     const dx = themeWipe.currentX - themeWipe.startX, dy = themeWipe.currentY - themeWipe.startY;
     const dist = Math.sqrt(dx * dx + dy * dy);
     if (dist < 5) {
       setTheme(t => t === 'dark' ? 'light' : 'dark');
+      setThemeWipe(null);
     } else {
-      const props = getWipeProps(themeWipe);
-      if (props && props.coverage > 0.5) setTheme(t => t === 'dark' ? 'light' : 'dark');
+      setThemeWipe({ ...themeWipe, frozen: true });
     }
-    setThemeWipe(null);
   }
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -472,18 +480,19 @@ export default function Home() {
             <motion.div
               key="theme-wipe"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
+              transition={{ duration: 0.15 }}
               className="fixed inset-0 pointer-events-none"
               style={{ zIndex: 988 }}
             >
-              {/* Inverted-content preview via backdrop-filter */}
+              {/* Exact same filter as html.light: invert(1) hue-rotate(180deg) preserves accent hues */}
               <div style={{
                 position: 'absolute', inset: 0,
-                backdropFilter: 'invert(1)', WebkitBackdropFilter: 'invert(1)',
+                backdropFilter: 'invert(1) hue-rotate(180deg)',
+                WebkitBackdropFilter: 'invert(1) hue-rotate(180deg)',
                 ...(maskImg ? { WebkitMaskImage: maskImg, maskImage: maskImg } : {}),
               }} />
-              {/* Lightroom guide lines */}
-              {props && (
+              {/* Lightroom guide lines — only shown while actively dragging */}
+              {props && !themeWipe.frozen && (
                 <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
                   <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
                     stroke="rgba(255,255,255,0.45)" strokeWidth="1" />
