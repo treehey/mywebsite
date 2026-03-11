@@ -325,6 +325,11 @@ export default function Home() {
   const [lang, setLang] = useState("简");
   const [langOpen, setLangOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [themeWipe, setThemeWipe] = useState<{
+    startX: number; startY: number;
+    currentX: number; currentY: number;
+    completing: boolean;
+  } | null>(null);
   const aboutRef = useRef<HTMLElement>(null);
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
@@ -399,9 +404,97 @@ export default function Home() {
 
   const HERO_CHARS = "TREE HEY".split("");
 
+  // ── Theme wipe (Lightroom-style linear mask) ─────────────────────────────
+  function getWipeProps(wipe: { startX: number; startY: number; currentX: number; currentY: number }) {
+    const dx = wipe.currentX - wipe.startX, dy = wipe.currentY - wipe.startY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 3) return null;
+    const udx = dx / dist, udy = dy / dist;
+    const W = window.innerWidth, H = window.innerHeight;
+    const corners: [number, number][] = [[0, 0], [W, 0], [0, H], [W, H]];
+    const projs = corners.map(([x, y]) => x * udx + y * udy);
+    const dMin = Math.min(...projs), dMax = Math.max(...projs);
+    const dCur = wipe.currentX * udx + wipe.currentY * udy;
+    const cPct = ((dCur - dMin) / (dMax - dMin)) * 100;
+    const soft = 7;
+    const ang = Math.atan2(udx, -udy) * (180 / Math.PI);
+    const mask = `linear-gradient(${ang.toFixed(2)}deg, black, black ${cPct.toFixed(1)}%, transparent ${Math.min(cPct + soft, 100).toFixed(1)}%, transparent)`;
+    const coverage = (dCur - dMin) / (dMax - dMin);
+    const pLen = Math.max(W, H) * 2;
+    const lineAt = (px: number, py: number) => ({
+      x1: px - udy * pLen, y1: py + udx * pLen,
+      x2: px + udy * pLen, y2: py - udx * pLen,
+    });
+    return { mask, coverage, line1: lineAt(wipe.currentX, wipe.currentY), line2: lineAt(wipe.currentX - udx * 60, wipe.currentY - udy * 60) };
+  }
+
+  function handleThemePointerDown(e: React.PointerEvent<HTMLButtonElement>) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setThemeWipe({ startX: e.clientX, startY: e.clientY, currentX: e.clientX, currentY: e.clientY, completing: false });
+  }
+
+  function handleThemePointerMove(e: React.PointerEvent<HTMLButtonElement>) {
+    if (!themeWipe || themeWipe.completing) return;
+    const next = { ...themeWipe, currentX: e.clientX, currentY: e.clientY };
+    const props = getWipeProps(next);
+    if (props && props.coverage > 0.85) {
+      setThemeWipe({ ...next, completing: true });
+      setTimeout(() => { setTheme(t => t === 'dark' ? 'light' : 'dark'); setThemeWipe(null); }, 280);
+      return;
+    }
+    setThemeWipe(next);
+  }
+
+  function handleThemePointerUp(e: React.PointerEvent<HTMLButtonElement>) {
+    if (!themeWipe || themeWipe.completing) return;
+    const dx = themeWipe.currentX - themeWipe.startX, dy = themeWipe.currentY - themeWipe.startY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 5) {
+      setTheme(t => t === 'dark' ? 'light' : 'dark');
+    } else {
+      const props = getWipeProps(themeWipe);
+      if (props && props.coverage > 0.5) setTheme(t => t === 'dark' ? 'light' : 'dark');
+    }
+    setThemeWipe(null);
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <main ref={containerRef} className="relative w-full bg-[#07070F] text-[#E2E2EC]">
       <div id="top" className="absolute top-0" />
+
+      {/* ───── Theme Wipe Overlay ───── */}
+      <AnimatePresence>
+        {themeWipe && (() => {
+          const props = themeWipe.completing ? null : getWipeProps(themeWipe);
+          const maskImg = themeWipe.completing ? undefined : props?.mask;
+          return (
+            <motion.div
+              key="theme-wipe"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              className="fixed inset-0 pointer-events-none"
+              style={{ zIndex: 988 }}
+            >
+              {/* Inverted-content preview via backdrop-filter */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                backdropFilter: 'invert(1)', WebkitBackdropFilter: 'invert(1)',
+                ...(maskImg ? { WebkitMaskImage: maskImg, maskImage: maskImg } : {}),
+              }} />
+              {/* Lightroom guide lines */}
+              {props && (
+                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
+                    stroke="rgba(255,255,255,0.45)" strokeWidth="1" />
+                  <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
+                    stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="5 5" />
+                </svg>
+              )}
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
       
       {/* ───── NAV ───── */}
       <motion.header
@@ -472,8 +565,10 @@ export default function Home() {
         <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-white/10 pl-4 md:pl-5">
           <button
             aria-label="Toggle Theme"
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="text-white/35 hover:text-white text-xs md:text-sm transition-colors"
+            onPointerDown={handleThemePointerDown}
+            onPointerMove={handleThemePointerMove}
+            onPointerUp={handleThemePointerUp}
+            className="text-white/35 hover:text-white text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             {theme === 'dark' ? (
