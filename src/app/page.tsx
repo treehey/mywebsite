@@ -273,6 +273,49 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
   );
 }
 
+/* ════════════════════════════════════════════════════════
+   FLIP TEXT — whole-word slot-machine hover (CSS group-hover)
+════════════════════════════════════════════════════════ */
+function FlipText({ text, className }: { text: string; className?: string }) {
+  return (
+    <span className={`relative inline-block overflow-hidden leading-none ${className ?? ""}`}>
+      <span className="block transition-transform duration-[280ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-full">
+        {text}
+      </span>
+      <span className="absolute inset-0 block translate-y-full transition-transform duration-[280ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-y-0">
+        {text}
+      </span>
+    </span>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   ROLLING NUMBER — mechanical counter digit roll
+════════════════════════════════════════════════════════ */
+function RollingNumber({ value, digits = 2 }: { value: number; digits?: number }) {
+  const str = String(value).padStart(digits, "0");
+  return (
+    <span className="inline-flex leading-none">
+      {str.split("").map((d, i) => (
+        <span key={i} className="inline-block overflow-hidden" style={{ height: "1.1em" }}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            <motion.span
+              key={`${i}-${d}`}
+              className="block"
+              initial={{ y: "110%" }}
+              animate={{ y: "0%" }}
+              exit={{ y: "-110%" }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {d}
+            </motion.span>
+          </AnimatePresence>
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const horizontalRef = useRef<HTMLDivElement>(null);
@@ -286,7 +329,6 @@ export default function Home() {
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
-
   const t = DICT[lang as keyof typeof DICT];
 
   // Scroll Spy Observer
@@ -308,6 +350,7 @@ export default function Home() {
     if (theme === "light") document.documentElement.classList.add("light");
     else document.documentElement.classList.remove("light");
   }, [theme]);
+
 
   /* Mouse tracking */
   const mouseX = useMotionValue(-200);
@@ -343,87 +386,130 @@ export default function Home() {
     setPanel1Visible(v > 0.02 && v < 0.15);
   });
 
+  const navItems = [
+    { id: 'about',     label: t.nav.about },
+    { id: 'works',     label: t.nav.works },
+    { id: 'gallery',   label: t.nav.gallery },
+    { id: 'skills',    label: t.nav.skills },
+    { id: 'timeline',  label: t.nav.timeline },
+    { id: 'guestbook', label: t.nav.guestbook },
+    { id: 'contact',   label: t.nav.contact },
+  ];
+  const activeIdx = navItems.findIndex(n => n.id === activeSection);
+
   const HERO_CHARS = "TREE HEY".split("");
 
   return (
     <main ref={containerRef} className="relative w-full bg-[#07070F] text-[#E2E2EC]">
       <div id="top" className="absolute top-0" />
       
-      {/* ───── NAV PILL ───── */}
-      <header className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-4 md:px-7 py-3 rounded-full bg-[#0E0E1C]/80 backdrop-blur-2xl border border-[#00F5FF]/15 transition-all w-[90vw] md:w-auto justify-between md:justify-center overflow-visible">
-        <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)} className="shrink-0 font-syne font-bold text-lg text-[#00F5FF] glow-cyan tracking-widest hover:scale-110 transition-transform cursor-pointer" style={{ fontFamily: "var(--font-syne)" }}>TH</a>
-        
+      {/* ───── NAV ───── */}
+      <motion.header
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full bg-[#0E0E1C]/85 backdrop-blur-2xl ring-1 ring-inset ring-white/10 w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
+      >
+        {/* Logo + active section index */}
+        <div className="shrink-0 flex items-end gap-1.5">
+          <a
+            href="#top"
+            onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            onMouseEnter={() => setCursorBig(true)}
+            onMouseLeave={() => setCursorBig(false)}
+            className="font-syne font-bold text-lg text-white tracking-widest hover:opacity-60 transition-opacity cursor-pointer"
+            style={{ fontFamily: "var(--font-syne)" }}
+          >
+            TH
+          </a>
+          <span className="font-mono text-[9px] text-white/20 mb-[3px] leading-none tabular-nums">
+            {activeIdx >= 0 ? <RollingNumber value={activeIdx + 1} /> : "·"}
+          </span>
+        </div>
+
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-7 font-grotesk text-[11px] uppercase tracking-widest text-[#E2E2EC]/45 flex-1 md:flex-none justify-center md:ml-6 md:mr-2">
-          {[
-            { id: 'about', label: t.nav.about },
-            { id: 'works', label: t.nav.works },
-            { id: 'gallery', label: t.nav.gallery },
-            { id: 'skills', label: t.nav.skills },
-            { id: 'timeline', label: t.nav.timeline },
-            { id: 'guestbook', label: t.nav.guestbook },
-            { id: 'contact', label: t.nav.contact },
-          ].map(item => (
-            <a key={item.id} href={`#${item.id}`}
-              onClick={(e) => { 
-                e.preventDefault(); 
-                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); 
+        <nav className="hidden md:flex items-center gap-6 ml-7 mr-3">
+          {navItems.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className={`shrink-0 transition-colors duration-300 ${activeSection === item.id ? 'text-[#00F5FF] font-bold drop-shadow-[0_0_8px_rgba(0,245,255,0.8)] scale-110' : 'hover:text-[#00F5FF]'}`}
               onMouseEnter={() => setCursorBig(true)}
               onMouseLeave={() => setCursorBig(false)}
-            >{item.label}</a>
+              className="relative group pt-[2px] pb-[6px]"
+            >
+              <FlipText
+                text={item.label}
+                className={`${lang === 'EN' ? 'font-mono text-[11px] tracking-widest' : 'font-syne font-semibold text-[12px] tracking-[0.08em]'} uppercase transition-opacity duration-300 ${
+                  activeSection === item.id ? 'text-white' : 'text-white/40'
+                }`}
+              />
+              {activeSection === item.id && (
+                <motion.div
+                  layoutId="nav-line"
+                  className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-white"
+                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                />
+              )}
+            </a>
           ))}
         </nav>
 
-        {/* Mobile Menu Toggle */}
-        <div className="flex flex-1 justify-center md:hidden transition-all duration-300">
-          <button 
+        {/* Mobile: menu toggle */}
+        <div className="flex flex-1 justify-center md:hidden">
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`font-mono text-[10px] tracking-[0.2em] uppercase transition-colors px-4 py-1 flex items-center gap-2 rounded-full border ${mobileMenuOpen ? 'text-[#00F5FF] border-[#00F5FF]/30 bg-[#00F5FF]/10' : 'text-[#E2E2EC]/70 border-transparent hover:text-[#E2E2EC]'}`}
+            className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/40 hover:text-white transition-colors px-3 py-1"
           >
-            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: mobileMenuOpen ? '#00F5FF' : '#E2E2EC', opacity: mobileMenuOpen ? 1 : 0.4 }}></span>
             {mobileMenuOpen ? 'CLOSE' : 'MENU'}
           </button>
         </div>
 
-        {/* TOGGLES */}
-        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-[#E2E2EC]/20 pl-4 md:pl-6">
-          <button aria-label="Toggle Theme" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="text-[#E2E2EC]/50 hover:text-[#00F5FF] text-xs md:text-sm transition-colors" onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
+        {/* Toggles */}
+        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-white/10 pl-4 md:pl-5">
+          <button
+            aria-label="Toggle Theme"
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="text-white/35 hover:text-white text-xs md:text-sm transition-colors"
+            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+          >
             {theme === 'dark' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
             )}
           </button>
           <div className="relative flex items-center">
-            <button 
+            <button
               onClick={() => setLangOpen(!langOpen)}
-              className={`p-1 transition-colors ${langOpen ? 'text-[#00F5FF]' : 'text-[#E2E2EC]/50 hover:text-[#00F5FF]'}`}
+              className={`p-1 transition-colors ${langOpen ? 'text-white' : 'text-white/35 hover:text-white'}`}
               onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               aria-label="Toggle Language"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             </button>
-            
-            {/* Dropdown Options */}
             <AnimatePresence>
               {langOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 15, scale: 0.9 }}
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 15, scale: 0.9 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col bg-[#0E0E1C]/95 backdrop-blur-2xl border border-[#00F5FF]/20 rounded-xl p-2 min-w-[110px] shadow-[0_0_30px_rgba(0,245,255,0.1)] origin-bottom-right md:origin-top z-[1000]"
+                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col bg-[#0E0E1C]/95 backdrop-blur-2xl border border-white/10 rounded-xl p-2 min-w-[120px] shadow-[0_8px_32px_rgba(0,0,0,0.4)] origin-bottom-right md:origin-top z-[1000]"
                 >
                   {['EN', '简', '繁'].map(l => (
-                    <button 
-                      key={l} 
-                      onClick={() => { setLang(l); setLangOpen(false); }} 
-                      className={`text-[11px] md:text-xs font-mono px-3 py-2.5 rounded-lg text-left transition-all flex items-center gap-2 ${lang === l ? 'bg-[#00F5FF]/15 text-[#00F5FF] font-bold shadow-[inset_0_0_10px_rgba(0,245,255,0.2)]' : 'text-[#E2E2EC]/60 hover:bg-[#E2E2EC]/10 hover:text-[#E2E2EC]'}`} 
+                    <button
+                      key={l}
+                      onClick={() => { setLang(l); setLangOpen(false); }}
+                      className={`text-[11px] font-mono px-3 py-2.5 rounded-lg text-left transition-all flex items-center gap-2 ${
+                        lang === l ? 'bg-white/10 text-white font-bold' : 'text-white/50 hover:bg-white/5 hover:text-white'
+                      }`}
                       onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                     >
-                      {lang === l && <span className="w-1.5 h-1.5 rounded-full bg-[#00F5FF] box-glow-cyan"></span>}
+                      {lang === l && <span className="w-1 h-1 rounded-full bg-white inline-block shrink-0" />}
                       {l === 'EN' ? 'English' : l === '简' ? '简体中文' : '繁體中文'}
                     </button>
                   ))}
@@ -432,44 +518,54 @@ export default function Home() {
             </AnimatePresence>
           </div>
         </div>
-      </header>
+      </motion.header>
 
-      {/* ───── MOBILE EXPANDABLE MENU ───── */}
+      {/* ───── MOBILE FULL-SCREEN MENU ───── */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-[980] w-[85vw] max-w-sm rounded-[1.5rem] bg-[#0E0E1C]/95 backdrop-blur-3xl border border-[#00F5FF]/20 shadow-[0_10px_40px_rgba(0,0,0,0.5),_0_0_20px_rgba(0,245,255,0.1)] overflow-hidden"
+            initial={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
+            animate={{ opacity: 1, clipPath: "inset(0% 0% 0% 0%)" }}
+            exit={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="md:hidden fixed inset-0 z-[975] bg-[#07070F]/97 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
           >
-            <div className="flex flex-col py-4">
-              {[
-                { id: 'about', label: t.nav.about },
-                { id: 'works', label: t.nav.works },
-                { id: 'gallery', label: t.nav.gallery },
-                { id: 'skills', label: t.nav.skills },
-                { id: 'timeline', label: t.nav.timeline },
-                { id: 'guestbook', label: t.nav.guestbook },
-                { id: 'contact', label: t.nav.contact },
-              ].map((item, i) => (
-                <button
+            <nav className="flex flex-col flex-1 justify-center">
+              {navItems.map((item, i) => (
+                <motion.button
                   key={item.id}
-                  onClick={(e) => {
-                    e.preventDefault();
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ delay: i * 0.05 + 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={() => {
                     setMobileMenuOpen(false);
-                    setTimeout(() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }), 300);
+                    setTimeout(() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }), 400);
                   }}
-                  className={`w-full px-6 py-3.5 flex items-center justify-between text-left transition-colors border-b border-[#E2E2EC]/5 last:border-0 ${activeSection === item.id ? 'bg-[#00F5FF]/10 text-[#00F5FF]' : 'text-[#E2E2EC]/70 hover:bg-[#E2E2EC]/5 hover:text-[#E2E2EC]'}`}
+                  className={`group w-full py-4 flex items-center gap-4 border-b text-left transition-colors ${
+                    activeSection === item.id ? 'border-white/15' : 'border-white/[0.06]'
+                  }`}
                 >
-                  <span className="font-syne font-bold tracking-widest text-sm uppercase">{item.label}</span>
+                  <span className="font-mono text-[11px] text-white/20 tabular-nums w-5 shrink-0 leading-none">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    className={`font-syne font-black text-3xl uppercase tracking-tight transition-all duration-300 group-hover:translate-x-2 leading-none ${
+                      activeSection === item.id ? 'text-white' : 'text-white/45'
+                    }`}
+                    style={{ fontFamily: "var(--font-syne)" }}
+                  >
+                    {item.label}
+                  </span>
                   {activeSection === item.id && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00F5FF] box-glow-cyan animate-pulse"></span>
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white shrink-0" />
                   )}
-                </button>
+                </motion.button>
               ))}
-            </div>
+            </nav>
+            <p className="font-mono text-[10px] text-white/15 tracking-[0.3em] uppercase">
+              TH // SIGNAL & NOISE
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

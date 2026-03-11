@@ -1,30 +1,81 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Phase 1: 指数缓动趋近 P1_CAP，等待页面加载
+// Phase 2: window.load 触发后，快速填满至 100%
+// 到达 100% 后等 SETTLE_MS 再隐藏
+const MIN_MS    = 1000; // 最短展示时间，防止快速网络下闪退
+const P1_CAP    = 88;   // phase 1 最大进度
+const P1_TAU    = 1400; // 指数时间常数（ms），控制 phase 1 速度
+const P2_DUR    = 500;  // phase 2 从当前→100% 的动画时长（ms）
+const SETTLE_MS = 350;  // 停在 100% 后等待再隐藏（ms）
 
 export default function LoadingScreen() {
   const [done, setDone]         = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const TOTAL = 2500;
-    const start = Date.now();
+    const startTime = Date.now();
     let raf: number;
-    const tick = () => {
-      const p = Math.min(100, ((Date.now() - start) / TOTAL) * 100);
-      setProgress(p);
-      if (p < 100) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
+    let phase       = 1 as 1 | 2;
+    let phase2Start = 0;
+    let phase2From  = 0;
+    let settling    = false;
 
-    const minWait  = new Promise<void>(r => setTimeout(r, TOTAL + 200));
-    const pageLoad = new Promise<void>(r => {
-      if (document.readyState === "complete") r();
-      else window.addEventListener("load", () => r(), { once: true });
-    });
-    Promise.all([minWait, pageLoad]).then(() => setDone(true));
-    return () => cancelAnimationFrame(raf);
+    const enterPhase2 = () => {
+      if (phase === 2) return;
+      const elapsed = Date.now() - startTime;
+      phase2From  = Math.min(P1_CAP, P1_CAP * (1 - Math.exp(-elapsed / P1_TAU)));
+      phase2Start = Date.now();
+      phase       = 2;
+    };
+
+    const onPageLoad = () => {
+      const remaining = MIN_MS - (Date.now() - startTime);
+      if (remaining > 0) {
+        setTimeout(enterPhase2, remaining);
+      } else {
+        enterPhase2();
+      }
+    };
+
+    if (document.readyState === "complete") {
+      onPageLoad();
+    } else {
+      window.addEventListener("load", onPageLoad, { once: true });
+    }
+
+    const tick = () => {
+      let p: number;
+
+      if (phase === 1) {
+        const elapsed = Date.now() - startTime;
+        p = P1_CAP * (1 - Math.exp(-elapsed / P1_TAU));
+        p = Math.min(p, P1_CAP);
+      } else {
+        const t     = Math.min(1, (Date.now() - phase2Start) / P2_DUR);
+        const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+        p = phase2From + (100 - phase2From) * eased;
+      }
+
+      setProgress(p);
+
+      if (p >= 100 && !settling) {
+        settling = true;
+        setTimeout(() => setDone(true), SETTLE_MS);
+        return;
+      }
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("load", onPageLoad);
+    };
   }, []);
 
   return (
