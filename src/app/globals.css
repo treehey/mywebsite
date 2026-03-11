@@ -117,11 +117,12 @@ body {
 html.light {
   filter: invert(1) hue-rotate(180deg);
 }
-html.light img, 
+html.light img,
 html.light video,
 html.light .no-invert {
   filter: invert(1) hue-rotate(180deg);
 }
+
 
 /* Background Noise */
 .bg-noise {

@@ -437,7 +437,6 @@ export default function Home() {
   }
 
   function handleThemePointerMove(e: React.PointerEvent<HTMLButtonElement>) {
-    // Use ref to guard against stale-closure multi-fire when coverage > 80%
     if (wipeCompletingRef.current || !themeWipe || themeWipe.frozen) return;
     const next = { ...themeWipe, currentX: e.clientX, currentY: e.clientY };
     const props = getWipeProps(next);
@@ -465,6 +464,19 @@ export default function Home() {
       setThemeWipe({ ...themeWipe, frozen: true });
     }
   }
+
+  // Dismiss frozen wipe: click anywhere to confirm (>50%) or cancel (<50%)
+  useEffect(() => {
+    if (!themeWipe?.frozen) return;
+    const coverage = getWipeProps(themeWipe)?.coverage ?? 0;
+    const dismiss = (ev: PointerEvent) => {
+      if ((ev.target as Element).closest('[data-theme-btn="true"]')) return;
+      if (coverage > 0.5) setTheme(t => t === 'dark' ? 'light' : 'dark');
+      setThemeWipe(null);
+    };
+    const id = setTimeout(() => document.addEventListener('pointerdown', dismiss), 100);
+    return () => { clearTimeout(id); document.removeEventListener('pointerdown', dismiss); };
+  }, [themeWipe?.frozen]);
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
@@ -476,28 +488,33 @@ export default function Home() {
         {themeWipe && (() => {
           const props = themeWipe.completing ? null : getWipeProps(themeWipe);
           const maskImg = themeWipe.completing ? undefined : props?.mask;
+          if (!maskImg && !themeWipe.completing) return null;
           return (
             <motion.div
               key="theme-wipe"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
+              initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
               className="fixed inset-0 pointer-events-none"
               style={{ zIndex: 988 }}
             >
-              {/* Exact same filter as html.light: invert(1) hue-rotate(180deg) preserves accent hues */}
               <div style={{
                 position: 'absolute', inset: 0,
                 backdropFilter: 'invert(1) hue-rotate(180deg)',
                 WebkitBackdropFilter: 'invert(1) hue-rotate(180deg)',
                 ...(maskImg ? { WebkitMaskImage: maskImg, maskImage: maskImg } : {}),
               }} />
-              {/* Lightroom guide lines — only shown while actively dragging */}
               {props && !themeWipe.frozen && (
-                <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                  {/* Shadow layer for dark backgrounds */}
                   <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="rgba(255,255,255,0.45)" strokeWidth="1" />
+                    stroke="rgba(0,0,0,0.55)" strokeWidth="4" />
                   <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="5 5" />
+                    stroke="rgba(0,0,0,0.4)" strokeWidth="3.5" strokeDasharray="10 6" />
+                  {/* White line on top */}
+                  <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
+                    stroke="rgba(255,255,255,0.95)" strokeWidth="1.5" />
+                  <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
+                    stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeDasharray="10 6" />
                 </svg>
               )}
             </motion.div>
@@ -574,10 +591,11 @@ export default function Home() {
         <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-white/10 pl-4 md:pl-5">
           <button
             aria-label="Toggle Theme"
+            data-theme-btn="true"
             onPointerDown={handleThemePointerDown}
             onPointerMove={handleThemePointerMove}
             onPointerUp={handleThemePointerUp}
-            className="text-white/35 hover:text-white text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
+            className="text-white/50 hover:text-white text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             {theme === 'dark' ? (
