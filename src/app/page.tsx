@@ -298,14 +298,14 @@ function RollingNumber({ value, digits = 2 }: { value: number; digits?: number }
     <span className="inline-flex leading-none">
       {str.split("").map((d, i) => (
         <span key={i} className="inline-block overflow-hidden" style={{ height: "1.1em" }}>
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={`${i}-${d}`}
               className="block"
               initial={{ y: "110%" }}
               animate={{ y: "0%" }}
               exit={{ y: "-110%" }}
-              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.13, ease: [0.16, 1, 0.3, 1] }}
             >
               {d}
             </motion.span>
