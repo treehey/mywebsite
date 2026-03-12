@@ -82,6 +82,36 @@ function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
 }
 
 /* ════════════════════════════════════════════════════════
+   DARKROOM DEVELOP IMAGE
+════════════════════════════════════════════════════════ */
+function DarkroomImage({ src, alt, className, finalFilter, delay = 0 }: {
+  src: string; alt: string; className?: string; finalFilter: string; delay?: number;
+}) {
+  const ref = useRef<HTMLImageElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-5%' });
+  const [hovered, setHovered] = useState(false);
+  const startF = 'brightness(0.08) contrast(1.5) grayscale(0) sepia(1) saturate(3) hue-rotate(-15deg) blur(0px)';
+  const hoverF = 'brightness(1.05) contrast(1.05) grayscale(0) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)';
+  const activeFilter = !inView ? startF : hovered ? hoverF : finalFilter;
+  return (
+    <img
+      ref={ref}
+      src={src} alt={alt} loading="lazy" decoding="async"
+      className={className}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        filter: activeFilter,
+        transitionProperty: 'filter',
+        transitionDuration: hovered ? '0.4s' : '2.2s',
+        transitionTimingFunction: 'cubic-bezier(0.15, 0, 0.3, 1)',
+        transitionDelay: (!inView || hovered) ? '0s' : `${delay}s`,
+      }}
+    />
+  );
+}
+
+/* ════════════════════════════════════════════════════════
    MAGNETIC BUTTON HOOK
 ════════════════════════════════════════════════════════ */
 function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -1010,17 +1040,14 @@ export default function Home() {
               animate={{ x: aboutImgMouse.x, y: aboutImgMouse.y }}
               transition={{ type: "spring", stiffness: 70, damping: 18 }}
             >
-              <img src={`${B}/images/about/nju.jpg`} alt="NJU" loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 transition-all duration-700" />
+              <DarkroomImage src={`${B}/images/about/nju.jpg`} alt="NJU"
+                className="w-full h-full object-cover"
+                finalFilter="brightness(1) contrast(1) grayscale(0.15) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+                delay={0.1}
+              />
               <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
                 style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/90 via-[#07070F]/20 to-transparent" />
-            </motion.div>
-            {/* Corner brackets */}
-            <motion.div className="absolute top-5 left-5 z-10 pointer-events-none" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.5 }}>
-              <div className="w-7 h-7 border-t-2 border-l-2 border-[#00F5FF]/50" />
-            </motion.div>
-            <motion.div className="absolute top-5 right-5 z-10 pointer-events-none" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.6 }}>
-              <div className="w-7 h-7 border-t-2 border-r-2 border-[#00F5FF]/50" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/90 via-[#07070F]/20 to-transparent pointer-events-none" />
             </motion.div>
             {/* Badge */}
             <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
@@ -1032,9 +1059,6 @@ export default function Home() {
             >
               <p className="font-grotesk text-sm text-[#E2E2EC]/75 leading-[1.75]">{t.about.p2}</p>
             </motion.div>
-            <motion.div className="absolute bottom-5 right-5 z-10 pointer-events-none" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ delay: 0.7 }}>
-              <div className="w-7 h-7 border-b-2 border-r-2 border-[#00F5FF]/50" />
-            </motion.div>
           </div>
 
           {/* Cell B — Minecraft, top col 2 */}
@@ -1042,28 +1066,13 @@ export default function Home() {
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-[#E2E2EC]/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <motion.img
-              src={`${B}/images/about/Minecraft.jfif`} alt="Origin" loading="lazy" decoding="async"
-              className="w-full h-full object-cover object-center grayscale-[65%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            <DarkroomImage src={`${B}/images/about/Minecraft.jfif`} alt="Origin"
+              className="w-full h-full object-cover object-center transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+              finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+              delay={0.15}
             />
-            {/* Glitch scan lines on hover */}
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none overflow-hidden">
-              <motion.div className="absolute left-0 right-0 h-[2px] bg-[#FF2D78]/70"
-                animate={{ top: ["12%","82%","38%","66%","50%"] }}
-                transition={{ duration: 0.45, repeat: Infinity, ease: "linear" }}
-              />
-              <motion.div className="absolute left-0 right-0 h-[1px] bg-[#00F5FF]/50"
-                animate={{ top: ["78%","22%","55%","40%","80%"] }}
-                transition={{ duration: 0.3, repeat: Infinity, ease: "linear" }}
-              />
-              <motion.div className="absolute inset-0 mix-blend-screen"
-                animate={{ x: [0, 3, -3, 2, 0] }}
-                transition={{ duration: 0.25, repeat: Infinity, ease: "linear" }}
-                style={{ background: "rgba(255,45,120,0.09)" }}
-              />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest">Origin · 2012</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
           </div>
 
           {/* Cell C — Student Association, top col 3 */}
@@ -1071,12 +1080,13 @@ export default function Home() {
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-[#E2E2EC]/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <motion.img
-              src={`${B}/images/about/student-association.jpg`} alt="Student Association" loading="lazy" decoding="async"
-              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            <DarkroomImage src={`${B}/images/about/student-association.jpg`} alt="Student Association"
+              className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+              finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+              delay={0.22}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#00F5FF] bg-[#00F5FF]/10 border border-[#00F5FF]/30 px-2 py-1 uppercase tracking-widest">Association</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#00F5FF] bg-[#00F5FF]/10 border border-[#00F5FF]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
           </div>
 
           {/* Cell D — mbot robotics, bottom col 2 */}
@@ -1084,12 +1094,13 @@ export default function Home() {
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-[#E2E2EC]/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <motion.img
-              src={`${B}/images/about/mbot.jpg`} alt="Robotics" loading="lazy" decoding="async"
-              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            <DarkroomImage src={`${B}/images/about/mbot.jpg`} alt="Robotics"
+              className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+              finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+              delay={0.1}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-2 py-1 uppercase tracking-widest">Robotics</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
           </div>
 
           {/* Cell E — STEAM & IoT, bottom col 3 */}
@@ -1097,12 +1108,13 @@ export default function Home() {
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <motion.img
-              src={`${B}/images/about/steam&iot.jpg`} alt="STEAM" loading="lazy" decoding="async"
-              className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-100 group-hover:scale-[1.08]"
+            <DarkroomImage src={`${B}/images/about/steam&iot.jpg`} alt="STEAM"
+              className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+              finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+              delay={0.18}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#F5C542] bg-[#F5C542]/10 border border-[#F5C542]/30 px-2 py-1 uppercase tracking-widest">STEAM · IoT</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#F5C542] bg-[#F5C542]/10 border border-[#F5C542]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
           </div>
         </div>
 
