@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 import { DanmakuSystem } from "@/components/DanmakuSystem";
+import { globalLenis } from "@/components/SmoothScroll";
 import dynamic from "next/dynamic";
 const GuestbookWall = dynamic(() => import("@/components/GuestbookWall").then(m => ({ default: m.GuestbookWall })), { ssr: false });
 import {
@@ -21,44 +22,35 @@ import {
 /* ════════════════════════════════════════════════════════
    TEXT SCRAMBLE HOOK
 ════════════════════════════════════════════════════════ */
-function useScramble(text: string, trigger: boolean) {
+function useScramble(text: string, trigger: boolean, speed = 4, total = 60) {
   const [display, setDisplay] = useState(text);
   useEffect(() => {
-    if (!trigger) {
-      setDisplay(text);
-      return;
-    }
+    if (!trigger) { setDisplay(text); return; }
     const CHARS = "0123456789ABCDEFabcdef#@%!?/|\\[]{}~<>^*";
-    let frame = 0;
-    let rafCount = 0;
-    const SPEED = 4; // advance logic frame every N RAF calls
-    const total = 60; // fixed total logic frames so all texts animate at same duration
-    let raf: number;
+    let frame = 0; let rafCount = 0; let raf: number;
     const update = () => {
       rafCount++;
-      if (rafCount % SPEED === 0) frame++;
-      setDisplay(
-        text.split("").map((ch, i) => {
-          if (ch === " ") return " ";
-          const resolveAt = Math.floor((i / text.length) * total);
-          if (frame >= resolveAt) return ch;
-          return CHARS[Math.floor(Math.random() * CHARS.length)];
-        }).join("")
-      );
+      if (rafCount % speed === 0) frame++;
+      setDisplay(text.split("").map((ch, i) => {
+        if (ch === " ") return " ";
+        const resolveAt = Math.floor((i / text.length) * total);
+        if (frame >= resolveAt) return ch;
+        return CHARS[Math.floor(Math.random() * CHARS.length)];
+      }).join(""));
       if (frame <= total) raf = requestAnimationFrame(update);
     };
     raf = requestAnimationFrame(update);
     return () => cancelAnimationFrame(raf);
-  }, [trigger, text]);
+  }, [trigger, text, speed, total]);
   return display;
 }
 
-function ScrambleText({ text, className, margin = "-100px", trigger: externalTrigger }: { text: string; className?: string; margin?: string; trigger?: boolean }) {
+function ScrambleText({ text, className, trigger: externalTrigger, fast }: { text: string; className?: string; margin?: string; trigger?: boolean; fast?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null);
   // @ts-ignore
   const inView = useInView(ref, { once: false, margin: "-20%" });
   const trigger = externalTrigger !== undefined ? externalTrigger : inView;
-  const display = useScramble(text, trigger);
+  const display = useScramble(text, trigger, fast ? 1 : 4, fast ? 8 : 60);
   return <span ref={ref} className={className}>{display}</span>;
 }
 
@@ -190,6 +182,11 @@ const PHOTOS = [
   { src: `${B}/images/shanghai.jpg`, title: "SHANGHAI",   num: "02" },
   { src: `${B}/images/zhuhai.jpg`,   title: "ZHUHAI",     num: "03" },
   { src: `${B}/images/panda.jpg`,    title: "SICHUAN",    num: "04" },
+];
+
+const WORKS_META = [
+  { img: `${B}/images/wide-research.png`, accent: "#00F5FF" },
+  { img: `${B}/images/enzyme.png`,        accent: "#39FF14" },
 ];
 
 const SKILLS = [
@@ -422,6 +419,66 @@ export default function Home() {
   useMotionValueEvent(horizontalProgress, "change", (v) => {
     setPanel1Visible(v > 0.02 && v < 0.15);
   });
+
+  /* Works Theater scroll */
+  const worksRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress: worksSP } = useScroll({ target: worksRef, offset: ["start start", "end end"] });
+  const [activeWork, setActiveWork] = useState(0);
+
+  /* Works Theater — wheel snap */
+  const worksSnapRef = useRef(false);
+  const worksDeltaAccum = useRef(0);
+  const worksDeltaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const onWheel = (e: WheelEvent) => {
+      const el = worksRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.top > 2 || rect.bottom < window.innerHeight - 2) return;
+      const progress = worksSP.get();
+      const dir = e.deltaY > 0 ? 1 : -1;
+      // Allow natural exit at section boundaries
+      if (dir < 0 && progress <= 0.02) return;
+      if (dir > 0 && progress >= 0.95) return;
+      // Always block default inside section to prevent scroll fighting
+      e.preventDefault();
+      if (worksSnapRef.current) return;
+      // Accumulate deltaY; reset after 200ms of inactivity
+      worksDeltaAccum.current += e.deltaY;
+      if (worksDeltaTimer.current) clearTimeout(worksDeltaTimer.current);
+      worksDeltaTimer.current = setTimeout(() => { worksDeltaAccum.current = 0; }, 200);
+      // Only snap after meaningful intentional scroll (trackpad bounce is usually <10px total)
+      if (Math.abs(worksDeltaAccum.current) < 60) return;
+      const snapDir = worksDeltaAccum.current > 0 ? 1 : -1;
+      worksDeltaAccum.current = 0;
+      const snapTargets = [0.02, 0.65];
+      const currentIdx = progress < 0.45 ? 0 : 1;
+      const nextIdx = Math.max(0, Math.min(snapTargets.length - 1, currentIdx + snapDir));
+      if (nextIdx === currentIdx) return;
+      const sectionDocTop = rect.top + window.scrollY;
+      const sectionScrollable = el.offsetHeight - window.innerHeight;
+      const targetY = sectionDocTop + snapTargets[nextIdx] * sectionScrollable;
+      worksSnapRef.current = true;
+      worksDeltaAccum.current = 0;
+      const lenis = globalLenis;
+      if (lenis) {
+        lenis.scrollTo(targetY, {
+          duration: 0.9,
+          easing: (t: number) => 1 - Math.pow(1 - t, 3),
+          lock: true,
+          onComplete: () => { worksSnapRef.current = false; worksDeltaAccum.current = 0; },
+        });
+      }
+    };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    return () => window.removeEventListener("wheel", onWheel);
+  }, [worksSP]);
+  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.55 ? 0 : 1); });
+  const card1Y        = useTransform(worksSP, [0.40, 0.65], ["100%", "0%"]);
+  const card0Scale    = useTransform(worksSP, [0.40, 0.72], [1, 0.93]);
+  const card0Opacity  = useTransform(worksSP, [0.50, 0.75], [1, 0]);
+  const tintOpacity0  = useTransform(worksSP, [0, 0.45, 0.65, 1], [0.06, 0.06, 0, 0]);
+  const tintOpacity1  = useTransform(worksSP, [0, 0.45, 0.65, 1], [0, 0, 0.06, 0.06]);
 
   const navItems = [
     { id: 'about',     label: t.nav.about },
@@ -1219,8 +1276,8 @@ export default function Home() {
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
       <section id="works" className="relative z-10 w-full bg-[#0A0A14]">
-        
-        {/* Section Header Row */}
+
+        {/* Section Header */}
         <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
           <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg, #FF2D78, #00F5FF)", fontFamily: "var(--font-syne)" }}>
             {t.works.title1} {t.works.title2}
@@ -1228,87 +1285,116 @@ export default function Home() {
           <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest hidden md:block">{t.works.archive}</span>
         </div>
 
-        {/* Projects — Full-Width Cinematic Rows */}
-        {[
-          { ...t.works.items[0], img: `${B}/images/wide-research.png` },
-          { ...t.works.items[1], img: `${B}/images/enzyme.png` },
-        ].map((work, i) => (
-          <motion.a 
-            href={work.link}
-            target={work.link !== "#" ? "_blank" : undefined}
-            rel="noopener noreferrer"
-            key={i}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: "-150px" }}
-            transition={{ duration: 0.6 }}
-            className="group relative flex w-full border-b border-[#E2E2EC]/10 overflow-hidden cursor-pointer block"
-            style={{ minHeight: "min(70vh, 600px)" }}
-            onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-          >
-            {/* Full-bleed image with parallax-like scale */}
-            <div className="absolute inset-0 overflow-hidden">
-              <motion.img 
-                src={work.img} alt={work.title} 
-                className="w-full h-full object-cover grayscale-[60%] group-hover:grayscale-0 transition-[filter] duration-[1.2s]"
-                initial={{ scale: 1.05 }} whileInView={{ scale: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeOut" }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A14] via-[#0A0A14]/80 to-transparent" />
-              <div className="absolute inset-0 bg-[#0A0A14]/30 group-hover:bg-[#0A0A14]/10 transition-colors duration-700" />
-            </div>
+        {/* ── Project Theater ── */}
+        <div ref={worksRef} className="relative h-[300vh]">
+          <div className="sticky top-0 h-screen overflow-hidden bg-[#0A0A14]">
 
-            {/* Diagonal accent line */}
-            <div className="absolute bottom-0 right-0 w-[30vw] h-[1px] bg-gradient-to-l from-transparent via-[#00F5FF]/40 to-transparent group-hover:via-[#00F5FF]/80 transition-all duration-700" />
+            {/* Accent environment tints */}
+            <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: WORKS_META[0].accent, opacity: tintOpacity0 }} />
+            <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: WORKS_META[1].accent, opacity: tintOpacity1 }} />
 
-            {/* Content overlay */}
-            <div className="relative z-10 w-full flex flex-col justify-between p-8 md:p-16 lg:p-20">
-              <div className="flex items-start justify-between">
-                {/* Index */}
-                <span 
-                  className="font-syne font-black text-[20vw] md:text-[16vw] lg:text-[12vw] leading-none text-transparent pointer-events-none select-none"
-                  style={{ WebkitTextStroke: "1px rgba(255,255,255,0.06)", fontFamily: "var(--font-syne)" }}
-                >
-                  0{i + 1}
-                </span>
-                {/* Tag */}
-                <span className="font-mono text-xs text-[#FF2D78] border border-[#FF2D78]/40 bg-[#FF2D78]/10 px-3 py-1.5 tracking-widest uppercase mt-2">
-                  {work.tag}
-                </span>
-              </div>
-
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mt-auto">
-                <div>
-                  <motion.h3 
-                    className="font-syne font-black text-4xl md:text-6xl lg:text-7xl xl:text-8xl text-[#E2E2EC] leading-[1.1] pb-2 mb-4"
-                    style={{ fontFamily: "var(--font-syne)" }}
-                  >
-                    {work.title.split(' ').map((word, wi) => (
-                      <span key={wi} className="block overflow-visible relative pt-2 -mt-2">
-                        <motion.span 
-                          className="block group-hover:translate-x-2 transition-transform duration-500"
-                          style={{ transitionDelay: `${wi * 60}ms` }}
-                        >
-                          {word}
-                        </motion.span>
+            {/* Card 0 — scales down as Card 1 rises */}
+            <motion.div className="absolute inset-0 z-10" style={{ scale: card0Scale, opacity: card0Opacity }}>
+              {(() => {
+                const wm = WORKS_META[0]; const wi = t.works.items[0]; const active = activeWork === 0;
+                return (
+                  <a href={wi.link} target="_blank" rel="noopener noreferrer"
+                    className="relative w-full h-full flex flex-col md:flex-row"
+                    onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
+                    {/* Image — LEFT on even */}
+                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1">
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover"
+                        animate={{ scale: active ? 1.06 : 1.0 }}
+                        transition={{ duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }} />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0A0A14]" />
+                      <div className="absolute inset-0 bg-[#0A0A14]/10" />
+                      <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
+                    </div>
+                    {/* Text — RIGHT on even */}
+                    <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-2">
+                      <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
+                        style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
+                        <RollingNumber value={1} />
                       </span>
-                    ))}
-                  </motion.h3>
-                  <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 max-w-lg leading-relaxed group-hover:text-[#E2E2EC]/70 transition-colors duration-500">
-                    {work.desc}
-                  </p>
-                </div>
-                
-                {/* View CTA */}
-                <div className="flex items-center gap-4 text-[#E2E2EC]/60 group-hover:text-[#00F5FF] transition-colors duration-500 shrink-0">
-                  <span className="font-mono text-xs md:text-sm tracking-[0.3em] uppercase">{t.works.view}</span>
-                  <div className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-current flex items-center justify-center transform group-hover:rotate-[-45deg] group-hover:bg-[#00F5FF] group-hover:text-[#07070F] group-hover:border-[#00F5FF] transition-all duration-500">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                  </div>
-                </div>
-              </div>
+                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border"
+                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>{wi.tag}</span>
+                      <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl text-[#E2E2EC] leading-[1.05] mb-5" style={{ fontFamily: "var(--font-syne)" }}>
+                        <ScrambleText text={wi.title} trigger={active} fast />
+                      </h3>
+                      <motion.p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/55 max-w-md leading-relaxed mb-8"
+                        animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
+                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>{wi.desc}</motion.p>
+                      <motion.div className="flex items-center gap-4 group/cta w-fit"
+                        animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
+                        transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#E2E2EC]/60 group-hover/cta:text-white transition-colors duration-300">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-300 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F]">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </div>
+                      </motion.div>
+                      <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
+                    </div>
+                  </a>
+                );
+              })()}
+            </motion.div>
+
+            {/* Card 1 — slides up from below */}
+            <motion.div className="absolute inset-0 z-20" style={{ y: card1Y }}>
+              {(() => {
+                const wm = WORKS_META[1]; const wi = t.works.items[1]; const active = activeWork === 1;
+                return (
+                  <a href={wi.link} target="_blank" rel="noopener noreferrer"
+                    className="relative w-full h-full flex flex-col md:flex-row bg-[#0A0A14]"
+                    onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
+                    {/* Text — LEFT on odd */}
+                    <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-1">
+                      <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
+                        style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
+                        <RollingNumber value={2} />
+                      </span>
+                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border"
+                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>{wi.tag}</span>
+                      <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl text-[#E2E2EC] leading-[1.05] mb-5" style={{ fontFamily: "var(--font-syne)" }}>
+                        <ScrambleText text={wi.title} trigger={active} fast />
+                      </h3>
+                      <motion.p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/55 max-w-md leading-relaxed mb-8"
+                        animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
+                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>{wi.desc}</motion.p>
+                      <motion.div className="flex items-center gap-4 group/cta w-fit"
+                        animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
+                        transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#E2E2EC]/60 group-hover/cta:text-white transition-colors duration-300">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-300 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F]">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </div>
+                      </motion.div>
+                      <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
+                    </div>
+                    {/* Image — RIGHT on odd */}
+                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-2">
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover"
+                        animate={{ scale: active ? 1.06 : 1.0 }}
+                        transition={{ duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }} />
+                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#0A0A14]" />
+                      <div className="absolute inset-0 bg-[#0A0A14]/10" />
+                      <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
+                    </div>
+                  </a>
+                );
+              })()}
+            </motion.div>
+
+            {/* Progress indicator */}
+            <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-none">
+              {WORKS_META.map((wm, i) => (
+                <div key={i} className="h-[2px] rounded-full transition-all duration-500"
+                  style={{ width: i === activeWork ? 28 : 8, backgroundColor: i === activeWork ? wm.accent : "rgba(255,255,255,0.2)" }} />
+              ))}
             </div>
-          </motion.a>
-        ))}
+
+          </div>
+        </div>
       </section>
 
       {/* ════════════════════════════════════
