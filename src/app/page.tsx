@@ -104,6 +104,64 @@ function DarkroomImage({ src, alt, className, finalFilter, delay = 0 }: {
 }
 
 /* ════════════════════════════════════════════════════════
+   MINECRAFT HUD
+════════════════════════════════════════════════════════ */
+const MC = `${B}/minecraft`;
+
+function MinecraftHUD({ onExit }: { onExit: () => void }) {
+  return (
+    <motion.div
+      className="fixed bottom-0 left-0 right-0 z-[998] flex flex-col items-center pb-6 select-none mc-exempt"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 24 }}
+      transition={{ delay: 0.5, duration: 0.3 }}
+    >
+      {/* Hearts + Food row */}
+      <div className="flex items-center gap-6 mb-[3px]">
+        <div className="flex gap-[1px]">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <img key={i} src={`${MC}/Heart_Full.png`} alt="" width={18} height={18} style={{ imageRendering: 'pixelated' }} />
+          ))}
+        </div>
+        <div className="flex gap-[1px]">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <img key={i} src={`${MC}/Food_Full.png`} alt="" width={18} height={18} style={{ imageRendering: 'pixelated' }} />
+          ))}
+        </div>
+      </div>
+
+      {/* XP Bar */}
+      <div className="relative mb-[3px] mc-xp-bar" style={{ width: 364, height: 10 }}>
+        <img src={`${MC}/Experience_bar_background.png`} alt=""
+          style={{ width: '100%', height: '100%', imageRendering: 'pixelated', objectFit: 'fill', display: 'block' }} />
+        <img src={`${MC}/Experience_bar_progress.png`} alt=""
+          style={{ position: 'absolute', top: 0, left: 0, width: '72%', height: '100%', imageRendering: 'pixelated', objectFit: 'fill', objectPosition: 'left' }} />
+      </div>
+
+      {/* Hotbar — crop widgets.png to first row (182×22 at 1x → 273×33 at 1.5x) */}
+      <div style={{
+        width: 297, height: 44,
+        backgroundImage: `url(${MC}/widgets.png)`,
+        backgroundPosition: '0 0',
+        backgroundRepeat: 'no-repeat',
+        backgroundSize: '384px auto',
+        imageRendering: 'pixelated',
+      }} />
+
+      {/* ESC hint */}
+      <button
+        onClick={onExit}
+        className="mt-1 text-[7px] text-white/50 hover:text-white/90 tracking-widest transition-colors mc-exempt"
+        style={{ fontFamily: 'var(--font-minecraft), monospace' }}
+      >
+        [ ESC ] EXIT MINECRAFT MODE
+      </button>
+    </motion.div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
    MAGNETIC BUTTON HOOK
 ════════════════════════════════════════════════════════ */
 function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
@@ -423,62 +481,125 @@ export default function Home() {
   /* Works Theater scroll */
   const worksRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: worksSP } = useScroll({ target: worksRef, offset: ["start start", "end end"] });
+  const worksSpring = useSpring(worksSP, { stiffness: 60, damping: 20, restDelta: 0.001 });
   const [activeWork, setActiveWork] = useState(0);
 
-  /* Works Theater — wheel snap */
+  /* Works Theater — snap helper */
   const worksSnapRef = useRef(false);
   const worksDeltaAccum = useRef(0);
   const worksDeltaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // NOT useRef(fn) — that captures globalLenis=null at mount time.
+  // Instead, define as a plain function and call it directly.
+  const worksSnapTo = (targetY: number, dur = 1.2) => {
+    if (worksSnapRef.current) return;
+    const lenis = globalLenis; // read at call time, not at mount time
+    if (!lenis) return;
+    worksSnapRef.current = true;
+    worksDeltaAccum.current = 0;
+    
+    lenis.scrollTo(targetY, {
+      duration: dur,
+      easing: (t) => 1 - Math.pow(1 - t, 4), // Silky smooth ease out
+      lock: true, // Prevent wheel interference during scroll
+      onComplete: () => {
+        worksSnapRef.current = false;
+        worksDeltaAccum.current = 0;
+      }
+    });
+  };
+
+  /* Reliable Snap Logic — Uses requestAnimationFrame to robustly detect scroll end */
   useEffect(() => {
-    const onWheel = (e: WheelEvent) => {
+    let checkRafId: number;
+    let isSnapping = false;
+    let lastScrollY = window.scrollY;
+    let idleFrames = 0;
+
+    const checkSnap = () => {
+      checkRafId = requestAnimationFrame(checkSnap);
+
       const el = worksRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      if (rect.top > 2 || rect.bottom < window.innerHeight - 2) return;
-      const progress = worksSP.get();
-      const dir = e.deltaY > 0 ? 1 : -1;
-      // Allow natural exit at section boundaries
-      if (dir < 0 && progress <= 0.02) return;
-      if (dir > 0 && progress >= 0.95) return;
-      // Always block default inside section to prevent scroll fighting
-      e.preventDefault();
-      if (worksSnapRef.current) return;
-      // Accumulate deltaY; reset after 200ms of inactivity
-      worksDeltaAccum.current += e.deltaY;
-      if (worksDeltaTimer.current) clearTimeout(worksDeltaTimer.current);
-      worksDeltaTimer.current = setTimeout(() => { worksDeltaAccum.current = 0; }, 200);
-      // Only snap after meaningful intentional scroll (trackpad bounce is usually <10px total)
-      if (Math.abs(worksDeltaAccum.current) < 60) return;
-      const snapDir = worksDeltaAccum.current > 0 ? 1 : -1;
-      worksDeltaAccum.current = 0;
-      const snapTargets = [0.02, 0.65];
-      const currentIdx = progress < 0.45 ? 0 : 1;
-      const nextIdx = Math.max(0, Math.min(snapTargets.length - 1, currentIdx + snapDir));
-      if (nextIdx === currentIdx) return;
-      const sectionDocTop = rect.top + window.scrollY;
-      const sectionScrollable = el.offsetHeight - window.innerHeight;
-      const targetY = sectionDocTop + snapTargets[nextIdx] * sectionScrollable;
-      worksSnapRef.current = true;
-      worksDeltaAccum.current = 0;
       const lenis = globalLenis;
-      if (lenis) {
-        lenis.scrollTo(targetY, {
-          duration: 0.9,
-          easing: (t: number) => 1 - Math.pow(1 - t, 3),
-          lock: true,
-          onComplete: () => { worksSnapRef.current = false; worksDeltaAccum.current = 0; },
+      if (!el || !lenis || isSnapping) {
+        lastScrollY = window.scrollY;
+        idleFrames = 0;
+        return;
+      }
+
+      // Detect if scroll has completely stopped for exactly 15 frames (~250ms)
+      if (Math.abs(window.scrollY - lastScrollY) < 1) {
+        idleFrames++;
+      } else {
+        idleFrames = 0;
+        lastScrollY = window.scrollY;
+      }
+
+      if (idleFrames === 15) {
+        // We have stopped scrolling
+        const rect = el.getBoundingClientRect();
+        const sectionDocTop = rect.top + window.scrollY;
+        const sectionScrollable = el.offsetHeight - window.innerHeight;
+
+        const p0 = sectionDocTop;
+        const p1 = sectionDocTop + 0.5 * sectionScrollable;
+        const p2 = sectionDocTop + sectionScrollable;
+        const currentY = window.scrollY;
+
+        // Skip if outside
+        if (currentY < p0 - 200 || currentY > p2 + 200) return;
+
+        const targets = [p0, p1, p2];
+        let closest = targets[0];
+        let minDiff = Math.abs(currentY - p0);
+        
+        targets.forEach(t => {
+          const diff = Math.abs(currentY - t);
+          if (diff < minDiff) { 
+            minDiff = diff; 
+            closest = t; 
+          }
         });
+
+        // Trigger snap if off-target
+        if (minDiff > 5) {
+          isSnapping = true;
+          lenis.scrollTo(closest, {
+            duration: 0.8,
+            easing: (t) => 1 - Math.pow(1 - t, 4),
+            onComplete: () => { 
+              isSnapping = false;
+              // Reset idle logic to prevent immediate re-triggering
+              lastScrollY = window.scrollY;
+              idleFrames = 0;
+            }
+          });
+        }
       }
     };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
-  }, [worksSP]);
-  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.55 ? 0 : 1); });
-  const card1Y        = useTransform(worksSP, [0.40, 0.65], ["100%", "0%"]);
-  const card0Scale    = useTransform(worksSP, [0.40, 0.72], [1, 0.93]);
-  const card0Opacity  = useTransform(worksSP, [0.50, 0.75], [1, 0]);
-  const tintOpacity0  = useTransform(worksSP, [0, 0.45, 0.65, 1], [0.06, 0.06, 0, 0]);
-  const tintOpacity1  = useTransform(worksSP, [0, 0.45, 0.65, 1], [0, 0, 0.06, 0.06]);
+
+    checkRafId = requestAnimationFrame(checkSnap);
+
+    return () => {
+      cancelAnimationFrame(checkRafId);
+    };
+  }, []);
+  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.5 ? 0 : 1); });
+  
+  // Make the card transition happen faster over a shorter scroll distance
+  // Transition now spans from 10% to 50% of the entire section duration
+  const card1Y        = useTransform(worksSpring, [0.10, 0.50], ["100%", "0%"]);
+  const card0Scale    = useTransform(worksSpring, [0.10, 0.50], [1, 0.93]);
+  const card0Opacity  = useTransform(worksSpring, [0.25, 0.55], [1, 0]);
+  const tintOpacity0  = useTransform(worksSpring, [0, 0.15, 0.50, 1], [0.06, 0.06, 0, 0]);
+  const tintOpacity1  = useTransform(worksSpring, [0, 0.15, 0.50, 1], [0, 0, 0.06, 0.06]);
+
+  /* Works Overall entry and exit */
+  const worksContainerRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: worksContainerSP } = useScroll({ target: worksContainerRef, offset: ["start end", "end start"] });
+  const worksOverallSpring = useSpring(worksContainerSP, { stiffness: 60, damping: 20 });
+  const worksOverallScale = useTransform(worksOverallSpring, [0, 0.15, 0.85, 1], [0.8, 1, 1, 0.8]);
+  const worksOverallOpacity = useTransform(worksOverallSpring, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
+  const worksOverallBorder = useTransform(worksOverallSpring, [0, 0.15, 0.85, 1], ["40px", "0px", "0px", "40px"]);
 
   const navItems = [
     { id: 'about',     label: t.nav.about },
@@ -499,6 +620,46 @@ export default function Home() {
   const [slothMode, setSlothMode] = useState(false);
   const heroVectorsRef = useRef<Record<string, { x: number; y: number; rotate: number }>>({});
   const slothPendingRef = useRef(false);
+
+  /* ── Minecraft mode ── */
+  const [minecraftMode, setMinecraftMode] = useState(false);
+  const [mcPortal, setMcPortal] = useState(false);
+  const minecraftModeRef = useRef(false);
+  useEffect(() => { minecraftModeRef.current = minecraftMode; }, [minecraftMode]);
+
+  /* sync html class */
+  useEffect(() => {
+    document.documentElement.classList.toggle('minecraft-mode', minecraftMode);
+  }, [minecraftMode]);
+
+  const enterMinecraft = () => {
+    setMcPortal(true);
+    setTimeout(() => setMinecraftMode(true), 480);
+    setTimeout(() => setMcPortal(false), 1100);
+  };
+  const exitMinecraft = () => {
+    setMcPortal(true);
+    setTimeout(() => setMinecraftMode(false), 380);
+    setTimeout(() => setMcPortal(false), 780);
+  };
+
+  /* ── Global keyboard easter eggs ── */
+  useEffect(() => {
+    let buf = '';
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'Escape') { if (minecraftModeRef.current) exitMinecraft(); return; }
+      if (e.key.length !== 1) return;
+      buf = (buf + e.key.toLowerCase()).slice(-5);
+      if (buf === 'sloth') {
+        buf = '';
+        setSlothMode(true);
+        globalLenis?.scrollTo(0, { duration: 1.5 });
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   useEffect(() => {
     const r = heroVectorsRef.current;
@@ -820,7 +981,7 @@ export default function Home() {
               ))}
             </nav>
             <p className="font-mono text-[10px] text-white/15 tracking-[0.3em] uppercase">
-              TH // SIGNAL & NOISE
+              TH // CREATIVE DEV
             </p>
           </motion.div>
         )}
@@ -1120,8 +1281,10 @@ export default function Home() {
 
           {/* Cell B — Minecraft, top col 2 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-[#E2E2EC]/10 group cursor-default"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-[#E2E2EC]/10 group cursor-pointer"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+            onClick={() => minecraftMode ? exitMinecraft() : enterMinecraft()}
+            title={minecraftMode ? "点击退出 Minecraft 模式" : "点击进入 Minecraft 模式"}
           >
             <DarkroomImage src={`${B}/images/about/Minecraft.jfif`} alt="Origin"
               className="w-full h-full object-cover object-center transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
@@ -1275,7 +1438,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works" className="relative z-10 w-full bg-[#0A0A14]">
+      <section id="works" ref={worksContainerRef} className="relative z-10 w-full bg-[#0A0A14] [overflow:clip]">
 
         {/* Section Header */}
         <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
@@ -1286,8 +1449,10 @@ export default function Home() {
         </div>
 
         {/* ── Project Theater ── */}
-        <div ref={worksRef} className="relative h-[300vh]">
-          <div className="sticky top-0 h-screen overflow-hidden bg-[#0A0A14]">
+        <div ref={worksRef} className="relative h-[200vh]">
+          <motion.div className="sticky top-0 h-screen overflow-hidden bg-[#0A0A14]"
+             style={{ scale: worksOverallScale, opacity: worksOverallOpacity, borderRadius: worksOverallBorder }}
+          >
 
             {/* Accent environment tints */}
             <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: WORKS_META[0].accent, opacity: tintOpacity0 }} />
@@ -1393,7 +1558,7 @@ export default function Home() {
               ))}
             </div>
 
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -1630,6 +1795,41 @@ export default function Home() {
           <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">BUILT WITH NEXT.JS + FRAMER MOTION</span>
         </div>
       </section>
+
+      {/* ── Minecraft dirt background overlay ── */}
+      {minecraftMode && (
+        <div className="fixed inset-0 z-0 pointer-events-none mc-exempt" style={{
+          backgroundImage: `url(${MC}/dirt.png)`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '64px 64px',
+          imageRendering: 'pixelated',
+          opacity: 0.18,
+        }} />
+      )}
+
+      {/* ── Minecraft HUD ── */}
+      <AnimatePresence>
+        {minecraftMode && <MinecraftHUD key="mc-hud" onExit={exitMinecraft} />}
+      </AnimatePresence>
+
+      {/* ── Nether Portal Transition ── */}
+      <AnimatePresence>
+        {mcPortal && (
+          <motion.div
+            key="mc-portal"
+            className="fixed inset-0 z-[999] pointer-events-none mc-exempt"
+            style={{
+              backgroundImage: `url(${MC}/nether-portal.png)`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '64px 64px',
+              imageRendering: 'pixelated',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.92, 0.65, 0.92, 0] }}
+            transition={{ duration: 1.0, times: [0, 0.2, 0.5, 0.8, 1], ease: 'linear' }}
+          />
+        )}
+      </AnimatePresence>
 
     </main>
   );

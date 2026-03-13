@@ -113,6 +113,50 @@ body {
   animation: badge-glitch 6s ease-in-out infinite;
 }
 
+/* ── MINECRAFT MODE ── */
+html.minecraft-mode {
+  filter: contrast(1.2) saturate(1.6) brightness(0.92);
+}
+html.minecraft-mode *:not(.mc-exempt) {
+  font-family: var(--font-minecraft), monospace !important;
+  letter-spacing: 0.02em;
+}
+html.minecraft-mode img {
+  image-rendering: pixelated;
+}
+/* Minecraft-style drop shadow on text */
+html.minecraft-mode h1, html.minecraft-mode h2,
+html.minecraft-mode h3, html.minecraft-mode h4 {
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+}
+/* Minecraft GUI panel border */
+.mc-panel {
+  background: rgba(12, 12, 20, 0.92);
+  border: 3px solid #555;
+  box-shadow:
+    inset 1px 1px 0 #999,
+    inset -1px -1px 0 #222,
+    3px 3px 0 #000;
+  image-rendering: pixelated;
+}
+/* Nav bar in minecraft mode — fix baseline shift only, don't change size */
+html.minecraft-mode header * {
+  line-height: 1 !important;
+  vertical-align: middle !important;
+}
+html.minecraft-mode header a,
+html.minecraft-mode header button {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* XP bar animation */
+@keyframes xp-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+.mc-xp-bar { animation: xp-pulse 2s ease-in-out infinite; }
+
 /* ── LIGHT MODE INVERT ── */
 html.light {
   filter: invert(1) hue-rotate(180deg);

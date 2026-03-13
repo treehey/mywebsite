@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Syne, Space_Grotesk, Space_Mono } from "next/font/google";
+import { Syne, Space_Grotesk, Space_Mono, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "../components/SmoothScroll";
 import LoadingScreen from "../components/LoadingScreen";
@@ -23,6 +23,12 @@ const mono = Space_Mono({
   variable: "--font-mono",
 });
 
+const pressStart = Press_Start_2P({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-minecraft",
+});
+
 export const metadata: Metadata = {
   title: "TREE HEY",
   description: "Developer × Photographer. Macau → Nanjing University.",
@@ -33,7 +39,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body
-        className={`${syne.variable} ${grotesk.variable} ${mono.variable} bg-[#07070F] text-[#E2E2EC] antialiased selection:bg-[#00F5FF]/20 selection:text-[#00F5FF] overflow-x-clip`}
+        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} bg-[#07070F] text-[#E2E2EC] antialiased selection:bg-[#00F5FF]/20 selection:text-[#00F5FF] overflow-x-clip`}
         style={{ fontFamily: "var(--font-grotesk), system-ui, sans-serif" }}
       >
         <LoadingScreen />
