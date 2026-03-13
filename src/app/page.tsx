@@ -265,9 +265,35 @@ const TIMELINE = [
   ];
 
 function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const lineRef    = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 85%', 'end 25%'] });
+
+  /* Signal particle y-position (imperative, no re-renders) */
+  const particleY = useMotionValue(0);
+  /* Per-item reveal */
+  const [visible, setVisible] = useState<boolean[]>(TIMELINE.map(() => false));
+
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    /* Move particle */
+    const height = lineRef.current?.offsetHeight ?? 0;
+    const p = Math.max(0, Math.min(1, (v - 0.04) / 0.92));
+    particleY.set(p * height);
+    /* Reveal items as signal passes each threshold */
+    setVisible(prev => {
+      const next = [...prev];
+      let changed = false;
+      TIMELINE.forEach((_, i) => {
+        const thr = 0.04 + (i / TIMELINE.length) * 0.88;
+        if (v >= thr && !prev[i]) { next[i] = true; changed = true; }
+      });
+      return changed ? next : prev;
+    });
+  });
+
   return (
-    <section id="timeline" className="relative bg-[#07070F] py-24 md:py-32 overflow-hidden">
-      
+    <section ref={sectionRef} id="timeline" className="relative bg-[#07070F] py-24 md:py-32 overflow-hidden">
+
       {/* Section Header */}
       <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
         <span className="font-mono text-xs text-[#39FF14] tracking-[0.5em] uppercase" style={{ textShadow: "0 0 10px rgba(57,255,20,0.5)" }}>
@@ -282,8 +308,19 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
       </div>
 
       <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
-        {/* Vertical Glow Line */}
-        <div className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-gradient-to-b from-[#00F5FF]/10 via-[#FF2D78]/30 to-[#39FF14]/10" />
+        {/* Dim background line */}
+        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-[#E2E2EC]/08" />
+        {/* Signal particle */}
+        <motion.div
+          className="absolute w-[7px] h-[7px] rounded-full pointer-events-none z-20"
+          style={{
+            left: 'calc(1.5rem + 16px - 3px)',
+            top: '4rem',
+            y: particleY,
+            backgroundColor: '#00F5FF',
+            boxShadow: '0 0 0 3px rgba(0,245,255,0.25), 0 0 16px 4px rgba(0,245,255,0.7)',
+          }}
+        />
 
         <div className="flex flex-col gap-0">
           {TIMELINE.map((node, i) => {
@@ -293,9 +330,8 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.7, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                animate={visible[i] ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
                 className="flex items-start gap-6 md:gap-10 group border-b border-[#E2E2EC]/5 py-8 md:py-12 relative"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
@@ -418,7 +454,27 @@ export default function Home() {
   } | null>(null);
   const wipeCompletingRef = useRef(false); // ref to prevent stale-closure multi-fire
   const aboutRef = useRef<HTMLElement>(null);
+  const heroSectionRef = useRef<HTMLElement>(null);
+  const contactSectionRef = useRef<HTMLElement>(null);
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
+
+  /* ── Scroll-driven transforms ── */
+  // Hero scroll-out
+  const { scrollYProgress: heroProgress } = useScroll({ target: heroSectionRef, offset: ['start start', 'end start'] });
+  const heroContentY       = useTransform(heroProgress, [0, 1], [0, -120]);
+  const heroContentOpacity = useTransform(heroProgress, [0, 0.75], [1, 0]);
+  const heroContentScale   = useTransform(heroProgress, [0, 1], [1, 0.91]);
+  const heroBgY            = useTransform(heroProgress, [0, 1], [0, 80]); // grid moves slower
+
+  // About headings horizontal parallax
+  const { scrollYProgress: aboutProgress } = useScroll({ target: aboutRef, offset: ['start end', 'end start'] });
+  const aboutH1X = useTransform(aboutProgress, [0, 1], [70, -70]);
+  const aboutH2X = useTransform(aboutProgress, [0, 1], [-70, 70]);
+
+  // Contact headline scrub reveal
+  const { scrollYProgress: contactProgress } = useScroll({ target: contactSectionRef, offset: ['start 90%', 'center 50%'] });
+  const contactHeadX       = useTransform(contactProgress, [0, 1], [100, 0]);
+  const contactHeadOpacity = useTransform(contactProgress, [0, 0.3], [0, 1]);
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
   const t = DICT[lang as keyof typeof DICT];
@@ -659,6 +715,21 @@ export default function Home() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  /* ── Scroll velocity blur overlay (DOM-direct, zero re-renders) ── */
+  const blurOverlayRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let raf: number;
+    const tick = () => {
+      const vel = globalLenis?.velocity ?? 0;
+      const blur = Math.min(Math.abs(vel) * 0.13, 2.8);
+      if (blurOverlayRef.current)
+        blurOverlayRef.current.style.backdropFilter = `blur(${blur.toFixed(2)}px)`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   useEffect(() => {
@@ -1011,13 +1082,13 @@ export default function Home() {
       {/* ════════════════════════════════════
           1. HERO (Asymmetric & Interactive)
       ════════════════════════════════════ */}
-      <section className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines" id="hero">
+      <section ref={heroSectionRef} className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines" id="hero">
         {/* Animated Cyber Grid with 3D Mouse Parallax */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ perspective: "1000px" }}>
-          <motion.div 
+        <motion.div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ perspective: "1000px", y: heroBgY }}>
+          <motion.div
             className="w-full h-full relative"
-            animate={{ 
-              rotateX: mDelta.y * -15, 
+            animate={{
+              rotateX: mDelta.y * -15,
               rotateY: mDelta.x * 15,
               z: mDelta.y * 20, /* Add slight depth pull */
               scale: 1.4 /* Increased scale to prevent edge clipping during extreme parallax */
@@ -1028,9 +1099,9 @@ export default function Home() {
              <div className="cyber-grid" />
              <div className="cyber-grid-overlay" />
           </motion.div>
-        </div>
+        </motion.div>
 
-        <motion.div 
+        <motion.div
           className="absolute z-0 w-full h-full flex items-center justify-center opacity-[0.05]"
           animate={{ x: mDelta.x * -60, y: mDelta.y * -60 }}
           transition={{ type: "tween", ease: "easeOut", duration: 1 }}
@@ -1040,7 +1111,9 @@ export default function Home() {
            </div>
         </motion.div>
 
-        <div className="relative z-10 max-w-[90vw] w-full flex flex-col items-center px-4 md:px-12 mt-12 md:mt-0">
+        <motion.div className="relative z-10 max-w-[90vw] w-full flex flex-col items-center px-4 md:px-12 mt-12 md:mt-0"
+          style={{ y: heroContentY, opacity: heroContentOpacity, scale: heroContentScale }}
+        >
           <motion.div
             initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -1137,7 +1210,7 @@ export default function Home() {
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* ── Sloth Easter Egg Mascot ── */}
         <AnimatePresence>
@@ -1210,11 +1283,12 @@ export default function Home() {
         <div className="relative w-full px-6 md:px-12 pt-16 md:pt-24 pb-4 md:pb-0 overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-0">
             <motion.h2
-              initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+              initial={{ rotateY: -88, opacity: 0 }}
+              whileInView={{ rotateY: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
               className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-[#E2E2EC] uppercase cursor-default select-none"
-              style={{ fontFamily: "var(--font-syne)" }}
-              whileHover={{ x: [0, -5, 5, -3, 3, 0], transition: { duration: 0.35, ease: "easeInOut" } }}
+              style={{ fontFamily: "var(--font-syne)", x: aboutH1X, transformPerspective: 1400 }}
             >
               {t.about.title1}
             </motion.h2>
@@ -1227,11 +1301,12 @@ export default function Home() {
             </motion.div>
           </div>
           <motion.h2
-            initial={{ opacity: 0, y: 80 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ rotateY: 88, opacity: 0 }}
+            whileInView={{ rotateY: 0, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.95, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-transparent uppercase cursor-default select-none"
-            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "2px rgba(0,245,255,0.6)" }}
-            whileHover={{ x: [0, 5, -5, 3, -3, 0], transition: { duration: 0.35 } }}
+            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "2px rgba(0,245,255,0.6)", x: aboutH2X, transformPerspective: 1400 }}
           >
             {t.about.title2}
           </motion.h2>
@@ -1701,7 +1776,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           4. CONTACT — Immersive Terminal
       ════════════════════════════════════ */}
-      <section id="contact" className="relative z-10 min-h-screen flex flex-col bg-[#07070F] border-t border-[#E2E2EC]/10 overflow-hidden">
+      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-screen flex flex-col bg-[#07070F] border-t border-[#E2E2EC]/10 overflow-hidden">
         
         {/* Section label row */}
         <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
@@ -1717,10 +1792,9 @@ export default function Home() {
           <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] rounded-full bg-[#00F5FF]/5 blur-[100px] pointer-events-none" />
 
           <motion.h2
-            initial={{ opacity: 0, y: 60 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             className="font-syne font-black leading-[0.85] text-[#E2E2EC] mb-16 relative z-10"
-            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3rem, 12vw, 10rem)" }}
+            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3rem, 12vw, 10rem)", x: contactHeadX, opacity: contactHeadOpacity }}
           >
             {t.contact.t1}<br />
             <span
@@ -1795,6 +1869,10 @@ export default function Home() {
           <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">BUILT WITH NEXT.JS + FRAMER MOTION</span>
         </div>
       </section>
+
+      {/* ── Scroll velocity motion blur overlay ── */}
+      <div ref={blurOverlayRef} className="fixed inset-0 z-[3] pointer-events-none"
+        style={{ backdropFilter: 'blur(0px)', transition: 'backdrop-filter 0.14s ease-out' }} />
 
       {/* ── Minecraft dirt background overlay ── */}
       {minecraftMode && (

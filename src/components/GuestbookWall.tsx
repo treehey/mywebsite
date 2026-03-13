@@ -386,23 +386,23 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.7, rotate: rotate - 15, y: -30, x: cols === 1 ? "-50%" : 0 }}
-      whileInView={{ 
-        opacity: 1, 
-        scale: isFocused ? 1.05 : 1, 
-        rotate: isFocused ? 0 : rotate, 
-        y: 0, 
-        x: cols === 1 ? "-50%" : 0 
+      initial={{ opacity: 0, scale: 0.84, rotate: 0, y: -90, x: cols === 1 ? "-50%" : 0 }}
+      whileInView={{
+        opacity: 1,
+        scale: isFocused ? 1.05 : 1,
+        rotate: isFocused ? 0 : rotate,
+        y: 0,
+        x: cols === 1 ? "-50%" : 0
       }}
-      whileHover={{ scale: 1.05, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
-      whileTap={{ scale: 1.02, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
+      whileHover={{ scale: 1.06, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
+      whileTap={{ scale: 1.01, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
       onPointerEnter={() => setHasInteracted(true)}
       onClick={() => {
         setHasInteracted(true);
         setIsFocused(!isFocused);
       }}
       viewport={{ once: true, margin: "80px" }}
-      transition={{ duration: 0.55, delay: hasInteracted ? 0 : delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ type: 'spring', stiffness: 480, damping: 22, delay: hasInteracted ? 0 : delay }}
       className="absolute cursor-pointer"
       style={{
         left: cols === 1 ? `${leftPct}%` : `clamp(10px, ${leftPct}%, calc(100% - ${noteW}px - 10px))`,
