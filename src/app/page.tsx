@@ -89,16 +89,16 @@ function DarkroomImage({ src, alt, className, finalFilter, delay = 0 }: {
     <img
       ref={ref}
       src={src} alt={alt} loading="lazy" decoding="async"
-      className={className}
+      className={`${className || ''} darkroom-img`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        filter: activeFilter,
+        '--darkroom-filter': activeFilter,
         transitionProperty: 'filter',
         transitionDuration: hovered ? '0.4s' : '2.2s',
         transitionTimingFunction: 'cubic-bezier(0.15, 0, 0.3, 1)',
         transitionDelay: (!inView || hovered) ? '0s' : `${delay}s`,
-      }}
+      } as React.CSSProperties}
     />
   );
 }
@@ -831,18 +831,6 @@ export default function Home() {
     }
   }
 
-  // Dismiss frozen wipe: click anywhere to confirm (>50%) or cancel (<50%)
-  useEffect(() => {
-    if (!themeWipe?.frozen) return;
-    const coverage = getWipeProps(themeWipe)?.coverage ?? 0;
-    const dismiss = (ev: PointerEvent) => {
-      if ((ev.target as Element).closest('[data-theme-btn="true"]')) return;
-      if (coverage > 0.5) setTheme(t => t === 'dark' ? 'light' : 'dark');
-      setThemeWipe(null);
-    };
-    const id = setTimeout(() => document.addEventListener('pointerdown', dismiss), 100);
-    return () => { clearTimeout(id); document.removeEventListener('pointerdown', dismiss); };
-  }, [themeWipe?.frozen]);
   // ─────────────────────────────────────────────────────────────────────────
 
   return (

@@ -167,6 +167,14 @@ html.light .no-invert {
   filter: invert(1) hue-rotate(180deg);
 }
 
+/* Darkroom image custom filter */
+img.darkroom-img {
+  filter: var(--darkroom-filter);
+}
+html.light img.darkroom-img {
+  filter: var(--darkroom-filter) invert(1) hue-rotate(180deg);
+}
+
 
 /* Background Noise */
 .bg-noise {
