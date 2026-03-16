@@ -62,10 +62,10 @@ const TL_GW: Record<string, Record<string, string>> = {
 };
 
 const ACCENT_COLORS = [
-  "#00F5FF", // Cyan
-  "#FF2D78", // Pink
+  "#FFFFFF",
+  "#F3F4F6",
   "#9D4EDD", // Purple 
-  "#39FF14", // Neon Green
+  "#E5E7EB",
   "#48CAE4", // Soft Tech Blue
 ];
 
@@ -185,14 +185,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
 
       {/* Ambient glow blobs */}
-      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FF2D78" }} />
-      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#00F5FF" }} />
+      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FFFFFF" }} />
+      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#FFFFFF" }} />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
@@ -203,7 +203,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10"
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#FF2D78] mb-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white mb-4">
             GUESTBOOK
           </p>
           <div className="flex items-end justify-between gap-6 flex-wrap">
@@ -222,14 +222,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
               onClick={() => { setShowForm(v => !v); setTimeout(() => textareaRef.current?.focus(), 80); }}
               className="flex items-center gap-2 px-5 py-3 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 shrink-0"
               style={{
-                background: showForm ? "rgba(255,45,120,0.12)" : "rgba(14,14,28,0.88)",
-                borderColor: showForm ? "rgba(255,45,120,0.5)" : "rgba(0,245,255,0.35)",
-                color: showForm ? "#FF2D78" : "#00F5FF",
+                background: showForm ? "rgba(255,255,255,0.1)" : "rgba(5,5,5,0.8)",
+                borderColor: showForm ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)",
+                color: showForm ? "#FFFFFF" : "#FFFFFF",
                 backdropFilter: "blur(14px)",
-                boxShadow: showForm ? "0 0 24px rgba(255,45,120,0.15)" : "0 0 24px rgba(0,245,255,0.1)",
+                boxShadow: showForm ? "0 0 24px rgba(255,255,255,0.15)" : "0 0 24px rgba(255,255,255,0.05)",
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: showForm ? "#FF2D78" : "#00F5FF" }} />
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: showForm ? "#FFFFFF" : "#FFFFFF" }} />
               {showForm ? tr.closeBtn : tr.writeBtn}
             </motion.button>
           </div>
@@ -248,17 +248,17 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
               <div
                 className="rounded-[1.5rem] p-6 md:p-8 max-w-xl"
                 style={{
-                  background: "rgba(7,7,15,0.94)",
-                  border: "1px solid rgba(255,45,120,0.2)",
+                  background: "rgba(10,10,10,0.95)",
+                  border: "1px solid rgba(255,255,255,0.1)",
                   backdropFilter: "blur(24px)",
-                  boxShadow: "0 0 50px rgba(255,45,120,0.06), 0 24px 64px rgba(0,0,0,0.7)",
+                  boxShadow: "0 0 50px rgba(255,255,255,0.02), 0 24px 64px rgba(0,0,0,0.7)",
                 }}
               >
                 <div className="flex flex-col gap-5">
                   {/* Message (required) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF2D78]">{tr.msgLabel}</label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-white">{tr.msgLabel}</label>
                       <span className="font-mono text-[10px] text-[#E2E2EC]/30">{messageText.length}/150</span>
                     </div>
                     <textarea
@@ -268,13 +268,13 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       maxLength={150}
                       rows={3}
                       placeholder={tr.msgPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-white rounded-lg p-3 resize-none transition-colors duration-300"
                     />
                   </div>
                   {/* Danmaku title (optional) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">{tr.dmkLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-white">{tr.dmkLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
                       <span className="font-mono text-[10px] text-[#E2E2EC]/30">{titleText.length}/30</span>
                     </div>
                     <input
@@ -284,20 +284,20 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       onKeyDown={e => e.key === "Enter" && handleSubmit()}
                       maxLength={30}
                       placeholder={tr.dmkPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-white pb-2 transition-colors duration-300"
                     />
                   </div>
                   {/* Nickname + submit */}
                   <div className="flex items-end gap-4">
                     <div className="flex-1">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#39FF14] mb-2 block">{tr.nickLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-white mb-2 block">{tr.nickLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
                       <input
                         type="text"
                         value={nickname}
                         onChange={e => setNickname(e.target.value)}
                         maxLength={20}
                         placeholder={tr.nickPlaceholder}
-                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
+                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-white pb-2 transition-colors duration-300"
                       />
                     </div>
                     <button
@@ -305,9 +305,9 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       disabled={!messageText.trim() || status === "sending"}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-300 disabled:opacity-40 active:scale-95 shrink-0"
                       style={{
-                        background: status === "done" ? "rgba(57,255,20,0.15)" : "rgba(255,45,120,0.12)",
-                        border: `1px solid ${status === "done" ? "rgba(57,255,20,0.5)" : "rgba(255,45,120,0.4)"}`,
-                        color: status === "done" ? "#39FF14" : "#FF2D78",
+                        background: status === "done" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)",
+                        border: `1px solid ${status === "done" ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.4)"}`,
+                        color: status === "done" ? "#FFFFFF" : "#FFFFFF",
                       }}
                     >
                       {status === "sending" && <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />}
@@ -429,7 +429,7 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
         className="relative p-5 rounded-md overflow-hidden"
         style={{
           // More visible, slightly warm dark card bg — clearly distinct from page bg
-          background: `linear-gradient(145deg, rgba(32,28,52,0.97) 0%, rgba(18,16,36,0.99) 100%)`,
+          background: `linear-gradient(145deg, rgba(20,20,20,0.97) 0%, rgba(10,10,10,0.99) 100%)`,
           borderTop: `3px solid ${accentColor}`,
           border: `1.5px solid ${accentColor}44`,
           backdropFilter: "blur(16px)",
@@ -473,4 +473,5 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
     </motion.div>
   );
 }
+
 

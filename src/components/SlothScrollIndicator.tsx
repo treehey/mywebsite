@@ -63,7 +63,7 @@ export const SlothScrollIndicator = () => {
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
               className="w-8 h-8 absolute"
-              fill="#00F5FF"
+              fill="white"
               style={{ filter: "drop-shadow(0 0 6px rgba(0,245,255,0.8))", opacity: 0.9 }}
               initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
               animate={{ opacity: 1, scale: 1.2, rotate: 0 }}

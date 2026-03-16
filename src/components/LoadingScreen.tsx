@@ -160,7 +160,7 @@ export default function LoadingScreen() {
             ].map((z, i) => (
               <motion.span
                 key={i}
-                className="absolute italic select-none text-[#00F5FF] [text-shadow:0_0_10px_#00F5FF]"
+                className="absolute italic select-none text-white/50"
                 style={{ fontSize: z.sz, left: z.x, top: z.y,
                   fontFamily: "var(--font-mono, monospace)" }}
                 animate={{ y: [0, -14, -28], opacity: [0, 1, 0] }}
@@ -178,11 +178,11 @@ export default function LoadingScreen() {
           >
             <div className="flex items-center gap-2.5">
               <motion.span
-                className="w-1.5 h-1.5 rounded-full block bg-[#00F5FF] shadow-[0_0_8px_#00F5FF]"
+                className="w-1.5 h-1.5 rounded-full block bg-white/60"
                 animate={{ opacity: [1, 0.15, 1] }}
                 transition={{ repeat: Infinity, duration: 1.2 }}
               />
-              <span className="text-[10px] uppercase tracking-[0.5em] text-[#00F5FF]">
+              <span className="text-[10px] uppercase tracking-[0.5em] text-white/60">
                 SLOW AND STEADY
               </span>
             </div>
@@ -190,10 +190,10 @@ export default function LoadingScreen() {
             {/* Progress bar */}
             <div className="relative w-52 h-[1px] rounded-full overflow-hidden bg-white/10">
               <div
-                className="absolute inset-y-0 left-0 rounded-full shadow-[0_0_10px_#00F5FF50]"
+                className="absolute inset-y-0 left-0 rounded-full"
                 style={{
                   width: `${progress}%`,
-                  background: "linear-gradient(90deg, #00F5FF, #FF2D78)",
+                  background: "rgba(255,255,255,0.7)",
                   transition: "width 80ms linear",
                 }}
               />
