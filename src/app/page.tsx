@@ -423,6 +423,40 @@ function FlipText({ text, className }: { text: string; className?: string }) {
 }
 
 /* ════════════════════════════════════════════════════════
+   BLUR FOCUS TEXT — Cinematic typographic reveal
+════════════════════════════════════════════════════════ */
+const blurTextVariants: Variants = {
+  hidden: { filter: "blur(10px)", opacity: 0, scale: 1.05 },
+  visible: { filter: "blur(0px)", opacity: 1, scale: 1, transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as any } }
+};
+const blurWordVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } }
+};
+
+function BlurFocusText({ text, trigger, className }: { text: string; trigger: boolean; className?: string }) {
+  const words = text.split(" ");
+  return (
+    <motion.span 
+      className={`inline-block ${className || ""}`}
+      variants={blurWordVariants}
+      initial="hidden"
+      animate={trigger ? "visible" : "hidden"}
+    >
+      {words.map((word, i) => (
+        <span key={i} className="inline-block whitespace-nowrap mr-[0.25em]">
+          {word.split("").map((char, j) => (
+            <motion.span key={j} variants={blurTextVariants} className="inline-block">
+              {char}
+            </motion.span>
+          ))}
+        </span>
+      ))}
+    </motion.span>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
    ROLLING NUMBER — mechanical counter digit roll
 ════════════════════════════════════════════════════════ */
 function RollingNumber({ value, digits = 2 }: { value: number; digits?: number }) {
@@ -651,7 +685,40 @@ export default function Home() {
       cancelAnimationFrame(checkRafId);
     };
   }, []);
-  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.5 ? 0 : 1); });
+  // Trigger the active state slightly earlier (e.g. 0.35 instead of 0.5) to ensure it's fully active when snapping settles, and creating a nice overlapping animation.
+  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.35 ? 0 : 1); });
+
+  // Intelligent JS Smooth Snapping to preserve silky interaction
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const onScroll = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (!globalLenis || !worksRef.current) return;
+        const sp = worksSP.get();
+        // Check if user is resting "inside" the transition boundary
+        if (sp > 0.02 && sp < 0.98) {
+          const targets = [0, 0.5, 1];
+          const closest = targets.reduce((prev, curr) => Math.abs(curr - sp) < Math.abs(prev - sp) ? curr : prev);
+          
+          if (Math.abs(closest - sp) < 0.02) return; // Already exactly at the snap point
+          
+          const rect = worksRef.current.getBoundingClientRect();
+          const offsetTop = rect.top + window.scrollY;
+          const scrollSpace = worksRef.current.clientHeight - window.innerHeight;
+          const targetY = offsetTop + (closest * scrollSpace);
+          
+          globalLenis.scrollTo(targetY, { duration: 1.5, easing: (t) => 1 - Math.pow(1 - t, 4) });
+        }
+      }, 200);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(timeoutId);
+    };
+  }, [worksSP]);
   
   // Make the card transition happen faster over a shorter scroll distance
   // Transition now spans from 10% to 50% of the entire section duration
@@ -1073,7 +1140,12 @@ export default function Home() {
       />
 
       {/* ───── BACKGROUND NOISE & FLUID ───── */}
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         
         
@@ -1262,9 +1334,9 @@ export default function Home() {
           {/* Stat cards */}
           <div className="border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 p-6 md:p-8 flex flex-col justify-between gap-4">
             {[
-              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学", accent: "bg-blue-500", grad: "from-blue-500/20 to-transparent" },
-              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-emerald-500", grad: "from-emerald-500/20 to-transparent" },
-              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code", accent: "bg-fuchsia-500", grad: "from-fuchsia-500/20 to-transparent" },
+              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学", accent: "bg-white", grad: "from-white/10 to-transparent" },
+              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-white/70", grad: "from-white/5 to-transparent" },
+              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code", accent: "bg-white/50", grad: "from-white/5 to-transparent" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -1292,8 +1364,6 @@ export default function Home() {
             <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.4em]">Modules</p>
             <div className="flex flex-col gap-5">
               {t.about.tags.map((tag, i) => {
-                const colors = ["from-indigo-500 to-cyan-400", "from-emerald-400 to-teal-500", "from-rose-400 to-orange-400"];
-                const dot = ["bg-cyan-400", "bg-emerald-400", "bg-rose-400"];
                 return (
                 <motion.div
                   key={tag}
@@ -1303,15 +1373,15 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <motion.span
-                      className={`w-1.5 h-1.5 rounded-full bg-white/20 group-hover:${dot[i]} flex-shrink-0 transition-colors duration-500`}
+                      className={`w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-white flex-shrink-0 transition-colors duration-500`}
                       animate={{ scale: [1, 1.4, 1] }}
                       transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.7 }}
                     />
-                    <span className="font-mono text-xs text-white/50 group-hover:text-white transition-colors duration-500 uppercase tracking-widest">{tag}</span>
+                    <span className="font-mono text-xs text-white/70 group-hover:text-white transition-colors duration-500 uppercase tracking-widest">{tag}</span>
                   </div>
-                  <div className="ml-4 h-[1px] bg-white/5 rounded-full overflow-hidden">
+                  <div className="ml-4 h-[1px] bg-white/10 rounded-full overflow-hidden">
                     <motion.div
-                      className={`h-full bg-gradient-to-r opacity-50 group-hover:opacity-100 transition-opacity duration-500 ${colors[i]}`}
+                      className={`h-full bg-white/60 group-hover:bg-white transition-colors duration-500`}
                       initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
                       transition={{ duration: 1.1, delay: 0.4 + i * 0.15, ease: "easeOut" }}
                       style={{ transformOrigin: "left", width: `${[88, 92, 78][i]}%` }}
@@ -1377,16 +1447,20 @@ export default function Home() {
               {(() => {
                 const wm = WORKS_META[0]; const wi = t.works.items[0]; const active = activeWork === 0;
                 return (
-                  <a href={wi.link} target="_blank" rel="noopener noreferrer"
-                    className="relative w-full h-full flex flex-col md:flex-row"
+                  <div className="relative w-full h-full flex flex-col md:flex-row"
                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                     {/* Image — LEFT on even */}
-                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1">
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover"
-                        animate={{ scale: active ? 1.06 : 1.0 }}
-                        transition={{ duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }} />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0A0A14]" />
-                      <div className="absolute inset-0 bg-[#0A0A14]/10" />
+                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1 group/img">
+                      {/* Floating glowing orb */}
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-white/5 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
+                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      />
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
+                        animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
+                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0A0A14] pointer-events-none" />
+                      <div className="absolute inset-0 bg-[#0A0A14]/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
                       <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
                     </div>
                     {/* Text — RIGHT on even */}
@@ -1395,25 +1469,33 @@ export default function Home() {
                         style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
                         <RollingNumber value={1} />
                       </span>
-                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border"
-                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>{wi.tag}</span>
-                      <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5" style={{ fontFamily: "var(--font-syne)" }}>
-                        <ScrambleText text={wi.title} trigger={active} fast />
-                      </h3>
-                      <motion.p className="font-grotesk text-sm md:text-base /55 max-w-md leading-relaxed mb-8"
+                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
+                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
+                        <span className="relative z-10">{wi.tag}</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
+                      </span>
+                      <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
+                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl leading-[1.05] mb-5 hover:text-white/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                          <BlurFocusText text={wi.title} trigger={active} />
+                        </h3>
+                      </a>
+                      <motion.p className="font-grotesk text-sm md:text-base /60 max-w-md leading-relaxed mb-8 relative"
                         animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
-                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>{wi.desc}</motion.p>
-                      <motion.div className="flex items-center gap-4 group/cta w-fit"
+                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
+                        {wi.desc}
+                      </motion.p>
+                      <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
                         animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
                         transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase /60 group-hover/cta:text-white transition-colors duration-300">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-300 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F]">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase /60 group-hover/cta:text-white transition-colors duration-300 relative z-10">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F] group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </div>
-                      </motion.div>
+                      </motion.a>
                       <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
                     </div>
-                  </a>
+                  </div>
                 );
               })()}
             </motion.div>
@@ -1423,8 +1505,7 @@ export default function Home() {
               {(() => {
                 const wm = WORKS_META[1]; const wi = t.works.items[1]; const active = activeWork === 1;
                 return (
-                  <a href={wi.link} target="_blank" rel="noopener noreferrer"
-                    className="relative w-full h-full flex flex-col md:flex-row bg-[#0A0A14]"
+                  <div className="relative w-full h-full flex flex-col md:flex-row bg-[#0A0A14]"
                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                     {/* Text — LEFT on odd */}
                     <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-1">
@@ -1432,43 +1513,70 @@ export default function Home() {
                         style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
                         <RollingNumber value={2} />
                       </span>
-                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border"
-                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>{wi.tag}</span>
-                      <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5" style={{ fontFamily: "var(--font-syne)" }}>
-                        <ScrambleText text={wi.title} trigger={active} fast />
-                      </h3>
-                      <motion.p className="font-grotesk text-sm md:text-base /55 max-w-md leading-relaxed mb-8"
+                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
+                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
+                        <span className="relative z-10">{wi.tag}</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
+                      </span>
+                      <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
+                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5 hover:text-white/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                          <BlurFocusText text={wi.title} trigger={active} />
+                        </h3>
+                      </a>
+                      <motion.p className="font-grotesk text-sm md:text-base /60 max-w-md leading-relaxed mb-8 relative"
                         animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
-                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>{wi.desc}</motion.p>
-                      <motion.div className="flex items-center gap-4 group/cta w-fit"
+                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
+                        {wi.desc}
+                      </motion.p>
+                      <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
                         animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
                         transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase /60 group-hover/cta:text-white transition-colors duration-300">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-300 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F]">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase /60 group-hover/cta:text-white transition-colors duration-300 relative z-10">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F] group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </div>
-                      </motion.div>
+                      </motion.a>
                       <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
                     </div>
                     {/* Image — RIGHT on odd */}
-                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-2">
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover"
-                        animate={{ scale: active ? 1.06 : 1.0 }}
-                        transition={{ duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }} />
-                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#0A0A14]" />
-                      <div className="absolute inset-0 bg-[#0A0A14]/10" />
+                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-2 group/img">
+                      {/* Floating glowing orb */}
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
+                        style={{ backgroundColor: `${wm.accent}15` }}
+                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: 1 }}
+                      />
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
+                        animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
+                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
+                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#0A0A14] pointer-events-none" />
+                      <div className="absolute inset-0 bg-[#0A0A14]/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
                       <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
                     </div>
-                  </a>
+                  </div>
                 );
               })()}
             </motion.div>
 
             {/* Progress indicator */}
-            <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-none">
+            <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-3 z-30 pointer-events-none items-center">
               {WORKS_META.map((wm, i) => (
-                <div key={i} className="h-[2px] rounded-full transition-all duration-500"
-                  style={{ width: i === activeWork ? 28 : 8, backgroundColor: i === activeWork ? wm.accent : "rgba(255,255,255,0.2)" }} />
+                <div key={i} className="group relative flex items-center justify-center">
+                  <motion.div 
+                    className="h-[2px] rounded-full transition-all duration-700 relative z-10"
+                    animate={{ width: i === activeWork ? 36 : 12, backgroundColor: i === activeWork ? wm.accent : "rgba(255,255,255,0.2)" }}
+                    layout
+                  />
+                  {i === activeWork && (
+                    <motion.div 
+                      layoutId="active-work-glow"
+                      className="absolute w-full h-full blur-md opacity-60"
+                      style={{ backgroundColor: wm.accent }}
+                      transition={{ duration: 0.7 }}
+                    />
+                  )}
+                </div>
               ))}
             </div>
 
@@ -1482,58 +1590,106 @@ export default function Home() {
       <section id="gallery" ref={horizontalRef} className="relative z-10 h-[500vh] bg-[#0A0A14]">
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
           
-          <motion.div style={{ x: xTransform }} className="flex h-full w-[500vw]">
+          {/* Main Horizontal Track */}
+          <motion.div style={{ x: xTransform }} className="flex h-full w-[500vw] will-change-transform">
             
             {/* Panel 1: Huge Manifesto */}
-            <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0">
-              <div className="max-w-6xl w-full">
-                <h2 className="font-syne font-black text-[12vw] md:text-[5.5vw] leading-[1.1] pb-2 " style={{ fontFamily: "var(--font-syne)" }}>
-                  <ScrambleText text={t.gallery.m1} className="block" trigger={panel1Visible} />
-                  <span className="block text-white/40">
+            <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0 relative overflow-hidden">
+
+              {/* Parallax background geometric accent & Ambient Glow */}
+              <motion.div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                initial={{ scale: 0.8 }} whileInView={{ scale: 1.1 }} transition={{ duration: 3, ease: 'easeOut' }}
+              >
+                {/* Advanced Ambient Glow (Emotional Colors: Sapphire -> Amethyst -> Amber) */}
+                <motion.div 
+                  className="absolute w-[80vw] h-[40vw] md:w-[40vw] md:h-[20vw] bg-gradient-to-r from-[#4158D0] via-[#C850C0] to-[#FFCC70] rounded-full blur-[100px] md:blur-[140px] opacity-[0.25] mix-blend-screen"
+                  animate={{ scale: [1, 1.15, 1], rotate: [0, 5, 0] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                />
+                
+                {/* Geometric Circle */}
+                <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] border border-white/10 rounded-full mix-blend-overlay z-10" />
+              </motion.div>
+
+              <div className="max-w-6xl w-full relative z-10">
+                <h2 className="font-syne font-black text-[12vw] md:text-[5.5vw] leading-[1.1] pb-2 drop-shadow-lg" style={{ fontFamily: "var(--font-syne)" }}>
+                  <ScrambleText text={t.gallery.m1} className="block text-white" trigger={panel1Visible} />
+                  <span className="block text-white/30">
                     <ScrambleText text={t.gallery.m2} trigger={panel1Visible} />
                   </span>
-                  <ScrambleText text={t.gallery.m3} className="block" trigger={panel1Visible} />
-                  <ScrambleText text={t.gallery.m4} className="block text-neutral-500" trigger={panel1Visible} />
+                  <ScrambleText text={t.gallery.m3} className="block text-white/90 md:mt-2" trigger={panel1Visible} />
+                  
+                  {/* Highlight core keyword "EMOTIONS" with a high-end texture */}
+                  <div className="block w-fit bg-clip-text text-transparent bg-gradient-to-r from-[#A0B0FF] via-[#D0A0FF] to-[#FFCF90] drop-shadow-sm filter brightness-125">
+                    <ScrambleText text={t.gallery.m4} trigger={panel1Visible} />
+                  </div>
                 </h2>
               </div>
             </div>
 
-            {/* Panels 2-4: Gallery Cards overlapping */}
+            {/* Panels 2-5: Gallery Cards overlapping */}
             {PHOTOS.map((photo, i) => (
-              <div key={i} className="w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative">
-                {/* Background ghost text */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] /[0.03] select-none whitespace-nowrap" style={{ fontFamily: "var(--font-syne)" }}>
+              <div key={i} className="w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative group/photo">
+                {/* Background ghost text moving slightly against scroll */}
+                <motion.div 
+                  initial={{ x: 50, opacity: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
+                  viewport={{ root: horizontalRef, margin: "0px", amount: "some" }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] /[0.03] select-none whitespace-nowrap z-0 pointer-events-none" 
+                  style={{ fontFamily: "var(--font-syne)" }}
+                >
                   {photo.num}
-                </div>
+                </motion.div>
                 
                 <a 
                   href={photo.src} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card group cursor-pointer"
+                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card cursor-pointer z-10 shadow-2xl transition-all duration-700 hover:shadow-[0_0_50px_rgba(255,255,255,0.05)] border border-transparent hover:border-white/10"
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                 >
-                  <img src={photo.src} alt={photo.title} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[10%] opacity-80 group-hover:opacity-100 group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+                  <motion.img 
+                    src={photo.src} 
+                    alt={photo.title} 
+                    loading="lazy" 
+                    decoding="async" 
+                    initial={{ scale: 1.1, filter: 'blur(10px)' }}
+                    whileInView={{ scale: 1.05, filter: 'blur(0px)' }}
+                    viewport={{ root: horizontalRef }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                    className="w-full h-full object-cover grayscale-[20%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-700 group-hover/photo:scale-100" 
+                  />
                   
                   {/* Overlay gradients & Data */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-transparent opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A14]/90 via-[#0A0A14]/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
                   
-                  <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col">
+                  <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none">
                     <div className="overflow-hidden">
                       <motion.h3 
-                        initial={{ y: "100%" }} whileInView={{ y: 0 }} transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
-                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl  leading-none mb-2" style={{ fontFamily: "var(--font-syne)" }}>
+                        initial={{ y: "100%", opacity: 0 }} 
+                        whileInView={{ y: 0, opacity: 1 }} 
+                        viewport={{ root: horizontalRef, margin: "0px" }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
+                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 group-hover/photo:text-white transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
                         {t.gallery.photos[i]}
                       </motion.h3>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-mono text-xs md:text-sm text-white tracking-widest uppercase border border-white/10 px-3 py-1 bg-white/5">{photo.num}</span>
-                      <span className="font-mono text-sm /60 tracking-widest uppercase">{photo.title}</span>
-                    </div>
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ root: horizontalRef }}
+                      transition={{ duration: 0.8, delay: 0.4 }}
+                      className="flex items-center gap-4"
+                    >
+                      <span className="font-mono text-xs md:text-sm text-white/70 group-hover/photo:text-white tracking-widest uppercase border border-white/10 px-3 py-1 bg-white/5 transition-colors duration-500">{photo.num}</span>
+                      <span className="font-mono text-sm text-white/40 group-hover/photo:text-white/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
+                    </motion.div>
                   </div>
                   
-                  {/* Scanline strictly on image */}
-                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.1)_2px,rgba(0,0,0,0.1)_4px)] pointer-events-none" />
+                  {/* Subtle Scanline strictly on image */}
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.02)_2px,rgba(255,255,255,0.02)_4px)] pointer-events-none mix-blend-overlay opactiy-50" />
                 </a>
               </div>
             ))}
@@ -1543,11 +1699,25 @@ export default function Home() {
       </section>
 
       {/* ── MARQUEE BAND ── */}
-      <div className="relative z-10 py-5 overflow-hidden border-y border-[#39FF14]/20 bg-transparent">
-        <div className="flex whitespace-nowrap marquee-track">
+      <div 
+        className="relative z-10 py-6 overflow-hidden border-y border-white/10 bg-white/[0.01] backdrop-blur-3xl"
+        style={{ 
+          maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)' 
+        }}
+      >
+        <div className="flex whitespace-nowrap marquee-track items-center">
           {[...Array(6)].map((_, i) => (
-            <span key={i} className="font-mono text-sm md:text-xl text-neutral-500 tracking-[0.2em] mr-8" style={{ fontFamily: "var(--font-mono)", textShadow: "0 0 10px rgba(57,255,20,0.5)" }}>
-              {t.marquee}
+            <span 
+              key={i} 
+              className="font-syne font-black text-2xl md:text-3xl tracking-[0.1em] mr-12 text-transparent uppercase select-none" 
+              style={{ 
+                fontFamily: "var(--font-syne)", 
+                WebkitTextStroke: "1px rgba(255,255,255,0.3)",
+                textShadow: i % 2 === 0 ? "none" : "0 0 20px rgba(255,255,255,0.15)"
+              }}
+            >
+              {i % 2 === 0 ? t.marquee : <span className="text-white/80" style={{ WebkitTextStroke: "0px" }}>{t.marquee}</span>}
             </span>
           ))}
         </div>
