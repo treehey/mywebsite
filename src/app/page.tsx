@@ -308,93 +308,87 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
 
       {/* Section Header */}
       <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
-        <span className="font-mono text-xs text-neutral-500 tracking-[0.5em] uppercase" style={{ textShadow: "0 0 10px rgba(57,255,20,0.5)" }}>
+        <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-white/50" style={{ fontFamily: "var(--font-syne)" }}>
           {t.timeline.title}
-        </span>
-        <span className="font-mono text-xs /30 tracking-widest">§ 00{TIMELINE.length} ENTRIES</span>
+        </h2>
+        <span className="font-mono text-xs text-white/30 tracking-widest hidden md:block">§ 00{TIMELINE.length} ENTRIES</span>
       </div>
 
       {/* Background large year ghost */}
-      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] /[0.02] pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)" }}>
+      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-white/[0.02] pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)" }}>
         LOG
       </div>
 
       <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
         {/* Dim background line */}
-        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-[#E2E2EC]/08" />
+        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-white/5" />
         {/* Signal particle */}
         <motion.div
-          className="absolute w-[7px] h-[7px] rounded-full pointer-events-none z-20"
+          className="absolute w-[5px] h-[5px] rounded-full pointer-events-none z-20 bg-white"
           style={{
-            left: 'calc(1.5rem + 16px - 3px)',
+            left: 'calc(1.5rem + 16px - 2px)', // minus half of 5px (-2.5 ~ -2)
             top: '4rem',
             y: particleY,
-            backgroundColor: 'rgba(255,255,255,0.9)',
-            boxShadow: '0 0 0 3px rgba(255,255,255,0.25), 0 0 16px 4px rgba(255,255,255,0.4)',
+            boxShadow: '0 0 10px 2px rgba(255,255,255,0.4)',
           }}
         />
 
-        <div className="flex flex-col gap-0">
+        <div className="flex flex-col gap-0 border-t border-white/[0.03]">
           {TIMELINE.map((node, i) => {
-            const accent = 'rgba(255,255,255,0.8)';
             const item = t.timeline.items[i];
             return (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -30 }}
-                animate={visible[i] ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-start gap-6 md:gap-10 group border-b border-[#E2E2EC]/5 py-8 md:py-12 relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={visible[i] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-start gap-6 md:gap-14 group border-b border-white/[0.03] py-8 md:py-14 relative hover:bg-white/[0.02] transition-colors duration-700"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                {/* Dot + connector */}
-                <div className="relative flex-shrink-0 flex flex-col items-center pt-1">
-                  <div 
-                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-500 group-hover:scale-110 bg-transparent z-10 relative"
-                    style={{ borderColor: accent, boxShadow: `0 0 12px ${accent}60` }}
-                  >
-                    <div className="w-2 h-2 rounded-full transition-all duration-300 group-hover:scale-150" style={{ backgroundColor: accent }} />
-                  </div>
+                {/* Dot */}
+                <div className="relative flex-shrink-0 flex flex-col items-center pt-2 md:pt-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-500 group-hover:scale-150 group-hover:bg-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.5)] z-10 relative" />
                 </div>
 
                 {/* Year */}
-                <div className="flex-shrink-0 w-16 md:w-24 pt-1.5">
-                  <span 
-                    className="font-mono text-lg md:text-2xl font-bold transition-all duration-300"
-                    style={{ color: accent, textShadow: `0 0 20px ${accent}40` }}
-                  >
+                <div className="flex-shrink-0 w-16 md:w-24 pt-1">
+                  <span className="font-mono text-lg md:text-2xl text-white/50 group-hover:text-white transition-colors duration-500">
                     {node.year}
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-0">
+                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0">
                   <div className="flex-1">
                     <h3 
-                      className="font-syne font-black text-2xl md:text-4xl  leading-none mb-2 group-hover:translate-x-2 transition-transform duration-500"
+                      className="font-syne font-black text-2xl md:text-4xl leading-none mb-3 text-white/80 group-hover:text-white group-hover:translate-x-3 transition-all duration-500"
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       {item.label}
                     </h3>
-                    <p className="font-mono text-sm /50 tracking-wide">
+                    <p className="font-mono text-sm text-white/40 group-hover:text-white/60 tracking-wider transition-colors duration-500 max-w-sm">
                       {item.detail}
                     </p>
                   </div>
 
-                  {/* Thumbnail */}
-                  <div className="w-24 h-16 md:w-40 md:h-28 rounded-lg overflow-hidden flex-shrink-0 border border-[#E2E2EC]/10 group-hover:border-opacity-50 transition-all duration-500 md:ml-auto relative"
-                    style={{ borderColor: `${accent}30` }}>
-                    <img src={node.img} alt={item.label} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#07070F]/60" />
+                  {/* Thumbnail Container */}
+                  <div className="w-28 h-18 md:w-48 md:h-32 rounded flex-shrink-0 overflow-hidden border border-white/5 group-hover:border-white/20 transition-all duration-700 md:ml-auto relative shadow-lg group-hover:shadow-2xl">
+                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700" />
+                    <img 
+                      src={node.img} 
+                      alt={item.label} 
+                      loading="lazy" 
+                      decoding="async" 
+                      className="w-full h-full object-cover grayscale-[40%] opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+                    />
                   </div>
                 </div>
 
                 {/* Milestone badge */}
                 <div 
-                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0"
-                  style={{ color: accent, borderColor: `${accent}40`, backgroundColor: `${accent}0D` }}
+                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border border-white/10 bg-white/5 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0 text-white/50 group-hover:text-white/80"
                 >
-                  <span className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
+                  <span className="w-1 h-1 rounded-full bg-white/60 animate-pulse" />
                   MILESTONE_{String(i + 1).padStart(2, '0')}
                 </div>
               </motion.div>
