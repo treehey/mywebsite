@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 import { DanmakuSystem } from "@/components/DanmakuSystem";
+import Hero from "@/components/home/Hero";
 import { globalLenis } from "@/components/SmoothScroll";
 import dynamic from "next/dynamic";
 const GuestbookWall = dynamic(() => import("@/components/GuestbookWall").then(m => ({ default: m.GuestbookWall })), { ssr: false });
@@ -79,27 +80,38 @@ function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
 function DarkroomImage({ src, alt, className, finalFilter, delay = 0 }: {
   src: string; alt: string; className?: string; finalFilter: string; delay?: number;
 }) {
-  const ref = useRef<HTMLImageElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-5%' });
   const [hovered, setHovered] = useState(false);
-  const startF = 'brightness(0.08) contrast(1.5) grayscale(0) sepia(1) saturate(3) hue-rotate(-15deg) blur(0px)';
-  const hoverF = 'brightness(1.05) contrast(1.05) grayscale(0) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)';
-  const activeFilter = !inView ? startF : hovered ? hoverF : finalFilter;
+  
+  const startF = 'grayscale(0.8) brightness(0.2) contrast(1.2) blur(8px)';
+  const idleF = 'grayscale(0.2) brightness(0.85) contrast(1.05) blur(0px)';
+  const hoverF = 'grayscale(0) brightness(1.1) contrast(1.05) blur(0px)';
+  
+  const activeFilter = !inView ? startF : hovered ? hoverF : idleF;
+  
   return (
-    <img
+    <div 
       ref={ref}
-      src={src} alt={alt} loading="lazy" decoding="async"
-      className={`${className || ''} darkroom-img`}
+      className={`relative overflow-hidden ${className || ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      style={{
-        '--darkroom-filter': activeFilter,
-        transitionProperty: 'filter',
-        transitionDuration: hovered ? '0.4s' : '2.2s',
-        transitionTimingFunction: 'cubic-bezier(0.15, 0, 0.3, 1)',
-        transitionDelay: (!inView || hovered) ? '0s' : `${delay}s`,
-      } as React.CSSProperties}
-    />
+    >
+      <motion.img
+        src={src} alt={alt} loading="lazy" decoding="async"
+        className="w-full h-full object-cover darkroom-img"
+        initial={{ scale: 1.15 }}
+        animate={{ scale: hovered ? 1.05 : 1 }}
+        transition={{ duration: hovered ? 0.8 : 1.6, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          filter: activeFilter,
+          transitionProperty: 'filter',
+          transitionDuration: hovered ? '0.6s' : '1.8s',
+          transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          transitionDelay: (!inView || hovered) ? '0s' : `${delay}s`,
+        }}
+      />
+    </div>
   );
 }
 
@@ -152,8 +164,8 @@ function MinecraftHUD({ onExit }: { onExit: () => void }) {
       {/* ESC hint */}
       <button
         onClick={onExit}
-        className="mt-1 text-[7px] text-white/50 hover:text-white/90 tracking-widest transition-colors mc-exempt"
-        style={{ fontFamily: 'var(--font-minecraft), monospace' }}
+        className="mt-1 text-[7px] text-foreground/50 hover:text-foreground/90 tracking-widest transition-colors mc-exempt"
+        style={{ fontFamily: 'var(--font-minecraft), "Zpix", monospace' }}
       >
         [ ESC ] EXIT MINECRAFT MODE
       </button>
@@ -171,8 +183,8 @@ function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttri
   const mouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const { clientX, clientY } = e;
     const { width, height, left, top } = ref.current!.getBoundingClientRect();
-    const x = clientX - (left + width / 2);
-    const y = clientY - (top + height / 2);
+    const x = (clientX - (left + width / 2)) * 0.15; // 降低移动强度系数，不要让它“飞出去”
+    const y = (clientY - (top + height / 2)) * 0.15;
     setPosition({ x, y });
   };
 
@@ -186,10 +198,11 @@ function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttri
       onMouseMove={mouseMove as any}
       onMouseLeave={mouseLeave}
       animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}   
+      transition={{ type: "spring", stiffness: 100, damping: 10, mass: 0.5 }} // 更柔和的弹性物理阻尼
       className={className}
+      {...(props.style ? { style: props.style } : {})}
     >
-      <a {...props} className="w-full h-full block">    
+      <a {...props} className="w-full h-full flex items-center justify-between pointer-events-auto" style={{...props.style}}>    
         {children}
       </a>
     </motion.div>
@@ -208,7 +221,7 @@ const DICT = {
     gallery: { m1: "I DON'T JUST", m2: "WRITE CODE.", m3: "I ENGINEER", m4: "EMOTIONS.", photos: [ "Mong Kok · Neon & Dust", "Lujiazui · Urban Spine", "Love Post Office · Letter", "Panda · Gentle Power" ] },
     skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Computer Sys. · Hardware & Software", "Front-End · Website Design", "Python · Proficiency", "Office Suite · Advanced Mastery", "Photography · Foodie / Life" ] },
     timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
-    contact: { sub: "Connect.exe", t1: "INITIATE", t2: "HANDSHAKE." },
+    contact: { sub: "COLLABORATION", t1: "LET'S CREATE", t2: "TOGETHER.", channel: "PRIMARY CHANNEL", networks: "NETWORKS" },
     marquee: "SOFTWARE ENGINEERING — CREATIVE CODING — SLOTH — "
   },
   '简': {
@@ -219,7 +232,7 @@ const DICT = {
     gallery: { m1: "我不仅仅", m2: "编写代码。", m3: "我更在", m4: "编织情绪。", photos: [ "旺角 · 霓虹与尘埃", "陆家嘴 · 城市脊梁", "爱情邮局 · 一纸情书", "大熊猫 · 温柔力量" ] },
     skills: { title1: "系统", title2: "概览", items: [ "计算机系统 · 软硬件与Linux", "前端开发 · 现代网站设计", "Python · 代码与运行熟练", "Office 套件 · 深度精通", "人文纪实 · 摄影与干饭热爱" ] },
     timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
-    contact: { sub: "连接.exe", t1: "传输", t2: "信号。" },
+    contact: { sub: "合作与联系", t1: "探索未知，", t2: "共同创造。", channel: "主要通道", networks: "社交网络" },
     marquee: "现代软件工程 — 创意编程与体验架构 — 树懒 — "
   },
   '繁': {
@@ -230,7 +243,7 @@ const DICT = {
     gallery: { m1: "我不僅僅", m2: "編寫代碼。", m3: "我更在", m4: "編織情緒。", photos: [ "旺角 · 霓虹與塵埃", "陸家嘴 · 城市脊梁", "愛情郵局 · 一紙情書", "大熊貓 · 溫柔力量" ] },
     skills: { title1: "系統", title2: "概覽", items: [ "計算機系統 · 軟硬件與Linux", "前端開發 · 現代網站設計", "Python · 代碼與運行熟練", "Office 套件 · 深度精通", "人文紀實 · 攝影與乾飯熱愛" ] },
     timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
-    contact: { sub: "連接.exe", t1: "傳輸", t2: "信號。" },
+    contact: { sub: "合作與聯繫", t1: "探索未知，", t2: "共同創造。", channel: "主要通道", networks: "社交網絡" },
     marquee: "現代軟件工程 — 創意編程與體驗架構 — 樹懶 — "
   }
 };
@@ -243,16 +256,16 @@ const PHOTOS = [
 ];
 
 const WORKS_META = [
-  { img: `${B}/images/wide-research.png`, accent: "#00F5FF" },
-  { img: `${B}/images/enzyme.png`,        accent: "#39FF14" },
+  { img: `${B}/images/wide-research.png`, accent: "#4F46E5" }, // Elegant Indigo
+  { img: `${B}/images/enzyme.png`,        accent: "#10B981" }, // Elegant Emerald
 ];
 
 const SKILLS = [
-  { name: "Computer",     accent: "#00F5FF", bg: `${B}/images/about/computer-room.jpg` },
-  { name: "Front-End",    accent: "#FF2D78", bg: `${B}/images/about/information-technology.jpg` },
-  { name: "Python",       accent: "#39FF14", bg: `${B}/images/about/python.jpeg` },
-  { name: "Office",       accent: "#F5C542", bg: `${B}/images/about/ppt.jpg` },
-  { name: "Photography",  accent: "#B200FF", bg: `${B}/images/zhuhai.jpg` },
+  { name: "Computer",     accent: "#3B82F6", bg: `${B}/images/about/computer-room.jpg` }, // Blue
+  { name: "Front-End",    accent: "#EC4899", bg: `${B}/images/about/information-technology.jpg` }, // Pink
+  { name: "Python",       accent: "#10B981", bg: `${B}/images/about/python.jpeg` }, // Emerald
+  { name: "Office",       accent: "#F59E0B", bg: `${B}/images/about/ppt.jpg` }, // Amber
+  { name: "Photography",  accent: "#8B5CF6", bg: `${B}/images/zhuhai.jpg` }, // Violet
 ];
 
 const TIMELINE = [
@@ -292,97 +305,91 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
   });
 
   return (
-    <section ref={sectionRef} id="timeline" className="relative bg-[#07070F] py-24 md:py-32 overflow-hidden">
+    <section ref={sectionRef} id="timeline" className="relative bg-transparent py-24 md:py-32 overflow-hidden">
 
       {/* Section Header */}
-      <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
-        <span className="font-mono text-xs text-[#39FF14] tracking-[0.5em] uppercase" style={{ textShadow: "0 0 10px rgba(57,255,20,0.5)" }}>
+      <div className="w-full border-b border-foreground/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
+        <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
           {t.timeline.title}
-        </span>
-        <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ 00{TIMELINE.length} ENTRIES</span>
+        </h2>
+        <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">§ 00{TIMELINE.length} ENTRIES</span>
       </div>
 
       {/* Background large year ghost */}
-      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-[#E2E2EC]/[0.02] pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)" }}>
+      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-foreground pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)", opacity: 0.03 }}>
         LOG
       </div>
 
       <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
         {/* Dim background line */}
-        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-[#E2E2EC]/08" />
+        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-foreground/5" />
         {/* Signal particle */}
         <motion.div
-          className="absolute w-[7px] h-[7px] rounded-full pointer-events-none z-20"
+          className="absolute w-[5px] h-[5px] rounded-full pointer-events-none z-20 bg-foreground"
           style={{
-            left: 'calc(1.5rem + 16px - 3px)',
+            left: 'calc(1.5rem + 16px - 2px)', // minus half of 5px (-2.5 ~ -2)
             top: '4rem',
             y: particleY,
-            backgroundColor: '#00F5FF',
-            boxShadow: '0 0 0 3px rgba(0,245,255,0.25), 0 0 16px 4px rgba(0,245,255,0.7)',
+            boxShadow: '0 0 10px 2px color-mix(in srgb, var(--foreground) 40%, transparent)',
           }}
         />
 
-        <div className="flex flex-col gap-0">
+        <div className="flex flex-col gap-0 border-t border-foreground/[0.03]">
           {TIMELINE.map((node, i) => {
-            const accent = i % 3 === 0 ? '#00F5FF' : i % 3 === 1 ? '#FF2D78' : '#39FF14';
             const item = t.timeline.items[i];
             return (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -30 }}
-                animate={visible[i] ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-                transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-start gap-6 md:gap-10 group border-b border-[#E2E2EC]/5 py-8 md:py-12 relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={visible[i] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-start gap-6 md:gap-14 group border-b border-foreground/[0.03] py-8 md:py-14 relative hover:bg-foreground/[0.02] transition-colors duration-700"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                {/* Dot + connector */}
-                <div className="relative flex-shrink-0 flex flex-col items-center pt-1">
-                  <div 
-                    className="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-500 group-hover:scale-110 bg-[#07070F] z-10 relative"
-                    style={{ borderColor: accent, boxShadow: `0 0 12px ${accent}60` }}
-                  >
-                    <div className="w-2 h-2 rounded-full transition-all duration-300 group-hover:scale-150" style={{ backgroundColor: accent }} />
-                  </div>
+                {/* Dot */}
+                <div className="relative flex-shrink-0 flex flex-col items-center pt-2 md:pt-3">
+                  <div className="w-2.5 h-2.5 rounded-full bg-foreground/20 transition-all duration-500 group-hover:scale-150 group-hover:bg-foreground group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_50%,transparent)] z-10 relative" />
                 </div>
 
                 {/* Year */}
-                <div className="flex-shrink-0 w-16 md:w-24 pt-1.5">
-                  <span 
-                    className="font-mono text-lg md:text-2xl font-bold transition-all duration-300"
-                    style={{ color: accent, textShadow: `0 0 20px ${accent}40` }}
-                  >
+                <div className="flex-shrink-0 w-16 md:w-24 pt-1">
+                  <span className="font-mono text-lg md:text-2xl text-foreground/50 group-hover:text-foreground transition-colors duration-500">
                     {node.year}
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-0">
+                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0">
                   <div className="flex-1">
                     <h3 
-                      className="font-syne font-black text-2xl md:text-4xl text-[#E2E2EC] leading-none mb-2 group-hover:translate-x-2 transition-transform duration-500"
+                      className="font-syne font-black text-2xl md:text-4xl leading-none mb-3 text-foreground/80 group-hover:text-foreground group-hover:translate-x-3 transition-all duration-500"
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       {item.label}
                     </h3>
-                    <p className="font-mono text-sm text-[#E2E2EC]/50 tracking-wide">
+                    <p className="font-mono text-sm text-foreground/40 group-hover:text-foreground/60 tracking-wider transition-colors duration-500 max-w-sm">
                       {item.detail}
                     </p>
                   </div>
 
-                  {/* Thumbnail */}
-                  <div className="w-24 h-16 md:w-40 md:h-28 rounded-lg overflow-hidden flex-shrink-0 border border-[#E2E2EC]/10 group-hover:border-opacity-50 transition-all duration-500 md:ml-auto relative"
-                    style={{ borderColor: `${accent}30` }}>
-                    <img src={node.img} alt={item.label} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[70%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-[#07070F]/60" />
+                  {/* Thumbnail Container */}
+                  <div className="w-28 h-18 md:w-48 md:h-32 rounded flex-shrink-0 overflow-hidden border border-foreground/5 group-hover:border-foreground/20 transition-all duration-700 md:ml-auto relative shadow-lg group-hover:shadow-2xl">
+                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700" />
+                    <img 
+                      src={node.img} 
+                      alt={item.label} 
+                      loading="lazy" 
+                      decoding="async" 
+                      className="w-full h-full object-cover grayscale-[40%] opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+                    />
                   </div>
                 </div>
 
                 {/* Milestone badge */}
                 <div 
-                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0"
-                  style={{ color: accent, borderColor: `${accent}40`, backgroundColor: `${accent}0D` }}
+                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border border-foreground/10 bg-foreground/5 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0 text-foreground/50 group-hover:text-foreground/80"
                 >
-                  <span className="w-1 h-1 rounded-full animate-pulse" style={{ backgroundColor: accent }} />
+                  <span className="w-1 h-1 rounded-full bg-foreground/60 animate-pulse" />
                   MILESTONE_{String(i + 1).padStart(2, '0')}
                 </div>
               </motion.div>
@@ -407,6 +414,40 @@ function FlipText({ text, className }: { text: string; className?: string }) {
         {text}
       </span>
     </span>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   BLUR FOCUS TEXT — Cinematic typographic reveal
+════════════════════════════════════════════════════════ */
+const blurTextVariants: Variants = {
+  hidden: { filter: "blur(10px)", opacity: 0, scale: 1.05 },
+  visible: { filter: "blur(0px)", opacity: 1, scale: 1, transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as any } }
+};
+const blurWordVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } }
+};
+
+function BlurFocusText({ text, trigger, className }: { text: string; trigger: boolean; className?: string }) {
+  const words = text.split(" ");
+  return (
+    <motion.span 
+      className={`inline-block ${className || ""}`}
+      variants={blurWordVariants}
+      initial="hidden"
+      animate={trigger ? "visible" : "hidden"}
+    >
+      {words.map((word, i) => (
+        <span key={i} className="inline-block whitespace-nowrap mr-[0.25em]">
+          {word.split("").map((char, j) => (
+            <motion.span key={j} variants={blurTextVariants} className="inline-block">
+              {char}
+            </motion.span>
+          ))}
+        </span>
+      ))}
+    </motion.span>
   );
 }
 
@@ -454,26 +495,27 @@ export default function Home() {
   } | null>(null);
   const wipeCompletingRef = useRef(false); // ref to prevent stale-closure multi-fire
   const aboutRef = useRef<HTMLElement>(null);
-  const heroSectionRef = useRef<HTMLElement>(null);
+  
   const contactSectionRef = useRef<HTMLElement>(null);
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
 
   /* ── Scroll-driven transforms ── */
   // Hero scroll-out
-  const { scrollYProgress: heroProgress } = useScroll({ target: heroSectionRef, offset: ['start start', 'end start'] });
-  const heroContentY       = useTransform(heroProgress, [0, 1], [0, -120]);
-  const heroContentOpacity = useTransform(heroProgress, [0, 0.75], [1, 0]);
-  const heroContentScale   = useTransform(heroProgress, [0, 1], [1, 0.91]);
-  const heroBgY            = useTransform(heroProgress, [0, 1], [0, 80]); // grid moves slower
+  
+  
+  
+  
+   // grid moves slower
 
   // About headings horizontal parallax
   const { scrollYProgress: aboutProgress } = useScroll({ target: aboutRef, offset: ['start end', 'end start'] });
-  const aboutH1X = useTransform(aboutProgress, [0, 1], [70, -70]);
-  const aboutH2X = useTransform(aboutProgress, [0, 1], [-70, 70]);
+  const aboutH1X = useTransform(aboutProgress, [0, 1], [60, -60]);
+  const aboutH2X = useTransform(aboutProgress, [0, 1], [-60, 60]);
 
   // Contact headline scrub reveal
   const { scrollYProgress: contactProgress } = useScroll({ target: contactSectionRef, offset: ['start 90%', 'center 50%'] });
-  const contactHeadX       = useTransform(contactProgress, [0, 1], [100, 0]);
+  const contactHeadX       = useTransform(contactProgress, [0, 1], [300, 0]); // 原来只有100太短了，放大到300
+  const contactHeadY       = useTransform(contactProgress, [0, 1], [150, 0]); // 加上一点Y轴的上浮配合
   const contactHeadOpacity = useTransform(contactProgress, [0, 0.3], [0, 1]);
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
@@ -639,7 +681,40 @@ export default function Home() {
       cancelAnimationFrame(checkRafId);
     };
   }, []);
-  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.5 ? 0 : 1); });
+  // Trigger the active state slightly earlier (e.g. 0.35 instead of 0.5) to ensure it's fully active when snapping settles, and creating a nice overlapping animation.
+  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.35 ? 0 : 1); });
+
+  // Intelligent JS Smooth Snapping to preserve silky interaction
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const onScroll = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if (!globalLenis || !worksRef.current) return;
+        const sp = worksSP.get();
+        // Check if user is resting "inside" the transition boundary
+        if (sp > 0.02 && sp < 0.98) {
+          const targets = [0, 0.5, 1];
+          const closest = targets.reduce((prev, curr) => Math.abs(curr - sp) < Math.abs(prev - sp) ? curr : prev);
+          
+          if (Math.abs(closest - sp) < 0.02) return; // Already exactly at the snap point
+          
+          const rect = worksRef.current.getBoundingClientRect();
+          const offsetTop = rect.top + window.scrollY;
+          const scrollSpace = worksRef.current.clientHeight - window.innerHeight;
+          const targetY = offsetTop + (closest * scrollSpace);
+          
+          globalLenis.scrollTo(targetY, { duration: 1.5, easing: (t) => 1 - Math.pow(1 - t, 4) });
+        }
+      }, 200);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearTimeout(timeoutId);
+    };
+  }, [worksSP]);
   
   // Make the card transition happen faster over a shorter scroll distance
   // Transition now spans from 10% to 50% of the entire section duration
@@ -834,7 +909,7 @@ export default function Home() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <main ref={containerRef} className="relative w-full bg-[#07070F] text-[#E2E2EC]">
+    <main ref={containerRef} className="relative w-full bg-transparent ">
       <div id="top" className="absolute top-0" />
 
       {/* ───── Theme Wipe Overlay ───── */}
@@ -861,14 +936,14 @@ export default function Home() {
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
                   {/* Shadow layer for dark backgrounds */}
                   <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="rgba(0,0,0,0.55)" strokeWidth="4" />
+                    stroke="color-mix(in srgb, var(--foreground) 55%, transparent)" strokeWidth="4" />
                   <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="rgba(0,0,0,0.4)" strokeWidth="3.5" strokeDasharray="10 6" />
-                  {/* White line on top */}
+                    stroke="color-mix(in srgb, var(--foreground) 40%, transparent)" strokeWidth="3.5" strokeDasharray="10 6" />
+                  {/* Line on top */}
                   <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="rgba(255,255,255,0.95)" strokeWidth="1.5" />
+                    stroke="color-mix(in srgb, var(--background) 95%, transparent)" strokeWidth="1.5" />
                   <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeDasharray="10 6" />
+                    stroke="color-mix(in srgb, var(--background) 70%, transparent)" strokeWidth="1.5" strokeDasharray="10 6" />
                 </svg>
               )}
             </motion.div>
@@ -881,8 +956,10 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full bg-[#0E0E1C]/85 backdrop-blur-2xl ring-1 ring-inset ring-white/10 w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
+        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
       >
+        <div className="absolute inset-0 bg-foreground/5 backdrop-blur-2xl rounded-full z-[-1] border border-foreground/[0.05]" />
+        
         {/* Logo + active section index */}
         <div className="shrink-0 flex items-end gap-1.5">
           <a
@@ -890,12 +967,12 @@ export default function Home() {
             onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             onMouseEnter={() => setCursorBig(true)}
             onMouseLeave={() => setCursorBig(false)}
-            className="font-syne font-bold text-lg text-white tracking-widest hover:opacity-60 transition-opacity cursor-pointer"
+            className="font-syne font-bold text-lg text-foreground tracking-widest hover:opacity-60 transition-opacity cursor-pointer"
             style={{ fontFamily: "var(--font-syne)" }}
           >
             TH
           </a>
-          <span className="font-mono text-[9px] text-white/20 mb-[3px] leading-none tabular-nums">
+          <span className="font-mono text-[9px] text-foreground/20 mb-[3px] leading-none tabular-nums">
             {activeIdx >= 0 ? <RollingNumber value={activeIdx + 1} /> : "·"}
           </span>
         </div>
@@ -917,13 +994,13 @@ export default function Home() {
               <FlipText
                 text={item.label}
                 className={`${lang === 'EN' ? 'font-mono text-[11px] tracking-widest' : 'font-syne font-semibold text-[12px] tracking-[0.08em]'} uppercase transition-opacity duration-300 ${
-                  activeSection === item.id ? 'text-white' : 'text-white/40'
+                  activeSection === item.id ? 'text-foreground' : 'text-foreground/40'
                 }`}
               />
               {activeSection === item.id && (
                 <motion.div
                   layoutId="nav-line"
-                  className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-white"
+                  className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-foreground"
                   transition={{ type: "spring", stiffness: 380, damping: 32 }}
                 />
               )}
@@ -935,21 +1012,21 @@ export default function Home() {
         <div className="flex flex-1 justify-center md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/40 hover:text-white transition-colors px-3 py-1"
+            className="font-mono text-[10px] tracking-[0.25em] uppercase text-foreground/40 hover:text-foreground transition-colors px-3 py-1"
           >
             {mobileMenuOpen ? 'CLOSE' : 'MENU'}
           </button>
         </div>
 
         {/* Toggles */}
-        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-white/10 pl-4 md:pl-5">
+        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-foreground/10 pl-4 md:pl-5">
           <button
             aria-label="Toggle Theme"
             data-theme-btn="true"
             onPointerDown={handleThemePointerDown}
             onPointerMove={handleThemePointerMove}
             onPointerUp={handleThemePointerUp}
-            className="text-white/50 hover:text-white text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
+            className="text-foreground/50 hover:text-foreground text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             {theme === 'dark' ? (
@@ -961,7 +1038,7 @@ export default function Home() {
           <div className="relative flex items-center">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className={`p-1 transition-colors ${langOpen ? 'text-white' : 'text-white/35 hover:text-white'}`}
+              className={`p-1 transition-colors ${langOpen ? 'text-foreground' : 'text-foreground/35 hover:text-foreground'}`}
               onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               aria-label="Toggle Language"
             >
@@ -974,18 +1051,20 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col bg-[#0E0E1C]/95 backdrop-blur-2xl border border-white/10 rounded-xl p-2 min-w-[120px] shadow-[0_8px_32px_rgba(0,0,0,0.4)] origin-bottom-right md:origin-top z-[1000]"
+                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col rounded-2xl p-2 min-w-[120px] origin-bottom-right md:origin-top z-[1000] border border-foreground/10 shadow-xl text-foreground bg-foreground/5 backdrop-blur-2xl"
                 >
                   {['EN', '简', '繁'].map(l => (
                     <button
                       key={l}
                       onClick={() => { setLang(l); setLangOpen(false); }}
                       className={`text-[11px] font-mono px-3 py-2.5 rounded-lg text-left transition-all flex items-center gap-2 ${
-                        lang === l ? 'bg-white/10 text-white font-bold' : 'text-white/50 hover:bg-white/5 hover:text-white'
+                        lang === l
+                          ? (theme === 'dark' ? 'bg-foreground/15 text-foreground font-bold' : 'bg-background/10 text-foreground font-bold')
+                          : (theme === 'dark' ? 'text-foreground/60 hover:bg-foreground/10 hover:text-foreground' : 'text-foreground/60 hover:bg-background/5 hover:text-foreground')
                       }`}
                       onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                     >
-                      {lang === l && <span className="w-1 h-1 rounded-full bg-white inline-block shrink-0" />}
+                      {lang === l && <span className={`w-1 h-1 rounded-full inline-block shrink-0 ${theme === 'dark' ? 'bg-foreground' : 'bg-foreground'}`} />}
                       {l === 'EN' ? 'English' : l === '简' ? '简体中文' : '繁體中文'}
                     </button>
                   ))}
@@ -1004,7 +1083,7 @@ export default function Home() {
             animate={{ opacity: 1, clipPath: "inset(0% 0% 0% 0%)" }}
             exit={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden fixed inset-0 z-[975] bg-[#07070F]/97 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
+            className="md:hidden fixed inset-0 z-[975] bg-background/95 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
           >
             <nav className="flex flex-col flex-1 justify-center">
               {navItems.map((item, i) => (
@@ -1019,27 +1098,27 @@ export default function Home() {
                     setTimeout(() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }), 400);
                   }}
                   className={`group w-full py-4 flex items-center gap-4 border-b text-left transition-colors ${
-                    activeSection === item.id ? 'border-white/15' : 'border-white/[0.06]'
+                    activeSection === item.id ? 'border-foreground/15' : 'border-foreground/[0.06]'
                   }`}
                 >
-                  <span className="font-mono text-[11px] text-white/20 tabular-nums w-5 shrink-0 leading-none">
+                  <span className="font-mono text-[11px] text-foreground/20 tabular-nums w-5 shrink-0 leading-none">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
                     className={`font-syne font-black text-3xl uppercase tracking-tight transition-all duration-300 group-hover:translate-x-2 leading-none ${
-                      activeSection === item.id ? 'text-white' : 'text-white/45'
+                      activeSection === item.id ? 'text-foreground' : 'text-foreground/45'
                     }`}
                     style={{ fontFamily: "var(--font-syne)" }}
                   >
                     {item.label}
                   </span>
                   {activeSection === item.id && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-foreground shrink-0" />
                   )}
                 </motion.button>
               ))}
             </nav>
-            <p className="font-mono text-[10px] text-white/15 tracking-[0.3em] uppercase">
+            <p className="font-mono text-[10px] text-foreground/15 tracking-[0.3em] uppercase">
               TH // CREATIVE DEV
             </p>
           </motion.div>
@@ -1053,187 +1132,38 @@ export default function Home() {
         animate={{
           width: cursorBig ? 90 : 16,
           height: cursorBig ? 90 : 16,
-          backgroundColor: cursorBig ? "rgba(0,245,255,0.15)" : "rgba(0,245,255,0.9)",
-          border: cursorBig ? "1px solid rgba(0,245,255,0.8)" : "none",
-          boxShadow: cursorBig ? "0 0 30px rgba(0,245,255,0.4)" : "0 0 10px rgba(0,245,255,0.8)",
+          backgroundColor: cursorBig ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "var(--foreground)",
+          border: cursorBig ? "1px solid color-mix(in srgb, var(--foreground) 50%, transparent)" : "none",
+          mixBlendMode: "difference" as const,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       />
 
       {/* ───── BACKGROUND NOISE & FLUID ───── */}
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+        }}
+      />
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#00F5FF]/5 blur-[150px]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[#FF2D78]/5 blur-[150px]" />
+        
+        
       </div>
 
-      {/* ════════════════════════════════════
-          1. HERO (Asymmetric & Interactive)
-      ════════════════════════════════════ */}
-      <section ref={heroSectionRef} className="relative z-10 w-full h-screen flex flex-col items-center justify-center overflow-hidden scanlines" id="hero">
-        {/* Animated Cyber Grid with 3D Mouse Parallax */}
-        <motion.div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ perspective: "1000px", y: heroBgY }}>
-          <motion.div
-            className="w-full h-full relative"
-            animate={{
-              rotateX: mDelta.y * -15,
-              rotateY: mDelta.x * 15,
-              z: mDelta.y * 20, /* Add slight depth pull */
-              scale: 1.4 /* Increased scale to prevent edge clipping during extreme parallax */
-            }}
-            transition={{ type: "spring", stiffness: 45, damping: 15, mass: 0.8 }}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-             <div className="cyber-grid" />
-             <div className="cyber-grid-overlay" />
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          className="absolute z-0 w-full h-full flex items-center justify-center opacity-[0.05]"
-          animate={{ x: mDelta.x * -60, y: mDelta.y * -60 }}
-          transition={{ type: "tween", ease: "easeOut", duration: 1 }}
-        >
-           <div className="font-mono text-[25vw] font-bold text-[#E2E2EC] select-none tracking-tighter" style={{ fontFamily: "var(--font-mono)" }}>
-             SYS.DEV
-           </div>
-        </motion.div>
-
-        <motion.div className="relative z-10 max-w-[90vw] w-full flex flex-col items-center px-4 md:px-12 mt-12 md:mt-0"
-          style={{ y: heroContentY, opacity: heroContentOpacity, scale: heroContentScale }}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            transition={{ duration: 1.5, ease: [0.76, 0, 0.24, 1] }}
-            className="flex flex-col items-center text-center"
-          >
-            <div className="flex items-center gap-4 mb-6">
-               <div className="w-8 h-[2px] bg-[#FF2D78] shadow-[0_0_10px_#FF2D78]" />
-               <span className="font-mono text-xs md:text-sm uppercase tracking-[0.5em] text-[#00F5FF] shadow-[0_0_10px_rgba(0,245,255,0.5)]" style={{ fontFamily: "var(--font-mono)" }}>System.init( )_</span>
-               <div className="w-8 h-[2px] bg-[#39FF14] shadow-[0_0_10px_#39FF14]" />
-            </div>
-            
-            {/* Split Title with mouse parallax */}
-            <motion.div 
-              className="flex flex-wrap lg:flex-nowrap gap-x-[4vw] lg:gap-x-0 relative leading-[0.85] justify-center"
-              animate={{ x: mDelta.x * 30, y: mDelta.y * 30 }}
-              transition={{ type: "tween", ease: "easeOut", duration: 0.5 }}
-              onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-            >
-              {slothMode ? (
-                // ── SLOTH easter egg ──
-                <div className="flex">
-                  {"SLOTH".split("").map((ch, i) => {
-                    const v = heroVectorsRef.current[`sloth-${i}`] ?? { x: 0, y: -200, rotate: 0 };
-                    return (
-                      <motion.div
-                        key={`sloth-${i}`}
-                        className="relative inline-block overflow-visible"
-                        initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
-                        animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                        transition={{ type: 'spring', stiffness: 190, damping: 16, delay: i * 0.08 }}
-                      >
-                        <span className="rgb-r font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0"
-                          style={{ fontFamily: "var(--font-syne)", color: '#00F5FF', transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>{ch}</span>
-                        <span className="rgb-b font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0"
-                          style={{ fontFamily: "var(--font-syne)", color: '#FF2D78', transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>{ch}</span>
-                        <span className="relative z-10 font-syne font-black text-[18vw] md:text-[14vw] lg:text-[11rem] text-[#E2E2EC] drop-shadow-[0_0_20px_rgba(226,226,236,0.3)]"
-                          style={{ fontFamily: "var(--font-syne)" }}>{ch}</span>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              ) : (
-                // ── Normal TREE HEY with click explosion ──
-                ['TREE', 'HEY'].map((word, wIdx) => (
-                  <div key={wIdx} className="flex">
-                    {word.split("").map((ch, i) => {
-                      const key = `${wIdx}-${i}`;
-                      const isExploding = heroExploding.has(key);
-                      const v = heroVectorsRef.current[key];
-                      const wasClicked = heroClickedSet.has(key);
-                      return (
-                        <motion.div
-                          key={key}
-                          className="relative inline-block overflow-visible group cursor-pointer"
-                          animate={isExploding
-                            ? { x: v?.x ?? 0, y: v?.y ?? 0, rotate: v?.rotate ?? 0, scale: 0.25, opacity: 0.45 }
-                            : { x: 0, y: 0, rotate: 0, scale: 1, opacity: 1 }}
-                          transition={{ type: 'spring', stiffness: 220, damping: 14 }}
-                          onClick={() => handleHeroCharClick(wIdx, i)}
-                          title={wasClicked ? undefined : "click me"}
-                        >
-                          <motion.span className="rgb-r font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#00F5FF] transition-colors"
-                            style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * -15}px, ${mDelta.y * -15}px)` }}>{ch}</motion.span>
-                          <motion.span className="rgb-b font-syne font-black select-none text-[18vw] md:text-[14vw] lg:text-[11rem] z-0 group-hover:text-[#FF2D78] transition-colors"
-                            style={{ fontFamily: "var(--font-syne)", transform: `translate(${mDelta.x * 15}px, ${mDelta.y * 15}px)` }}>{ch}</motion.span>
-                          <span className={`relative z-10 font-syne font-black text-[18vw] md:text-[14vw] lg:text-[11rem] group-hover:opacity-0 transition-opacity duration-300 drop-shadow-[0_0_20px_rgba(226,226,236,0.3)] ${wasClicked ? 'text-white/40' : 'text-[#E2E2EC]'}`}
-                            style={{ fontFamily: "var(--font-syne)" }}>{ch}</span>
-                        </motion.div>
-                      );
-                    })}
-                    {wIdx === 0 && <div className="w-[4vw] lg:w-[6vw] inline-block" />}
-                  </div>
-                ))
-              )}
-            </motion.div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 1.2 }}
-            className="mt-16 md:mt-24 flex flex-col md:flex-row gap-6 md:gap-24 w-full max-w-4xl border-t border-[#FF2D78]/20 pt-8 relative before:absolute before:top-[-2px] before:left-0 before:w-16 before:h-[2px] before:bg-[#FF2D78] before:shadow-[0_0_10px_#FF2D78]"
-          >
-            <p className="font-grotesk text-base md:text-lg text-[#E2E2EC]/70 max-w-md leading-relaxed" style={{ fontFamily: "var(--font-grotesk)" }}>
-              {t.hero.desc}
-            </p>
-            <div className="flex gap-8 md:ml-auto">
-              <div className="flex flex-col gap-1.5">
-                <span className="font-mono text-[10px] text-[#00F5FF] tracking-[0.2em] uppercase">{t.hero.loc}</span>
-                <span className="font-syne text-lg md:text-xl text-[#E2E2EC]">{t.hero.locVal}</span>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <span className="font-mono text-[10px] text-[#FF2D78] tracking-[0.2em] uppercase">{t.hero.foc}</span>
-                <span className="font-syne text-lg md:text-xl text-[#E2E2EC]">{t.hero.focVal}</span>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        {/* ── Sloth Easter Egg Mascot ── */}
-        <AnimatePresence>
-          {slothMode && (
-            <motion.div
-              key="sloth-mascot"
-              className="absolute bottom-0 right-0 z-20 select-none cursor-pointer group"
-              initial={{ y: 280, x: 40, rotate: 12, opacity: 0 }}
-              animate={{ y: 0, x: 0, rotate: 0, opacity: 1 }}
-              exit={{ y: 280, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 40, damping: 12, delay: 0.55 }}
-              onClick={() => {
-                setSlothMode(false);
-                setHeroClickedSet(new Set());
-                setHeroExploding(new Set());
-              }}
-            >
-              <motion.img
-                src={`${B}/sloth_2.png`}
-                alt="sloth"
-                className="w-40 md:w-60 lg:w-72 drop-shadow-[0_0_30px_rgba(0,245,255,0.25)] group-hover:drop-shadow-[0_0_50px_rgba(0,245,255,0.5)] transition-filter duration-300"
-                animate={{ rotate: [0, -3, 2, -1, 0] }}
-                transition={{ rotate: { repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 1.2 } }}
-              />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 font-mono text-[9px] text-white/0 group-hover:text-white/50 tracking-widest transition-colors duration-300 whitespace-nowrap pointer-events-none">
-                click to dismiss
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── Danmaku Layer ── */}
-        <DanmakuSystem lang={lang} />
-
-      </section>
+      <Hero
+        lang={lang as any}
+        slothMode={slothMode}
+        heroClickedSet={heroClickedSet}
+        heroExploding={heroExploding}
+        heroVectors={heroVectorsRef.current}
+        onCharClick={handleHeroCharClick}
+        onSlothDismiss={() => {
+          setSlothMode(false);
+          setHeroClickedSet(new Set());
+          setHeroExploding(new Set());
+        }}
+      />
 
       {/* ════════════════════════════════════
           1.5 ABOUT / INTERACTIVE IDENTITY
@@ -1241,7 +1171,7 @@ export default function Home() {
       <section
         id="about"
         ref={aboutRef}
-        className="relative z-10 w-full bg-[#07070F] overflow-hidden"
+        className="relative z-10 w-full bg-transparent overflow-hidden"
         onMouseMove={(e) => {
           const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
           setAboutMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
@@ -1250,51 +1180,51 @@ export default function Home() {
         {/* Mouse spotlight */}
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(700px circle at ${aboutMouse.x}px ${aboutMouse.y}px, rgba(0,245,255,0.05), transparent 65%)` }}
+          style={{ background: `radial-gradient(700px circle at ${aboutMouse.x}px ${aboutMouse.y}px, color-mix(in srgb, var(--foreground) 3%, transparent), transparent 65%)` }}
         />
 
         {/* Row 1 — Section header with animated line */}
-        <div className="relative w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <span className="font-mono text-xs text-[#00F5FF] tracking-[0.5em] uppercase glow-cyan">{t.about.sub}</span>
+        <div className="relative w-full border-b border-[var(--color-white)]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <span className="font-mono text-xs tracking-[0.5em] uppercase text-foreground/80">{t.about.sub}</span>
           <div className="flex items-center gap-4">
             <motion.div
-              className="h-[1px] bg-gradient-to-r from-transparent to-[#00F5FF]/60 origin-left"
+              className="h-[1px] bg-gradient-to-r from-transparent to-foreground/20 origin-left"
               initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
               transition={{ duration: 1.4, ease: "easeOut" }}
               style={{ width: "80px" }}
             />
-            <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ 001 — IDENTITY</span>
+            <span className="font-mono text-xs text-foreground/30 tracking-widest">§ 001 — IDENTITY</span>
           </div>
         </div>
 
-        {/* Row 2 — Oversized heading with glitch on hover */}
-        <div className="relative w-full px-6 md:px-12 pt-16 md:pt-24 pb-4 md:pb-0 overflow-hidden">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 md:gap-0">
+        {/* Row 2 — Oversized heading with staggered cinematic reveal */}
+        <div className="relative w-full px-6 md:px-12 pt-16 md:pt-24 pb-12 flex flex-col gap-2 md:gap-0 overflow-visible">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-0">
             <motion.h2
-              initial={{ rotateY: -88, opacity: 0 }}
-              whileInView={{ rotateY: 0, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
-              className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-[#E2E2EC] uppercase cursor-default select-none"
-              style={{ fontFamily: "var(--font-syne)", x: aboutH1X, transformPerspective: 1400 }}
+              initial={{ y: 80, opacity: 0, rotate: 3, filter: "blur(12px)" }}
+              whileInView={{ y: 0, opacity: 1, rotate: 0, filter: "blur(0px)" }}
+              viewport={{ once: true, margin: "0px" }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              className={`font-syne font-black leading-[0.85] uppercase cursor-default select-none whitespace-nowrap origin-bottom-left ${lang==="EN"?"text-[13vw] md:text-[11vw] lg:text-[11vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-widest pl-4"}`}
+              style={{ fontFamily: "var(--font-syne)", x: aboutH1X }}
             >
               {t.about.title1}
             </motion.h2>
             <motion.div
               initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="md:mb-4 flex flex-col items-start md:items-end gap-2"
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="md:mb-8 flex flex-col items-start md:items-end gap-2"
             >
-              <p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split(".")[0]}.</p>
+              <p className="font-grotesk text-sm md:text-base text-foreground/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split(".")[0]}.</p>
             </motion.div>
           </div>
           <motion.h2
-            initial={{ rotateY: 88, opacity: 0 }}
-            whileInView={{ rotateY: 0, opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.95, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="font-syne font-black text-[18vw] md:text-[9vw] leading-[1] md:leading-[0.85] text-transparent uppercase cursor-default select-none"
-            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "2px rgba(0,245,255,0.6)", x: aboutH2X, transformPerspective: 1400 }}
+            initial={{ y: 80, opacity: 0, rotate: -3, filter: "blur(12px)" }}
+            whileInView={{ y: 0, opacity: 1, rotate: 0, filter: "blur(0px)" }}
+            viewport={{ once: true, margin: "0px" }}
+            transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className={`font-syne font-black leading-[0.85] text-transparent uppercase cursor-default select-none whitespace-nowrap origin-bottom-right ${lang==="EN"?"text-[16vw] md:text-[13vw] lg:text-[13vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-[0.2em] pl-4"}`}
+            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px color-mix(in srgb, var(--color-white) 40%, transparent)", x: aboutH2X }}
           >
             {t.about.title2}
           </motion.h2>
@@ -1303,12 +1233,12 @@ export default function Home() {
         {/* ── BENTO PHOTO GRID ── */}
         {/* Desktop: 3-col × 2-row asymmetric  [ NJU(tall) | MC | Assoc ]
                                                [           | mbot | steam ] */}
-        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] border-t border-[#E2E2EC]/10 overflow-hidden"
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] border-t border-[var(--color-white)]/10 overflow-hidden text-foreground"
           style={{ gridTemplateRows: "minmax(260px,35vh) minmax(260px,35vh)" }}>
 
           {/* Cell A — NJU, spans 2 rows */}
           <div
-            className="relative md:row-span-2 overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 group"
+            className="relative md:row-span-2 overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 md:border-r border-foreground/10 group"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               setAboutImgMouse({ x: ((e.clientX - r.left) / r.width - 0.5) * 22, y: ((e.clientY - r.top) / r.height - 0.5) * 22 });
@@ -1328,23 +1258,23 @@ export default function Home() {
               />
               <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
                 style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/90 via-[#07070F]/20 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
             </motion.div>
             {/* Badge */}
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
             {/* Text overlay at bottom */}
             <motion.div
               initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0.45 }}
               className="absolute bottom-6 left-6 right-6 z-10"
             >
-              <p className="font-grotesk text-sm text-[#E2E2EC]/75 leading-[1.75]">{t.about.p2}</p>
+              <p className="font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
             </motion.div>
           </div>
 
           {/* Cell B — Minecraft, top col 2 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-[#E2E2EC]/10 group cursor-pointer"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-foreground/10 group cursor-pointer"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             onClick={() => minecraftMode ? exitMinecraft() : enterMinecraft()}
             title={minecraftMode ? "点击退出 Minecraft 模式" : "点击进入 Minecraft 模式"}
@@ -1354,13 +1284,13 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.15}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#FF2D78] bg-[#FF2D78]/10 border border-[#FF2D78]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
           </div>
 
           {/* Cell C — Student Association, top col 3 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-[#E2E2EC]/10 group cursor-default"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-foreground/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             <DarkroomImage src={`${B}/images/about/student-association.jpg`} alt="Student Association"
@@ -1368,13 +1298,13 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.22}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#00F5FF] bg-[#00F5FF]/10 border border-[#00F5FF]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
           </div>
 
           {/* Cell D — mbot robotics, bottom col 2 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-[#E2E2EC]/10 group cursor-default"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-foreground/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             <DarkroomImage src={`${B}/images/about/mbot.jpg`} alt="Robotics"
@@ -1382,8 +1312,8 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.1}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#39FF14] bg-[#39FF14]/10 border border-[#39FF14]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
           </div>
 
           {/* Cell E — STEAM & IoT, bottom col 3 */}
@@ -1396,55 +1326,57 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.18}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-[#F5C542] bg-[#F5C542]/10 border border-[#F5C542]/30 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
           </div>
         </div>
 
         {/* ── Info band: p1 text | stat cards | tags ── */}
-        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] border-t border-[#E2E2EC]/10">
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] border-t border-foreground/10">
 
           {/* p1 paragraph */}
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.9 }}
-            className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 flex flex-col justify-center gap-5"
+            className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-foreground/10 flex flex-col justify-center gap-5"
           >
-            <p className="font-grotesk text-sm md:text-[15px] text-[#E2E2EC]/58 leading-[1.9]">{t.about.p1}</p>
+            <p className="font-grotesk text-sm md:text-[15px] text-foreground/60 leading-[1.9]">{t.about.p1}</p>
           </motion.div>
 
           {/* Stat cards */}
-          <div className="border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 p-6 md:p-8 flex flex-col justify-between gap-4">
+          <div className="border-b md:border-b-0 md:border-r border-foreground/10 p-6 md:p-8 flex flex-col justify-between gap-4">
             {[
-              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学" },
-              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX" },
-              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code" },
+              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学", accent: "bg-foreground", grad: "from-foreground/10 to-transparent" },
+              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-foreground/70", grad: "from-foreground/5 to-transparent" },
+              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code", accent: "bg-foreground/50", grad: "from-foreground/5 to-transparent" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.12 }}
-                className="group relative border border-transparent hover:border-[#00F5FF]/20 p-3 -mx-3 rounded-sm transition-all duration-300 hover:bg-[#00F5FF]/[0.03] cursor-default overflow-hidden"
+                className="group relative border border-transparent hover:border-foreground/10 p-3 -mx-3 rounded-sm transition-all duration-500 hover:bg-foreground/5 cursor-default overflow-hidden"
               >
-                <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-[#00F5FF] scale-y-0 group-hover:scale-y-100 transition-transform duration-300 origin-bottom" />
-                <div className="flex items-center gap-2 mb-1">
-                  <motion.div className="w-1.5 h-1.5 rounded-full bg-[#00F5FF]/40"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.6 }}
+                <div className={`absolute left-0 top-0 bottom-0 w-[2px] ${stat.accent} scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-bottom`} />
+                <div className={`absolute inset-0 bg-gradient-to-r ${stat.grad} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
+                <div className="flex items-center gap-2 mb-1 relative z-10">
+                  <motion.div className={`w-1.5 h-1.5 rounded-full ${stat.accent}`}
+                    animate={{ opacity: [0.4, 1, 0.4] }}
+                    transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
                   />
-                  <p className="font-mono text-[10px] text-[#E2E2EC]/35 uppercase tracking-[0.4em]">{stat.label}</p>
+                  <p className="font-mono text-[10px] text-foreground/40 uppercase tracking-[0.4em]">{stat.label}</p>
                 </div>
-                <p className="font-syne font-bold text-lg md:text-xl text-[#E2E2EC] group-hover:text-[#00F5FF] transition-colors duration-300 pl-1" style={{ fontFamily: "var(--font-syne)" }}>{stat.val}</p>
-                <p className="font-mono text-[10px] text-[#00F5FF]/0 group-hover:text-[#00F5FF]/55 transition-all duration-300 mt-1 pl-1 tracking-widest">→ {stat.sub}</p>
+                <p className="font-syne font-bold text-lg md:text-xl text-foreground/80 group-hover:text-foreground transition-colors duration-300 pl-1 relative z-10" style={{ fontFamily: "var(--font-syne)" }}>{stat.val}</p>
+                <p className="font-mono text-[10px] text-transparent group-hover:text-foreground/40 transition-colors duration-300 mt-1 pl-1 tracking-widest relative z-10">→ {stat.sub}</p>
               </motion.div>
             ))}
           </div>
 
           {/* Tags with animated progress bars */}
           <div className="p-6 md:p-8 flex flex-col justify-center gap-5">
-            <p className="font-mono text-[10px] text-[#E2E2EC]/40 uppercase tracking-[0.4em]">Modules</p>
+            <p className="font-mono text-[10px] text-foreground/40 uppercase tracking-[0.4em]">Modules</p>
             <div className="flex flex-col gap-5">
-              {t.about.tags.map((tag, i) => (
+              {t.about.tags.map((tag, i) => {
+                return (
                 <motion.div
                   key={tag}
                   initial={{ x: 20, opacity: 0 }} whileInView={{ x: 0, opacity: 1 }} viewport={{ once: true }}
@@ -1453,28 +1385,29 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <motion.span
-                      className="w-1.5 h-1.5 rounded-full bg-[#00F5FF]/50 group-hover:bg-[#00F5FF] flex-shrink-0 transition-colors"
+                      className={`w-1.5 h-1.5 rounded-full bg-foreground/40 group-hover:bg-foreground flex-shrink-0 transition-colors duration-500`}
                       animate={{ scale: [1, 1.4, 1] }}
                       transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.7 }}
                     />
-                    <span className="font-mono text-xs text-[#E2E2EC]/50 group-hover:text-[#00F5FF] transition-colors uppercase tracking-widest">{tag}</span>
+                    <span className="font-mono text-xs text-foreground/70 group-hover:text-foreground transition-colors duration-500 uppercase tracking-widest">{tag}</span>
                   </div>
-                  <div className="ml-4 h-[1px] bg-[#E2E2EC]/10 rounded-full overflow-hidden">
+                  <div className="ml-4 h-[1px] bg-foreground/10 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-[#00F5FF]/60 to-[#FF2D78]/40"
+                      className={`h-full bg-foreground/60 group-hover:bg-foreground transition-colors duration-500`}
                       initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
                       transition={{ duration: 1.1, delay: 0.4 + i * 0.15, ease: "easeOut" }}
                       style={{ transformOrigin: "left", width: `${[88, 92, 78][i]}%` }}
                     />
                   </div>
                 </motion.div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </div>
 
         {/* ── System metrics ── */}
-        <div className="relative w-full border-t border-[#E2E2EC]/10 grid grid-cols-3">
+        <div className="relative w-full border-t border-foreground/10 grid grid-cols-3">
           {[
             { num: 50, suffix: "K+", label: lang === "EN" ? "LINES OF CODE" : "代码行数" },
             { num: 4,  suffix: "+",  label: lang === "EN" ? "YEARS BUILDING" : "年开发经验" },
@@ -1484,15 +1417,15 @@ export default function Home() {
               key={m.label}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className={`group px-6 md:px-10 py-6 md:py-8 flex flex-col gap-1 cursor-default${i < 2 ? " border-r border-[#E2E2EC]/10" : ""}`}
+              className={`group px-6 md:px-10 py-6 md:py-8 flex flex-col gap-1 cursor-default${i < 2 ? " border-r border-foreground/10" : ""}`}
             >
               <span
-                className="font-syne font-black text-3xl md:text-4xl text-[#E2E2EC] group-hover:text-[#00F5FF] transition-colors duration-300"
+                className="font-syne font-black text-3xl md:text-4xl text-foreground/80 group-hover:text-foreground transition-colors duration-500"
                 style={{ fontFamily: "var(--font-syne)" }}
               >
                 <CountUp to={m.num} suffix={m.suffix} />
               </span>
-              <span className="font-mono text-[10px] text-[#E2E2EC]/35 group-hover:text-[#E2E2EC]/60 transition-colors uppercase tracking-[0.3em]">{m.label}</span>
+              <span className="font-mono text-[10px] text-foreground/30 group-hover:text-foreground/60 transition-colors duration-500 uppercase tracking-[0.3em]">{m.label}</span>
             </motion.div>
           ))}
         </div>
@@ -1501,19 +1434,19 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works" ref={worksContainerRef} className="relative z-10 w-full bg-[#0A0A14] [overflow:clip]">
+      <section id="works" ref={worksContainerRef} className="relative z-10 w-full bg-background [overflow:clip] text-foreground">
 
         {/* Section Header */}
-        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg, #FF2D78, #00F5FF)", fontFamily: "var(--font-syne)" }}>
+        <div className="w-full border-b border-foreground/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
             {t.works.title1} {t.works.title2}
           </h2>
-          <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest hidden md:block">{t.works.archive}</span>
+          <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">{t.works.archive}</span>
         </div>
 
         {/* ── Project Theater ── */}
         <div ref={worksRef} className="relative h-[200vh]">
-          <motion.div className="sticky top-0 h-screen overflow-hidden bg-[#0A0A14]"
+          <motion.div className="sticky top-0 h-screen overflow-hidden bg-background"
              style={{ scale: worksOverallScale, opacity: worksOverallOpacity, borderRadius: worksOverallBorder }}
           >
 
@@ -1526,43 +1459,55 @@ export default function Home() {
               {(() => {
                 const wm = WORKS_META[0]; const wi = t.works.items[0]; const active = activeWork === 0;
                 return (
-                  <a href={wi.link} target="_blank" rel="noopener noreferrer"
-                    className="relative w-full h-full flex flex-col md:flex-row"
+                  <div className="relative w-full h-full flex flex-col md:flex-row"
                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                     {/* Image — LEFT on even */}
-                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1">
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover"
-                        animate={{ scale: active ? 1.06 : 1.0 }}
-                        transition={{ duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }} />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0A0A14]" />
-                      <div className="absolute inset-0 bg-[#0A0A14]/10" />
-                      <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
+                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1 group/img">
+                      {/* Floating glowing orb */}
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-foreground/5 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
+                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                      />
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
+                        animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
+                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background pointer-events-none" />
+                      <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
+                      <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
                     </div>
                     {/* Text — RIGHT on even */}
                     <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-2">
                       <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
+                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
                         <RollingNumber value={1} />
                       </span>
-                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border"
-                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>{wi.tag}</span>
-                      <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl text-[#E2E2EC] leading-[1.05] mb-5" style={{ fontFamily: "var(--font-syne)" }}>
-                        <ScrambleText text={wi.title} trigger={active} fast />
-                      </h3>
-                      <motion.p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/55 max-w-md leading-relaxed mb-8"
+                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
+                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
+                        <span className="relative z-10">{wi.tag}</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
+                      </span>
+                      <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
+                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl leading-[1.05] mb-5 hover:text-foreground/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                          <BlurFocusText text={wi.title} trigger={active} />
+                        </h3>
+                      </a>
+                      <motion.p className="font-grotesk text-sm md:text-base text-foreground/60 max-w-md leading-relaxed mb-8 relative"
                         animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
-                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>{wi.desc}</motion.p>
-                      <motion.div className="flex items-center gap-4 group/cta w-fit"
+                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
+                        {wi.desc}
+                      </motion.p>
+                      <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
                         animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
                         transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#E2E2EC]/60 group-hover/cta:text-white transition-colors duration-300">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-300 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F]">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-foreground/0 via-foreground/5 to-foreground/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-foreground/60 group-hover/cta:text-foreground transition-colors duration-300 relative z-10">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-foreground/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-foreground group-hover/cta:border-foreground group-hover/cta:-rotate-45 group-hover/cta:text-background group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_color-mix(in srgb, var(--foreground) 30%, transparent)] relative z-10">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </div>
-                      </motion.div>
+                      </motion.a>
                       <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
                     </div>
-                  </a>
+                  </div>
                 );
               })()}
             </motion.div>
@@ -1572,52 +1517,78 @@ export default function Home() {
               {(() => {
                 const wm = WORKS_META[1]; const wi = t.works.items[1]; const active = activeWork === 1;
                 return (
-                  <a href={wi.link} target="_blank" rel="noopener noreferrer"
-                    className="relative w-full h-full flex flex-col md:flex-row bg-[#0A0A14]"
+                  <div className="relative w-full h-full flex flex-col md:flex-row bg-background"
                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                     {/* Text — LEFT on odd */}
                     <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-1">
                       <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
+                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
                         <RollingNumber value={2} />
                       </span>
-                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border"
-                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>{wi.tag}</span>
-                      <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl text-[#E2E2EC] leading-[1.05] mb-5" style={{ fontFamily: "var(--font-syne)" }}>
-                        <ScrambleText text={wi.title} trigger={active} fast />
-                      </h3>
-                      <motion.p className="font-grotesk text-sm md:text-base text-[#E2E2EC]/55 max-w-md leading-relaxed mb-8"
+                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
+                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
+                        <span className="relative z-10">{wi.tag}</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
+                      </span>
+                      <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
+                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5 hover:text-foreground/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                          <BlurFocusText text={wi.title} trigger={active} />
+                        </h3>
+                      </a>
+                      <motion.p className="font-grotesk text-sm md:text-base text-foreground/60 max-w-md leading-relaxed mb-8 relative"
                         animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
-                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>{wi.desc}</motion.p>
-                      <motion.div className="flex items-center gap-4 group/cta w-fit"
+                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
+                        {wi.desc}
+                      </motion.p>
+                      <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
                         animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
                         transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-[#E2E2EC]/60 group-hover/cta:text-white transition-colors duration-300">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-300 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F]">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-foreground/0 via-foreground/5 to-foreground/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-foreground/60 group-hover/cta:text-foreground transition-colors duration-300 relative z-10">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-foreground/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-foreground group-hover/cta:border-foreground group-hover/cta:-rotate-45 group-hover/cta:text-background group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_color-mix(in srgb, var(--foreground) 30%, transparent)] relative z-10">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </div>
-                      </motion.div>
+                      </motion.a>
                       <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
                     </div>
                     {/* Image — RIGHT on odd */}
-                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-2">
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover"
-                        animate={{ scale: active ? 1.06 : 1.0 }}
-                        transition={{ duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }} />
-                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#0A0A14]" />
-                      <div className="absolute inset-0 bg-[#0A0A14]/10" />
-                      <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
+                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-2 group/img">
+                      {/* Floating glowing orb */}
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
+                        style={{ backgroundColor: `${wm.accent}15` }}
+                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: 1 }}
+                      />
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
+                        animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
+                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
+                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background pointer-events-none" />
+                      <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
+                      <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
                     </div>
-                  </a>
+                  </div>
                 );
               })()}
             </motion.div>
 
             {/* Progress indicator */}
-            <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-2 z-30 pointer-events-none">
+            <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-3 z-30 pointer-events-none items-center">
               {WORKS_META.map((wm, i) => (
-                <div key={i} className="h-[2px] rounded-full transition-all duration-500"
-                  style={{ width: i === activeWork ? 28 : 8, backgroundColor: i === activeWork ? wm.accent : "rgba(255,255,255,0.2)" }} />
+                <div key={i} className="group relative flex items-center justify-center">
+                  <motion.div 
+                    className="h-[2px] rounded-full transition-all duration-700 relative z-10"
+                    animate={{ width: i === activeWork ? 36 : 12, backgroundColor: i === activeWork ? wm.accent : "color-mix(in srgb, var(--foreground) 20%, transparent)" }}
+                    layout
+                  />
+                  {i === activeWork && (
+                    <motion.div 
+                      layoutId="active-work-glow"
+                      className="absolute w-full h-full blur-md opacity-60"
+                      style={{ backgroundColor: wm.accent }}
+                      transition={{ duration: 0.7 }}
+                    />
+                  )}
+                </div>
               ))}
             </div>
 
@@ -1628,61 +1599,109 @@ export default function Home() {
       {/* ════════════════════════════════════
           2. HORIZONTAL SCROLL (Manifesto + Gallery)
       ════════════════════════════════════ */}
-      <section id="gallery" ref={horizontalRef} className="relative z-10 h-[500vh] bg-[#0A0A14]">
+      <section id="gallery" ref={horizontalRef} className="relative z-10 h-[500vh] bg-background text-foreground">
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
           
-          <motion.div style={{ x: xTransform }} className="flex h-full w-[500vw]">
+          {/* Main Horizontal Track */}
+          <motion.div style={{ x: xTransform }} className="flex h-full w-[500vw] will-change-transform">
             
             {/* Panel 1: Huge Manifesto */}
-            <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0">
-              <div className="max-w-6xl w-full">
-                <h2 className="font-syne font-black text-[12vw] md:text-[5.5vw] leading-[1.1] pb-2 text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>
-                  <ScrambleText text={t.gallery.m1} className="block" trigger={panel1Visible} />
-                  <span className="block text-transparent bg-clip-text" style={{ backgroundImage: "linear-gradient(90deg,#00F5FF,#FF2D78)" }}>
+            <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0 relative overflow-hidden">
+
+              {/* Parallax background geometric accent & Ambient Glow */}
+              <motion.div 
+                className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                initial={{ scale: 0.8 }} whileInView={{ scale: 1.1 }} transition={{ duration: 3, ease: 'easeOut' }}
+              >
+                {/* Advanced Ambient Glow (Emotional Colors: Sapphire -> Amethyst -> Amber) */}
+                <motion.div 
+                  className="absolute w-[80vw] h-[40vw] md:w-[40vw] md:h-[20vw] bg-gradient-to-r from-[#4158D0] via-[#C850C0] to-[#FFCC70] rounded-full blur-[100px] md:blur-[140px] opacity-[0.25] mix-blend-screen"
+                  animate={{ scale: [1, 1.15, 1], rotate: [0, 5, 0] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                />
+                
+                {/* Geometric Circle */}
+                <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] border border-foreground/10 rounded-full mix-blend-overlay z-10" />
+              </motion.div>
+
+              <div className="max-w-6xl w-full relative z-10">
+                <h2 className="font-syne font-black text-[12vw] md:text-[5.5vw] leading-[1.1] pb-2 drop-shadow-lg" style={{ fontFamily: "var(--font-syne)" }}>
+                  <ScrambleText text={t.gallery.m1} className="block text-foreground" trigger={panel1Visible} />
+                  <span className="block text-foreground/30">
                     <ScrambleText text={t.gallery.m2} trigger={panel1Visible} />
                   </span>
-                  <ScrambleText text={t.gallery.m3} className="block" trigger={panel1Visible} />
-                  <ScrambleText text={t.gallery.m4} className="block text-[#39FF14]" trigger={panel1Visible} />
+                  <ScrambleText text={t.gallery.m3} className="block text-foreground/90 md:mt-2" trigger={panel1Visible} />
+                  
+                  {/* Highlight core keyword "EMOTIONS" with a high-end texture */}
+                  <div className="block w-fit bg-clip-text text-transparent bg-gradient-to-r from-[#A0B0FF] via-[#D0A0FF] to-[#FFCF90] drop-shadow-sm filter brightness-125">
+                    <ScrambleText text={t.gallery.m4} trigger={panel1Visible} />
+                  </div>
                 </h2>
               </div>
             </div>
 
-            {/* Panels 2-4: Gallery Cards overlapping */}
+            {/* Panels 2-5: Gallery Cards overlapping */}
             {PHOTOS.map((photo, i) => (
-              <div key={i} className="w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative">
-                {/* Background ghost text */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] text-[#E2E2EC]/[0.03] select-none whitespace-nowrap" style={{ fontFamily: "var(--font-syne)" }}>
+              <div key={i} className="w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative group/photo">
+                {/* Background ghost text moving slightly against scroll */}
+                <motion.div 
+                  initial={{ x: 50, opacity: 0 }}
+                  whileInView={{ x: 0, opacity: 1 }}
+                  viewport={{ root: horizontalRef, margin: "0px", amount: "some" }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] text-foreground opacity-[0.03] select-none whitespace-nowrap z-0 pointer-events-none" 
+                  style={{ fontFamily: "var(--font-syne)" }}
+                >
                   {photo.num}
-                </div>
+                </motion.div>
                 
                 <a 
                   href={photo.src} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card group cursor-pointer"
+                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card cursor-pointer z-10 shadow-2xl transition-all duration-700 hover:shadow-[0_0_50px_color-mix(in srgb, var(--foreground) 5%, transparent)] border border-transparent hover:border-foreground/10"
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                 >
-                  <img src={photo.src} alt={photo.title} loading="lazy" decoding="async" className="w-full h-full object-cover grayscale-[40%] group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" />
+                  <motion.img 
+                    src={photo.src} 
+                    alt={photo.title} 
+                    loading="lazy" 
+                    decoding="async" 
+                    initial={{ scale: 1.1, filter: 'blur(10px)' }}
+                    whileInView={{ scale: 1.05, filter: 'blur(0px)' }}
+                    viewport={{ root: horizontalRef }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                    className="w-full h-full object-cover grayscale-[20%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-700 group-hover/photo:scale-100" 
+                  />
                   
                   {/* Overlay gradients & Data */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-transparent to-transparent opacity-90" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
                   
-                  <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col">
+                  <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none">
                     <div className="overflow-hidden">
                       <motion.h3 
-                        initial={{ y: "100%" }} whileInView={{ y: 0 }} transition={{ duration: 0.6, ease: [0.33, 1, 0.68, 1] }}
-                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl text-[#E2E2EC] leading-none mb-2" style={{ fontFamily: "var(--font-syne)" }}>
+                        initial={{ y: "100%", opacity: 0 }} 
+                        whileInView={{ y: 0, opacity: 1 }} 
+                        viewport={{ root: horizontalRef, margin: "0px" }}
+                        transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
+                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 text-[#fafafa]/80 group-hover/photo:text-[#fafafa] transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
                         {t.gallery.photos[i]}
                       </motion.h3>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-mono text-xs md:text-sm text-[#00F5FF] tracking-widest uppercase border border-[#00F5FF]/30 px-3 py-1 bg-[#00F5FF]/10">{photo.num}</span>
-                      <span className="font-mono text-sm text-[#E2E2EC]/60 tracking-widest uppercase">{photo.title}</span>
-                    </div>
+                    <motion.div 
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ root: horizontalRef }}
+                      transition={{ duration: 0.8, delay: 0.4 }}
+                      className="flex items-center gap-4"
+                    >
+                      <span className="font-mono text-xs md:text-sm text-[#fafafa]/70 group-hover/photo:text-[#fafafa] tracking-widest uppercase border border-[#fafafa]/10 px-3 py-1 bg-[#fafafa]/5 transition-colors duration-500">{photo.num}</span>
+                      <span className="font-mono text-sm text-[#fafafa]/40 group-hover/photo:text-[#fafafa]/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
+                    </motion.div>
                   </div>
                   
-                  {/* Scanline strictly on image */}
-                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.1)_2px,rgba(0,0,0,0.1)_4px)] pointer-events-none" />
+                  {/* Subtle Scanline strictly on image */}
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none mix-blend-overlay opacity-50" />
                 </a>
               </div>
             ))}
@@ -1692,11 +1711,25 @@ export default function Home() {
       </section>
 
       {/* ── MARQUEE BAND ── */}
-      <div className="relative z-10 py-5 overflow-hidden border-y border-[#39FF14]/20 bg-[#07070F]">
-        <div className="flex whitespace-nowrap marquee-track">
+      <div 
+        className="relative z-10 py-6 overflow-hidden border-y border-foreground/10 bg-foreground/[0.01] backdrop-blur-3xl"
+        style={{ 
+          maskImage: 'none',
+          WebkitMaskImage: 'none' 
+        }}
+      >
+        <div className="flex whitespace-nowrap marquee-track items-center">
           {[...Array(6)].map((_, i) => (
-            <span key={i} className="font-mono text-sm md:text-xl text-[#39FF14] tracking-[0.2em] mr-8" style={{ fontFamily: "var(--font-mono)", textShadow: "0 0 10px rgba(57,255,20,0.5)" }}>
-              {t.marquee}
+            <span 
+              key={i} 
+              className="font-syne font-black text-2xl md:text-3xl tracking-[0.1em] mr-12 text-transparent uppercase select-none" 
+              style={{ 
+                fontFamily: "var(--font-syne)",
+                WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 30%, transparent)",
+                textShadow: i % 2 === 0 ? "none" : "0 0 20px color-mix(in srgb, var(--foreground) 15%, transparent)"
+              }}
+            >
+              {i % 2 === 0 ? t.marquee : <span style={{ color: "color-mix(in srgb, var(--foreground) 80%, transparent)", WebkitTextStroke: "0px" }}>{t.marquee}</span>}
             </span>
           ))}
         </div>
@@ -1705,9 +1738,9 @@ export default function Home() {
       {/* ════════════════════════════════════
           3. BENTO SYSTEM (Skills + Timeline fusion)
       ════════════════════════════════════ */}
-      <section id="skills" className="relative z-10 py-32 px-4 md:px-12 bg-[#07070F] flex flex-col items-center">
+      <section id="skills" className="relative z-10 py-32 px-4 md:px-12 bg-transparent flex flex-col items-center">
         <div className="w-full max-w-7xl mb-10 md:mb-16">
-          <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl text-[#E2E2EC]" style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-[#00F5FF]">{t.skills.title2}</span></h2>
+          <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl " style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-foreground">{t.skills.title2}</span></h2>
         </div>
 
 <div className="w-full max-w-7xl flex flex-col gap-16">
@@ -1717,27 +1750,27 @@ export default function Home() {
             {SKILLS.map((skill, i) => (
               <div 
                 key={i}
-                className="relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-[#E2E2EC]/10 hover:border-[#00F5FF]/50"
+                className="relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-foreground/10 hover:border-foreground/30"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[80%] group-hover/card:grayscale-0 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
+                <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[30%] opacity-70 group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
                 
                 {/* Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-[#07070F]/50 to-transparent opacity-90 group-hover/card:opacity-60 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-[#07070F]/40 group-hover/card:bg-transparent transition-colors duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-90 group-hover/card:opacity-80 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-background/40 group-hover/card:bg-transparent transition-colors duration-700" />
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 p-6 md:p-8 flex flex-col w-full h-full justify-end">
-                  <span className="font-mono text-xs tracking-[0.3em] uppercase mb-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transform translate-y-0 md:translate-y-4 group-hover/card:translate-y-0 transition-all duration-500 delay-100 box-glow-cyan inline-block px-3 py-1 bg-[#00F5FF]/10 border border-[#00F5FF]/20 self-start w-auto whitespace-nowrap" style={{ color: skill.accent, borderColor: skill.accent }}>
+                  <span className="font-mono text-xs tracking-[0.3em] uppercase mb-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transform translate-y-0 md:translate-y-4 group-hover/card:translate-y-0 transition-all duration-500 delay-100 inline-block px-3 py-1 bg-foreground/5 border border-foreground/20 self-start w-auto whitespace-nowrap text-foreground/70">
                     MODULE_{String(i + 1).padStart(2, '0')}
                   </span>
                   
-                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-24 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "#E2E2EC" }}>
+                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-24 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "var(--foreground)" }}>
                     {t.skills.items[i].split('·')[0]?.trim()}
                   </h3>
                   
                   <div className="overflow-hidden h-auto md:h-0 group-hover/card:h-[40px] md:group-hover/card:h-[60px] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]">
-                    <p className="font-mono text-sm md:text-base mt-2 md:mt-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200 whitespace-normal" style={{ fontFamily: "var(--font-mono)", color: skill.accent }}>
+                    <p className="font-mono text-sm md:text-base mt-2 md:mt-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200 whitespace-normal text-foreground/50" style={{ fontFamily: "var(--font-mono)" }}>
                       {t.skills.items[i].split('·')[1]?.trim() || t.skills.items[i]}
                     </p>
                   </div>
@@ -1757,104 +1790,127 @@ export default function Home() {
       {/* ════════════════════════════════════
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
-        <section id="guestbook" className="relative min-h-screen">
+        <section id="guestbook" className="relative min-h-screen bg-background text-foreground">
           <GuestbookWall lang={lang} />
         </section>
 
       {/* ════════════════════════════════════
-          4. CONTACT — Immersive Terminal
+          4. CONTACT — Immersive Glass Hub
       ════════════════════════════════════ */}
-      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-screen flex flex-col bg-[#07070F] border-t border-[#E2E2EC]/10 overflow-hidden">
+      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-[90vh] flex flex-col bg-background overflow-hidden text-foreground">
         
+        {/* Soft immersive top separator */}
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--foreground)]/10 to-transparent" />
+        
+        {/* Environmental Deep Space Lighting at bottom center - Amped up visibility & width */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0" 
+             style={{ background: 'radial-gradient(ellipse at bottom, color-mix(in srgb, var(--foreground) 12%, transparent) 0%, color-mix(in srgb, var(--foreground) 3%, transparent) 40%, transparent 70%)', filter: 'blur(80px)' }} />
+
         {/* Section label row */}
-        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <span className="font-mono text-xs text-[#FF2D78] tracking-[0.5em] uppercase glow-pink">{t.contact.sub}</span>
-          <span className="font-mono text-xs text-[#E2E2EC]/30 tracking-widest">§ FIN — HANDSHAKE</span>
+        <div className="w-full px-6 md:px-12 py-5 flex items-center justify-between relative z-10">
+          <span className="font-mono text-[10px] text-neutral-500 tracking-[0.6em] uppercase">{t.contact.sub}</span>
+          <span className="font-mono text-[10px] text-foreground/20 tracking-widest">§ FIN</span>
         </div>
 
-        {/* Giant headline */}
-        <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-20 py-20 md:py-28 relative">
+        {/* Giant headline & HUB */}
+        <div className="flex-1 flex flex-col justify-center items-center px-6 md:px-12 lg:px-20 py-16 relative z-10">
           
-          {/* Ambient blobs */}
-          <div className="absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full bg-[#FF2D78]/5 blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] rounded-full bg-[#00F5FF]/5 blur-[100px] pointer-events-none" />
-
           <motion.h2
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-            className="font-syne font-black leading-[0.85] text-[#E2E2EC] mb-16 relative z-10"
-            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3rem, 12vw, 10rem)", x: contactHeadX, opacity: contactHeadOpacity }}
+            className="font-syne font-black leading-[0.9] text-center mb-24 cursor-default group relative overflow-hidden"
+            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3.5rem, 12vw, 11rem)", x: contactHeadX, y: contactHeadY, opacity: contactHeadOpacity }}
           >
-            {t.contact.t1}<br />
-            <span
-              className="text-transparent hover:text-[#FF2D78] transition-colors duration-700"
-              style={{ WebkitTextStroke: "2px rgba(255,45,120,0.7)" }}
-            >
-              {t.contact.t2}
+            <span className="text-foreground block tracking-tighter transition-colors duration-700 group-hover:text-foreground relative z-10">{t.contact.t1}</span>
+            <span className="relative block tracking-tighter z-10">
+              <span className="text-transparent bg-clip-text transition-all duration-700 block"
+                    style={{ 
+                      backgroundImage: "linear-gradient(135deg, var(--foreground) 0%, color-mix(in srgb, var(--foreground) 40%, transparent) 50%, color-mix(in srgb, var(--foreground) 10%, transparent) 100%)",
+                      WebkitTextFillColor: "transparent",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text"
+                    }}>
+                {t.contact.t2}
+              </span>
+              <span className="absolute inset-0 z-20 text-transparent bg-clip-text pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[length:200%_100%] animate-shimmer block"
+                    style={{
+                      backgroundImage: "linear-gradient(90deg, transparent 0%, transparent 40%, color-mix(in srgb, var(--foreground) 90%, transparent) 50%, transparent 60%, transparent 100%)",
+                      WebkitTextFillColor: "transparent",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text"
+                    }}>
+                {t.contact.t2}
+              </span>
             </span>
           </motion.h2>
 
-          {/* Grid divider */}
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 md:gap-0 border-t border-[#E2E2EC]/10 pt-10">
+          {/* Liquid Glass Contact Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-4xl rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 relative overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, color-mix(in srgb, var(--foreground) 3%, transparent) 0%, color-mix(in srgb, var(--foreground) 1%, transparent) 100%)`,
+              border: `1px solid color-mix(in srgb, var(--foreground) 5%, transparent)`,
+              backdropFilter: "blur(40px) saturate(150%)",
+              boxShadow: `0 30px 60px -10px color-mix(in srgb, var(--foreground) 50%, transparent), inset 0 1px 1px color-mix(in srgb, var(--foreground) 15%, transparent), inset 0 -1px 1px color-mix(in srgb, var(--foreground) 30%, transparent)`,
+            }}
+          >
+            {/* Inner top highlight line for glass thickness */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
             
-            {/* Email CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="flex flex-col gap-3"
-            >
-              <span className="font-mono text-xs text-[#E2E2EC]/40 tracking-[0.4em] uppercase">Primary Channel</span>
-              <MagneticButton
-                href="mailto:123kevinlio@gmail.com"
-                className="group inline-flex items-center gap-4 font-mono text-base md:text-xl text-[#00F5FF] hover:text-[#07070F] hover:bg-[#00F5FF] px-5 py-3 border border-[#00F5FF]/40 transition-all duration-300 self-start"
-                style={{ fontFamily: "var(--font-mono)" }}
-              >
-                <span>123KEVINLIO@GMAIL.COM</span>
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </MagneticButton>
-            </motion.div>
-
-            {/* Divider vertical */}
-            <div className="hidden md:block w-[1px] bg-[#E2E2EC]/10 mx-12" />
-
-            {/* Social links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.15 }}
-              className="flex flex-col gap-3"
-            >
-              <span className="font-mono text-xs text-[#E2E2EC]/40 tracking-[0.4em] uppercase">Networks</span>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { name: 'Github',    url: 'https://github.com/treehey',                      accent: '#39FF14' },
-                  { name: 'Instagram', url: 'https://www.instagram.com/tree_hey/',              accent: '#FF2D78' },
-                  { name: 'Facebook',  url: 'https://www.facebook.com/chihei.lio',              accent: '#00F5FF' },
-                ].map((link, li) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                    transition={{ delay: 0.2 + li * 0.08 }}
-                  >
-                    <MagneticButton
-                      href={link.url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 font-mono text-sm uppercase tracking-widest border px-4 py-2.5 transition-all duration-300 hover:text-[#07070F]"
-                      style={{
-                        color: link.accent,
-                        borderColor: `${link.accent}40`,
-                        backgroundColor: `${link.accent}0D`,
-                      }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: link.accent }} />
-                      {link.name}
-                    </MagneticButton>
-                  </motion.div>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 items-center">
+              
+              {/* Left: Email Primary */}
+              <div className="flex flex-col gap-6 min-w-0">
+                <span className="font-mono text-[10px] text-foreground/30 tracking-[0.3em] uppercase block">{t.contact.channel}</span>
+                <MagneticButton
+                  href="mailto:123kevinlio@gmail.com"
+                  className="group flex flex-nowrap items-center gap-3 sm:gap-4 text-sm sm:text-lg lg:text-xl text-foreground/90 hover:text-foreground transition-all duration-300 w-full whitespace-nowrap"
+                  style={{ fontFamily: "var(--font-mono)", flexWrap: "nowrap" }}
+                >
+                  <span className="border-b border-foreground/20 group-hover:border-foreground/60 pb-1 transition-colors duration-500 truncate inline-block flex-1 min-w-0">123KEVINLIO@GMAIL.COM</span>
+                  <div className="relative shrink-0 w-8 h-8 rounded-full border border-foreground/10 flex items-center justify-center bg-foreground/5 group-hover:scale-110 group-hover:bg-foreground transition-all duration-500">
+                    <svg className="w-4 h-4 text-foreground group-hover:text-background transition-colors duration-500 rotate-45 group-hover:rotate-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </div>
+                </MagneticButton>
               </div>
-            </motion.div>
-          </div>
+
+              {/* Right: Socials */}
+              <div className="flex flex-col gap-6 md:pl-12 md:border-l md:border-foreground/5">
+                <span className="font-mono text-[10px] text-foreground/30 tracking-[0.3em] uppercase block">{t.contact.networks}</span>
+                <div className="flex flex-col gap-4">
+                  {[
+                    { name: 'Github',    url: 'https://github.com/treehey' },
+                    { name: 'Instagram', url: 'https://www.instagram.com/tree_hey/' },
+                    { name: 'Facebook',  url: 'https://www.facebook.com/chihei.lio' },
+                  ].map((link, li) => (
+                    <motion.div
+                      key={link.name}
+                      initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                      transition={{ delay: 0.2 + li * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <MagneticButton
+                        href={link.url} target="_blank" rel="noopener noreferrer"
+                        className="group flex items-center justify-between py-2 text-foreground/50 hover:text-foreground transition-colors duration-500"
+                      >
+                        <span className="font-syne font-semibold text-lg tracking-wide">{link.name}</span>
+                        <span className="font-mono text-[10px] tracking-widest opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">↗ OPEN</span>
+                      </MagneticButton>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
         </div>
 
-        {/* Footer strip */}
-        <div className="relative w-full border-t border-[#E2E2EC]/10 px-6 md:px-12 py-4 flex items-center justify-between">
-          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">© 2026 TREEHEY — ALL RIGHTS RESERVED</span>
-          <span className="font-mono text-[10px] text-[#E2E2EC]/25 tracking-widest relative z-10">BUILT WITH NEXT.JS + FRAMER MOTION</span>
+        {/* Footer strip - Cleaned up to max minimalism */}
+        <div className="w-full mt-auto border-t border-foreground/5 px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10 text-center">
+          <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">© 2026 TREE HEY. ALL RIGHTS RESERVED.</span>
+          <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
         </div>
       </section>
 
@@ -1900,5 +1956,6 @@ export default function Home() {
     </main>
   );
 }
+
 
 

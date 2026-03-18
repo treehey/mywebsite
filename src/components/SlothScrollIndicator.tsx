@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
 
 export const SlothScrollIndicator = () => {
@@ -23,38 +23,36 @@ export const SlothScrollIndicator = () => {
   };
 
   return (
-    <div className="fixed right-2 md:right-6 top-0 h-screen w-12 z-50 pointer-events-none">
-      {/* The Vine (Line) */}
+    <div className="fixed right-2 md:right-6 top-[10vh] h-[80vh] w-12 z-50 pointer-events-none flex justify-center">
+      {/* ── Background Track ── */}
+      <div className="absolute top-0 bottom-0 w-[1px] bg-white/[0.05]" />
+      
+      {/* ── Active Scroll Line ── */}
       <motion.div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] opacity-100 mix-blend-screen"
-        style={{ 
-          height: yPosition,
-          background: "linear-gradient(to bottom, transparent 0%, rgba(0, 245, 255, 0.4) 50%, rgba(0, 245, 255, 1) 100%)",
-          boxShadow: "0 0 15px rgba(0, 245, 255, 0.8), 0 0 0px rgba(0, 245, 255, 0)"
-        }}
+        className="absolute top-0 w-[1px] bg-white opacity-40 mix-blend-screen origin-top"
+        style={{ scaleY: smoothProgress }}
       />
       
-      {/* Sloth / Dot */}
+      {/* ── Sloth / Dot ── */}
       <motion.div
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer pointer-events-auto flex items-center justify-center w-12 h-12 mt-[-24px]"
+        className="absolute cursor-pointer pointer-events-auto flex items-center justify-center w-12 h-12 mt-[-24px]"
         style={{ top: yPosition }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onClick={scrollToTop}
-        title="Click to scroll to top"
+        title="Scroll to top"
       >
         <AnimatePresence mode="wait">
           {!isHovered ? (
             <motion.div
               key="dot"
-              className="w-2 h-2 rounded-full absolute"
+              className="w-1.5 h-1.5 rounded-full absolute bg-white"
               initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
+              animate={{ opacity: 0.6, scale: 1 }}
               exit={{ opacity: 0, scale: 0 }}
               transition={{ duration: 0.2 }}
               style={{
-                background: "rgba(0, 245, 255, 1)",
-                boxShadow: "0 0 8px rgba(0, 245, 255, 0.9), 0 0 20px rgba(0, 245, 255, 0.4)",
+                boxShadow: "0 0 10px rgba(255,255,255,0.3)"
               }}
             />
           ) : (
@@ -62,12 +60,12 @@ export const SlothScrollIndicator = () => {
               key="sloth"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
-              className="w-8 h-8 absolute"
-              fill="#00F5FF"
-              style={{ filter: "drop-shadow(0 0 6px rgba(0,245,255,0.8))", opacity: 0.9 }}
-              initial={{ opacity: 0, scale: 0.5, rotate: -20 }}
-              animate={{ opacity: 1, scale: 1.2, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.5, rotate: -20 }}
+              className="w-8 h-8 absolute text-white"
+              fill="currentColor"
+              style={{ opacity: 0.9, filter: "drop-shadow(0 0 8px rgba(255,255,255,0.3))" }}
+              initial={{ opacity: 0, x: 20, scale: 0.5, rotate: -20 }}
+              animate={{ opacity: 1, x: 0, scale: 1.2, rotate: 0 }}
+              exit={{ opacity: 0, x: 20, scale: 0.5, rotate: -20 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <g><g>

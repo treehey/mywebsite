@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
 @layer base {
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
@@ -7,129 +12,150 @@
   .lenis.lenis-stopped { overflow: hidden; }
 }
 
-body {
-  background-color: #07070F;
-  color: #E2E2EC;
-  overflow-x: clip;
+@layer utilities {
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2.5s infinite linear;
+  }
 }
 
-::-webkit-scrollbar { width: 0; background: transparent; }
+:root {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+}
 
-/* ── FONT ALIASES ── */
+html.light {
+  --background: #f4f4f5;
+  --foreground: #0a0a0a;
+  /* Override Tailwind v4's implicit white/black behavior so utilities flip automatically */
+  --color-white: #0a0a0a;
+  --color-black: #fafafa;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar for a cleaner look */
+::-webkit-scrollbar { width: 0; background: transparent; display: none; }
+
+/* Dark mode overrides */
+.always-dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  color: var(--foreground);
+}
+
+/*  FONT ALIASES  */
 .font-syne    { font-family: var(--font-syne),   system-ui, sans-serif; }
 .font-grotesk { font-family: var(--font-grotesk), system-ui, sans-serif; }
 .font-mono    { font-family: var(--font-mono),   monospace; }
 
-/* ── NEON GLOW ── */
-.glow-cyan  { text-shadow: 0 0 12px rgba(0,245,255,0.8), 0 0 40px rgba(0,245,255,0.4); }
-.glow-pink  { text-shadow: 0 0 12px rgba(255,45,120,0.8), 0 0 40px rgba(255,45,120,0.4); }
-.glow-green { text-shadow: 0 0 12px rgba(57,255,20,0.8),  0 0 40px rgba(57,255,20,0.4);  }
+/*  PREMIUM ANIMATIONS & UTILS  */
 
-.box-glow-cyan  { box-shadow: 0 0 20px rgba(0,245,255,0.2),  inset 0 0 20px rgba(0,245,255,0.04); }
-.box-glow-pink  { box-shadow: 0 0 20px rgba(255,45,120,0.2), inset 0 0 20px rgba(255,45,120,0.04); }
-
-/* ── NEON CARD ── */
-.neon-card {
-  background: rgba(14,14,28,0.9);
-  border: 1px solid rgba(0,245,255,0.15);
-  transition: border-color 0.4s, box-shadow 0.4s;
-}
-.neon-card:hover {
-  border-color: rgba(0,245,255,0.5);
-  box-shadow: 0 0 28px rgba(0,245,255,0.12), inset 0 0 28px rgba(0,245,255,0.04);
+/* Text mask reveal wrapper */
+.reveal-mask {
+  overflow: hidden;
+  display: inline-block;
+  line-height: 1.1;
+  vertical-align: top;
 }
 
-/* ── SCANLINE OVERLAY ── */
-.scanlines::after {
-  content: '';
-  position: absolute;
+/* Ambient Grain / Noise overlay */
+.bg-noise {
+  position: fixed;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.07) 2px,
-    rgba(0,0,0,0.07) 4px
-  );
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
   pointer-events: none;
-  z-index: 1;
-  border-radius: inherit;
+  background-image: url("data:image/svg+xml;utf8,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.75\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E");
+  opacity: 0.04;
+  mix-blend-mode: overlay;
 }
 
-/* ── WAVEFORM ANIMATION ── */
-@keyframes waveScroll {
-  to { stroke-dashoffset: -300px; }
-}
-.waveform-line {
-  stroke-dasharray: 10px 5px;
-  animation: waveScroll 2.5s linear infinite;
-}
-.waveform-line-fast {
-  stroke-dasharray: 6px 3px;
-  animation: waveScroll 1.4s linear infinite;
+/* Glassmorphism panel */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* ── MARQUEE ── */
-@keyframes marquee-fwd { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
-@keyframes marquee-rev { from { transform: translateX(-50%); } to { transform: translateX(0); }    }
-.marquee-track         { animation: marquee-fwd 22s linear infinite; }
-.marquee-track-reverse { animation: marquee-rev 22s linear infinite; }
+/* Magnetic Button Base */
+.magnetic-wrap {
+  display: inline-block;
+  position: relative;
+}
 
-/* ── RGB TITLE LINES ── */
-.rgb-r {
+/* Marquee infinite scroll */
+@keyframes marquee-fwd { 
+  from { transform: translateX(0); }    
+  to { transform: translateX(-50%); } 
+}
+.marquee-track { 
+  animation: marquee-fwd 25s linear infinite; 
+  will-change: transform;
+}
+
+/* Link hover line reveal */
+.hover-underline {
+  position: relative;
+}
+.hover-underline::after {
+  content: "";
   position: absolute;
-  inset: 0;
-  color: #FF2D78;
-  mix-blend-mode: screen;
-  opacity: 0.65;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: currentColor;
+  transform-origin: bottom right;
+  transition: transform 0.4s cubic-bezier(0.86, 0, 0.07, 1);
 }
-.rgb-b {
-  position: absolute;
-  inset: 0;
-  color: #00F5FF;
-  mix-blend-mode: screen;
-  opacity: 0.65;
-}
-
-/* ── TIMELINE GLOW LINE ── */
-.tl-line {
-  background: linear-gradient(to bottom, #00F5FF 0%, #FF2D78 50%, #39FF14 100%);
-  box-shadow: 0 0 14px rgba(0,245,255,0.55), 0 0 40px rgba(0,245,255,0.25);
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
 }
 
-/* ── CURSOR RING ── */
-.cursor-trail {
-  background: radial-gradient(circle, rgba(0,245,255,0.25) 0%, transparent 70%);
+/*  MINECRAFT MODE  */
+@font-face {
+  font-family: 'Zpix';
+  src: url('/fonts/zpix.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
-/* ── GLITCH KEYFRAMES (for hero badge) ── */
-@keyframes badge-glitch {
-  0%,90%,100% { transform: translate(0,0); opacity: 1; }
-  92%          { transform: translate(-3px, 1px); opacity: 0.7; clip-path: polygon(0 30%,100% 30%,100% 55%,0 55%); }
-  94%          { transform: translate(3px,-1px);  opacity: 0.9; clip-path: polygon(0 0,100% 0,100% 100%,0 100%); }
-  96%          { transform: translate(-2px, 2px); opacity: 0.6; clip-path: polygon(0 60%,100% 60%,100% 80%,0 80%); }
-}
-.badge-glitch {
-  animation: badge-glitch 6s ease-in-out infinite;
-}
-
-/* ── MINECRAFT MODE ── */
 html.minecraft-mode {
   filter: contrast(1.2) saturate(1.6) brightness(0.92);
 }
 html.minecraft-mode *:not(.mc-exempt) {
-  font-family: var(--font-minecraft), monospace !important;
+  font-family: var(--font-minecraft), "Zpix", monospace !important;
   letter-spacing: 0.02em;
 }
 html.minecraft-mode img {
   image-rendering: pixelated;
 }
-/* Minecraft-style drop shadow on text */
 html.minecraft-mode h1, html.minecraft-mode h2,
 html.minecraft-mode h3, html.minecraft-mode h4 {
   text-shadow: 3px 3px 0 rgba(0,0,0,0.6);
 }
-/* Minecraft GUI panel border */
 .mc-panel {
   background: rgba(12, 12, 20, 0.92);
   border: 3px solid #555;
@@ -139,7 +165,6 @@ html.minecraft-mode h3, html.minecraft-mode h4 {
     3px 3px 0 #000;
   image-rendering: pixelated;
 }
-/* Nav bar in minecraft mode — fix baseline shift only, don't change size */
 html.minecraft-mode header * {
   line-height: 1 !important;
   vertical-align: middle !important;
@@ -149,135 +174,23 @@ html.minecraft-mode header button {
   display: inline-flex !important;
   align-items: center !important;
 }
-
-/* XP bar animation */
 @keyframes xp-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.7; }
 }
 .mc-xp-bar { animation: xp-pulse 2s ease-in-out infinite; }
 
-/* ── LIGHT MODE INVERT ── */
-html.light {
-  filter: invert(1) hue-rotate(180deg);
-}
-html.light img,
-html.light video,
-html.light .no-invert {
-  filter: invert(1) hue-rotate(180deg);
-}
 
-/* Darkroom image custom filter */
-img.darkroom-img {
-  filter: var(--darkroom-filter);
-}
-html.light img.darkroom-img {
-  filter: var(--darkroom-filter) invert(1) hue-rotate(180deg);
-}
-
-
-/* Background Noise */
-.bg-noise {
-  background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-  opacity: 0.04;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
-
-/* 3D Cyberpunk Grid */
-.cyber-grid {
-  position: absolute;
-  width: 200vw;
-  height: 200vh;
-  bottom: -50vh;
-  left: -50vw;
-  /* Use a completely smooth grid gradient to prevent sub-pixel flicker */
-  background-image: 
-    linear-gradient(to right, rgba(0, 245, 255, 0.25) 2px, transparent 4px),
-    linear-gradient(to top, rgba(0, 245, 255, 0.25) 2px, transparent 4px);
-  background-size: 150px 150px;
-  transform: perspective(600px) rotateX(70deg) translateY(-150px) translateZ(-200px);
-  animation: gridMove 10s linear infinite;
-  pointer-events: none;
-  z-index: 0;
-  /* Hardware acceleration hints to prevent sub-pixel jitter */
-  transform-style: preserve-3d;
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-@media (max-width: 768px) {
-  .cyber-grid {
-    display: none;
-  }
-}
-
-.cyber-grid-overlay {
-  position: absolute;
-  inset: 0;
-  /* Make the fade starts much earlier and ends completely opaque at the horizon */
-  background: linear-gradient(
-    to bottom,
-    #07070F 0%,
-    #07070F 35%,
-    transparent 80%,
-    transparent 100%
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-@keyframes gridMove {
-  0% { transform: perspective(600px) rotateX(70deg) translateY(0) translateZ(-200px); }
-  100% { transform: perspective(600px) rotateX(70deg) translateY(150px) translateZ(-200px); }
-}
-
-/* ── DANMAKU SCROLL ── */
-@keyframes danmaku-scroll {
+@keyframes danmaku {
   from { transform: translateX(100vw); }
-  to   { transform: translateX(-100%); }
+  to { transform: translateX(-100%); }
 }
 .danmaku-item {
-  left: 0;
-  animation-name: danmaku-scroll;
+  animation-name: danmaku;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+  will-change: transform;
+  left: 0;
 }
 
-/* ── TIMELINE VERTICAL LINE PULSE ── */
-@keyframes linePulse {
-  0%, 100% { opacity: 0.3; }
-  50%       { opacity: 1; }
-}
-.tl-vertical-line {
-  animation: linePulse 3s ease-in-out infinite;
-}
 
-/* ── EDITORIAL SECTION BORDER HOVER ── */
-.editorial-row {
-  transition: background-color 0.4s;
-}
-.editorial-row:hover {
-  background-color: rgba(0, 245, 255, 0.02);
-}
-
-/* ── CONTACT CTA HOVER STATE ── */
-.contact-link-pill {
-  transition: background-color 0.3s, color 0.3s, transform 0.3s;
-}
-.contact-link-pill:hover {
-  transform: translateY(-2px);
-}
-
-/* ── GUESTBOOK STICKY NOTES ── */
-.sticky-note {
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.35s ease;
-}
-.sticky-note:hover > div {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--note-color, #00F5FF) 20%, transparent),
-    0 12px 48px rgba(0,0,0,0.7),
-    inset 0 1px 0 color-mix(in srgb, var(--note-color, #00F5FF) 35%, transparent) !important;
-}

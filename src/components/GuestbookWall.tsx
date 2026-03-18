@@ -62,11 +62,11 @@ const TL_GW: Record<string, Record<string, string>> = {
 };
 
 const ACCENT_COLORS = [
-  "#00F5FF", // Cyan
-  "#FF2D78", // Pink
-  "#9D4EDD", // Purple 
-  "#39FF14", // Neon Green
-  "#48CAE4", // Soft Tech Blue
+  "#FFFFFF",    // Pure White
+  "#E5E7EB",    // Light Gray
+  "#9CA3AF",    // Medium Gray
+  "#D1D5DB",    // Slate Gray
+  "#F3F4F6",    // Off White
 ];
 
 /* Random transforms using id as seed (deterministic) */
@@ -97,8 +97,30 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
   const [nickname, setNickname]     = useState("");
   const [status, setStatus]         = useState<"idle" | "sending" | "done" | "err">("idle");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
+    // 监听鼠标创建全局动态打光角度与位置
+    const handlePointerMove = (e: PointerEvent) => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const cx = rect.width / 2;
+        const cy = rect.height / 2;
+        
+        // 计算从鼠标指向屏幕中心的角度，用于模拟光的投射方向
+        // atan2(dx, dy) 其中 CSS 的 0deg 是朝上，顺时针递增
+        const lightDeg = Math.atan2(cx - x, y - cy) * (180 / Math.PI);
+        
+        sectionRef.current.style.setProperty("--mx", `${x}px`);
+        sectionRef.current.style.setProperty("--my", `${y}px`);
+        sectionRef.current.style.setProperty("--light-deg", `${lightDeg}deg`);
+      }
+    };
+    window.addEventListener("pointermove", handlePointerMove);
+
     // 监听来自 DanmakuSystem 表单提交后的即时通知
     const onNew = (e: Event) => {
       const entry = (e as CustomEvent<GuestEntry>).detail;
@@ -106,7 +128,12 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
     };
     window.addEventListener("guestbook:new", onNew);
 
-    if (!supabase) return () => window.removeEventListener("guestbook:new", onNew);
+    if (!supabase) {
+      return () => {
+        window.removeEventListener("pointermove", handlePointerMove);
+        window.removeEventListener("guestbook:new", onNew);
+      };
+    }
 
     supabase
       .from("guestbook")
@@ -127,6 +154,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
       .subscribe();
 
     return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("guestbook:new", onNew);
       supabase?.removeChannel(channel);
     };
@@ -180,19 +208,41 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
   const wallHeight = Math.ceil(entries.length / cols) * 350 + 220;
 
   return (
-    <section className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden">
+    <section 
+      ref={sectionRef}
+      className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden"
+    >
+      {/* 大面积环境动态光效（Dynamic Broad Sunlight） */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
+        {/* 屏幕泛光核心：光源跟随鼠标，并投射到大环境 */}
+        <div 
+          className="absolute inset-0 transition-opacity duration-500 ease-out"
+          style={{
+            background: `radial-gradient(120vw 120vh at calc(var(--mx, 50vw)) calc(var(--my, 50vh)), rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 30%, transparent 80%)`,
+          }}
+        />
+        {/* 动态斜向大面积光幕：不再是光带，而是纯粹的方向性环境光洗刷 */}
+        <div 
+          className="absolute left-[-50%] top-[-50%] w-[200%] h-[200%] transition-transform duration-[800ms] ease-out mix-blend-screen pointer-events-none"
+          style={{
+            background: `linear-gradient(var(--light-deg, 135deg), rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 20%, transparent 50%)`,
+            transform: `translate(calc((var(--mx, 50vw) - 50vw) * 0.1), calc((var(--my, 50vh) - 50vh) * 0.1))`,
+          }}
+        />
+      </div>
+
       {/* Background grid */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
 
       {/* Ambient glow blobs */}
-      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FF2D78" }} />
-      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#00F5FF" }} />
+      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FFFFFF" }} />
+      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#FFFFFF" }} />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
@@ -203,15 +253,15 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10"
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[#FF2D78] mb-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-foreground mb-4">
             GUESTBOOK
           </p>
           <div className="flex items-end justify-between gap-6 flex-wrap">
             <div>
-              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-[#E2E2EC] leading-[1] mb-4">
+              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-foreground leading-[1] mb-4">
                 {tr.title}
               </h2>
-              <p className="font-grotesk text-[#E2E2EC]/40 text-base max-w-sm">
+              <p className="font-grotesk text-foreground/40 text-base max-w-sm">
                 {tr.subtitle}
               </p>
             </div>
@@ -222,14 +272,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
               onClick={() => { setShowForm(v => !v); setTimeout(() => textareaRef.current?.focus(), 80); }}
               className="flex items-center gap-2 px-5 py-3 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 shrink-0"
               style={{
-                background: showForm ? "rgba(255,45,120,0.12)" : "rgba(14,14,28,0.88)",
-                borderColor: showForm ? "rgba(255,45,120,0.5)" : "rgba(0,245,255,0.35)",
-                color: showForm ? "#FF2D78" : "#00F5FF",
+                background: showForm ? "rgba(255,255,255,0.1)" : "rgba(5,5,5,0.8)",
+                borderColor: showForm ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)",
+                color: showForm ? "#FFFFFF" : "#FFFFFF",
                 backdropFilter: "blur(14px)",
-                boxShadow: showForm ? "0 0 24px rgba(255,45,120,0.15)" : "0 0 24px rgba(0,245,255,0.1)",
+                boxShadow: showForm ? "0 0 24px rgba(255,255,255,0.15)" : "0 0 24px rgba(255,255,255,0.05)",
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: showForm ? "#FF2D78" : "#00F5FF" }} />
+              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: showForm ? "#FFFFFF" : "#FFFFFF" }} />
               {showForm ? tr.closeBtn : tr.writeBtn}
             </motion.button>
           </div>
@@ -248,18 +298,18 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
               <div
                 className="rounded-[1.5rem] p-6 md:p-8 max-w-xl"
                 style={{
-                  background: "rgba(7,7,15,0.94)",
-                  border: "1px solid rgba(255,45,120,0.2)",
+                  background: "rgba(10,10,10,0.95)",
+                  border: "1px solid rgba(255,255,255,0.1)",
                   backdropFilter: "blur(24px)",
-                  boxShadow: "0 0 50px rgba(255,45,120,0.06), 0 24px 64px rgba(0,0,0,0.7)",
+                  boxShadow: "0 0 50px rgba(255,255,255,0.02), 0 24px 64px rgba(0,0,0,0.7)",
                 }}
               >
                 <div className="flex flex-col gap-5">
                   {/* Message (required) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#FF2D78]">{tr.msgLabel}</label>
-                      <span className="font-mono text-[10px] text-[#E2E2EC]/30">{messageText.length}/150</span>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground">{tr.msgLabel}</label>
+                      <span className="font-mono text-[10px] text-foreground/30">{messageText.length}/150</span>
                     </div>
                     <textarea
                       ref={textareaRef}
@@ -268,14 +318,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       maxLength={150}
                       rows={3}
                       placeholder={tr.msgPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-[#FF2D78] rounded-lg p-3 resize-none transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-foreground placeholder-foreground/25 outline-none border border-foreground/10 focus:border-foreground rounded-lg p-3 resize-none transition-colors duration-300"
                     />
                   </div>
                   {/* Danmaku title (optional) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#00F5FF]">{tr.dmkLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
-                      <span className="font-mono text-[10px] text-[#E2E2EC]/30">{titleText.length}/30</span>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground">{tr.dmkLabel} <span className="text-foreground/30">{tr.optional}</span></label>
+                      <span className="font-mono text-[10px] text-foreground/30">{titleText.length}/30</span>
                     </div>
                     <input
                       type="text"
@@ -284,20 +334,20 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       onKeyDown={e => e.key === "Enter" && handleSubmit()}
                       maxLength={30}
                       placeholder={tr.dmkPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-[#00F5FF] pb-2 transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-foreground placeholder-foreground/25 outline-none border-b border-foreground/20 focus:border-foreground pb-2 transition-colors duration-300"
                     />
                   </div>
                   {/* Nickname + submit */}
                   <div className="flex items-end gap-4">
                     <div className="flex-1">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#39FF14] mb-2 block">{tr.nickLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground mb-2 block">{tr.nickLabel} <span className="text-foreground/30">{tr.optional}</span></label>
                       <input
                         type="text"
                         value={nickname}
                         onChange={e => setNickname(e.target.value)}
                         maxLength={20}
                         placeholder={tr.nickPlaceholder}
-                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-[#39FF14] pb-2 transition-colors duration-300"
+                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-foreground placeholder-foreground/25 outline-none border-b border-foreground/10 focus:border-foreground pb-2 transition-colors duration-300"
                       />
                     </div>
                     <button
@@ -305,9 +355,9 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       disabled={!messageText.trim() || status === "sending"}
                       className="flex items-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-300 disabled:opacity-40 active:scale-95 shrink-0"
                       style={{
-                        background: status === "done" ? "rgba(57,255,20,0.15)" : "rgba(255,45,120,0.12)",
-                        border: `1px solid ${status === "done" ? "rgba(57,255,20,0.5)" : "rgba(255,45,120,0.4)"}`,
-                        color: status === "done" ? "#39FF14" : "#FF2D78",
+                        background: status === "done" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)",
+                        border: `1px solid ${status === "done" ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.4)"}`,
+                        color: status === "done" ? "#FFFFFF" : "#FFFFFF",
                       }}
                     >
                       {status === "sending" && <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />}
@@ -330,7 +380,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
         {/* Empty state */}
         {entries.length === 0 && (
           <div className="text-center py-32">
-            <p className="font-mono text-[#E2E2EC]/20 text-sm">{tr.empty}</p>
+            <p className="font-mono text-foreground/20 text-sm">{tr.empty}</p>
           </div>
         )}
       </div>
@@ -377,12 +427,25 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
   const noteW   = isFew ? 340 : isMedium ? 290 : 230;
   const textSize = isFew ? "text-base" : "text-sm";
 
-  // Tape angle varies per note
-  const tapeAngle = ((id * 41 + 13) % 14) - 7;
-  const tapeOffX  = ((id * 53 + 7) % 60) - 30; // tape can be off-center
-
   const [isFocused, setIsFocused] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Calculate angle from center of the card to the mouse
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const deg = Math.atan2(cx - x, y - cy) * (180 / Math.PI);
+    
+    cardRef.current.style.setProperty("--card-x", `${x}px`);
+    cardRef.current.style.setProperty("--card-y", `${y}px`);
+    cardRef.current.style.setProperty("--card-deg", `${deg}deg`);
+  };
 
   return (
     <motion.div
@@ -397,13 +460,14 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
       whileHover={{ scale: 1.06, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
       whileTap={{ scale: 1.01, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
       onPointerEnter={() => setHasInteracted(true)}
+      onMouseMove={handleMouseMove}
       onClick={() => {
         setHasInteracted(true);
         setIsFocused(!isFocused);
       }}
       viewport={{ once: true, margin: "80px" }}
       transition={{ type: 'spring', stiffness: 480, damping: 22, delay: hasInteracted ? 0 : delay }}
-      className="absolute cursor-pointer"
+      className="absolute cursor-pointer group"
       style={{
         left: cols === 1 ? `${leftPct}%` : `clamp(10px, ${leftPct}%, calc(100% - ${noteW}px - 10px))`,
         top: `${topPx}px`,
@@ -412,60 +476,69 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
         zIndex: isFocused ? 1000 : initialZIndex,
       }}
     >
-      {/* Tape strip — positioned off-center with rotation */}
       <div
-        className="absolute -top-4 z-10 w-14 h-6"
+        ref={cardRef}
+        className="relative p-7 rounded-[26px] overflow-hidden shadow-2xl transition-all duration-700 ease-out"
         style={{
-          left: `calc(50% + ${tapeOffX}px)`,
-          transform: `translateX(-50%) rotate(${tapeAngle}deg)`,
-          background: "linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08), rgba(255,255,255,0.18))",
-          backdropFilter: "blur(4px)",
-          borderRadius: "1px",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.1)",
-        }}
-      />
-
-      <div
-        className="relative p-5 rounded-md overflow-hidden"
-        style={{
-          // More visible, slightly warm dark card bg — clearly distinct from page bg
-          background: `linear-gradient(145deg, rgba(32,28,52,0.97) 0%, rgba(18,16,36,0.99) 100%)`,
-          borderTop: `3px solid ${accentColor}`,
-          border: `1.5px solid ${accentColor}44`,
-          backdropFilter: "blur(16px)",
+          // 液态高透玻璃核心 (Liquid High-Transmittance Glassmorphism)
+          background: `linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)`,
+          border: `1px solid rgba(255, 255, 255, 0.05)`,
+          backdropFilter: "blur(36px) saturate(200%)",
           boxShadow: `
-            0 16px 40px rgba(0,0,0,0.7),
-            0 4px 12px rgba(0,0,0,0.5),
-            0 0 0 1px rgba(255,255,255,0.04),
-            inset 0 1px 0 rgba(255,255,255,0.1),
-            0 0 30px ${accentColor}22
+            0 40px 80px -10px rgba(0,0,0,0.8),
+            inset 0 1px 2px rgba(255,255,255,0.25),
+            inset 0 -1px 2px rgba(0,0,0,0.4)
           `,
         }}
       >
-        {/* Subtle paper noise */}
-        <div
-          className="absolute inset-0 opacity-[0.04] pointer-events-none"
-          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')" }}
+        {/* 液态溢出色散（Liquid Accent Bleed） */}
+        <div 
+          className="absolute inset-x-0 -top-10 h-20 opacity-40 group-hover:opacity-100 transition-opacity duration-700 blur-[20px] mix-blend-screen pointer-events-none"
+          style={{ background: `radial-gradient(ellipse at center, ${accentColor} 0%, transparent 70%)` }}
         />
 
-        {/* Accent tint wash */}
-        <div
-          className="absolute inset-0 opacity-[0.06] pointer-events-none rounded-md"
-          style={{ background: `radial-gradient(ellipse at top left, ${accentColor}, transparent 70%)` }}
+        {/* 顶部超润霓虹边缘 (Ultra-smooth top neon edge) */}
+        <div 
+          className="absolute top-0 left-0 w-full h-[1.5px] opacity-80 group-hover:opacity-100 transition-all duration-700"
+          style={{
+            background: `linear-gradient(90deg, transparent 0%, ${accentColor} 30%, ${accentColor} 70%, transparent 100%)`,
+            boxShadow: `0 2px 20px 2px ${accentColor}80`,
+          }}
         />
 
+        {/* 动态球形焦散 + 折射切角 (Liquid Caustics & Refraction mapping to mouse) */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 mix-blend-screen" 
+             style={{ 
+               background: `
+                 radial-gradient(500px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.15) 0%, transparent 40%),
+                 radial-gradient(300px circle at var(--card-x, 50%) var(--card-y, 50%), ${accentColor}20 0%, transparent 50%),
+                 linear-gradient(var(--card-deg, var(--light-deg, 135deg)), rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 20%, transparent 50%)
+               ` 
+             }} />
+
+        {/* Subtle noise -> Refined to digital grain */}
+        <div
+          className="absolute inset-0 opacity-[0.015] pointer-events-none z-0 mix-blend-overlay"
+          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')" }}
+        />
+
+        {/* Highlight inner border on hover */}
+        <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 transition-colors duration-500 rounded-2xl pointer-events-none z-10" />
+
+        {/* Content */}
         <p
-          className={`relative z-10 font-grotesk text-[#E8E8F0] leading-relaxed tracking-wide mb-4 break-words ${textSize}`}
-          style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}
+          className={`relative z-10 font-grotesk text-foreground/85 group-hover:text-foreground transition-colors duration-500 leading-loose tracking-wide mb-6 break-words ${textSize}`}
         >
           {entry.message}
         </p>
 
-        <div className="relative z-10 flex items-center justify-between pt-3 border-t" style={{ borderColor: `${accentColor}30` }}>
-          <span className="font-mono text-xs font-semibold tracking-wider" style={{ color: accentColor }}>
-            {entry.nickname ?? tr.anon}
-          </span>
-          <span className="font-mono text-[10px] text-[#E2E2EC]/50">
+        <div className="relative z-10 flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/40 group-hover:text-foreground/70 transition-colors duration-500 uppercase">
+              {entry.nickname ?? tr.anon}
+            </span>
+          </div>
+          <span className="font-mono text-[10px] tracking-wider text-foreground/30 group-hover:text-foreground/50 transition-colors duration-500">
             {formatDate(entry.created_at)}
           </span>
         </div>
@@ -473,4 +546,5 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
     </motion.div>
   );
 }
+
 

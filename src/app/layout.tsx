@@ -31,7 +31,7 @@ const pressStart = Press_Start_2P({
 
 export const metadata: Metadata = {
   title: "TREE HEY",
-  description: "Developer × Photographer. Macau → Nanjing University.",
+  description: "Developer  Photographer. Macau  Nanjing University.",
   icons: { icon: process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/favicon.png` : "/favicon.png" },
 };
 
@@ -39,9 +39,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body
-        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} bg-[#07070F] text-[#E2E2EC] antialiased selection:bg-[#00F5FF]/20 selection:text-[#00F5FF] overflow-x-clip`}
+        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} antialiased selection:bg-white/20 selection:text-white overflow-x-clip`}
         style={{ fontFamily: "var(--font-grotesk), system-ui, sans-serif" }}
       >
+        <div className="bg-noise" />
         <LoadingScreen />
         <SlothScrollIndicator />
         <SmoothScroll>{children}</SmoothScroll>
