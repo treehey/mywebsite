@@ -183,8 +183,8 @@ function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttri
   const mouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const { clientX, clientY } = e;
     const { width, height, left, top } = ref.current!.getBoundingClientRect();
-    const x = clientX - (left + width / 2);
-    const y = clientY - (top + height / 2);
+    const x = (clientX - (left + width / 2)) * 0.15; // 降低移动强度系数，不要让它“飞出去”
+    const y = (clientY - (top + height / 2)) * 0.15;
     setPosition({ x, y });
   };
 
@@ -198,10 +198,11 @@ function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttri
       onMouseMove={mouseMove as any}
       onMouseLeave={mouseLeave}
       animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}   
+      transition={{ type: "spring", stiffness: 100, damping: 10, mass: 0.5 }} // 更柔和的弹性物理阻尼
       className={className}
+      {...(props.style ? { style: props.style } : {})}
     >
-      <a {...props} className="w-full h-full block">    
+      <a {...props} className="w-full h-full flex items-center justify-between pointer-events-auto" style={{...props.style}}>    
         {children}
       </a>
     </motion.div>
@@ -220,7 +221,7 @@ const DICT = {
     gallery: { m1: "I DON'T JUST", m2: "WRITE CODE.", m3: "I ENGINEER", m4: "EMOTIONS.", photos: [ "Mong Kok · Neon & Dust", "Lujiazui · Urban Spine", "Love Post Office · Letter", "Panda · Gentle Power" ] },
     skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Computer Sys. · Hardware & Software", "Front-End · Website Design", "Python · Proficiency", "Office Suite · Advanced Mastery", "Photography · Foodie / Life" ] },
     timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
-    contact: { sub: "Connect.exe", t1: "INITIATE", t2: "HANDSHAKE." },
+    contact: { sub: "COLLABORATION", t1: "LET'S CREATE", t2: "TOGETHER.", channel: "PRIMARY CHANNEL", networks: "NETWORKS" },
     marquee: "SOFTWARE ENGINEERING — CREATIVE CODING — SLOTH — "
   },
   '简': {
@@ -231,7 +232,7 @@ const DICT = {
     gallery: { m1: "我不仅仅", m2: "编写代码。", m3: "我更在", m4: "编织情绪。", photos: [ "旺角 · 霓虹与尘埃", "陆家嘴 · 城市脊梁", "爱情邮局 · 一纸情书", "大熊猫 · 温柔力量" ] },
     skills: { title1: "系统", title2: "概览", items: [ "计算机系统 · 软硬件与Linux", "前端开发 · 现代网站设计", "Python · 代码与运行熟练", "Office 套件 · 深度精通", "人文纪实 · 摄影与干饭热爱" ] },
     timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
-    contact: { sub: "连接.exe", t1: "传输", t2: "信号。" },
+    contact: { sub: "合作与联系", t1: "探索未知，", t2: "共同创造。", channel: "主要通道", networks: "社交网络" },
     marquee: "现代软件工程 — 创意编程与体验架构 — 树懒 — "
   },
   '繁': {
@@ -242,7 +243,7 @@ const DICT = {
     gallery: { m1: "我不僅僅", m2: "編寫代碼。", m3: "我更在", m4: "編織情緒。", photos: [ "旺角 · 霓虹與塵埃", "陸家嘴 · 城市脊梁", "愛情郵局 · 一紙情書", "大熊貓 · 溫柔力量" ] },
     skills: { title1: "系統", title2: "概覽", items: [ "計算機系統 · 軟硬件與Linux", "前端開發 · 現代網站設計", "Python · 代碼與運行熟練", "Office 套件 · 深度精通", "人文紀實 · 攝影與乾飯熱愛" ] },
     timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
-    contact: { sub: "連接.exe", t1: "傳輸", t2: "信號。" },
+    contact: { sub: "合作與聯繫", t1: "探索未知，", t2: "共同創造。", channel: "主要通道", networks: "社交網絡" },
     marquee: "現代軟件工程 — 創意編程與體驗架構 — 樹懶 — "
   }
 };
@@ -513,7 +514,8 @@ export default function Home() {
 
   // Contact headline scrub reveal
   const { scrollYProgress: contactProgress } = useScroll({ target: contactSectionRef, offset: ['start 90%', 'center 50%'] });
-  const contactHeadX       = useTransform(contactProgress, [0, 1], [100, 0]);
+  const contactHeadX       = useTransform(contactProgress, [0, 1], [300, 0]); // 原来只有100太短了，放大到300
+  const contactHeadY       = useTransform(contactProgress, [0, 1], [150, 0]); // 加上一点Y轴的上浮配合
   const contactHeadOpacity = useTransform(contactProgress, [0, 0.3], [0, 1]);
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
@@ -1777,99 +1779,122 @@ export default function Home() {
         </section>
 
       {/* ════════════════════════════════════
-          4. CONTACT — Immersive Terminal
+          4. CONTACT — Immersive Glass Hub
       ════════════════════════════════════ */}
-      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-screen flex flex-col bg-transparent border-t border-[#E2E2EC]/10 overflow-hidden">
+      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-[90vh] flex flex-col bg-transparent overflow-hidden">
         
+        {/* Soft immersive top separator */}
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#E2E2EC]/10 to-transparent" />
+        
+        {/* Environmental Deep Space Lighting at bottom center - Amped up visibility & width */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0" 
+             style={{ background: 'radial-gradient(ellipse at bottom, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 40%, transparent 70%)', filter: 'blur(80px)' }} />
+
         {/* Section label row */}
-        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <span className="font-mono text-xs text-neutral-500 tracking-[0.5em] uppercase">{t.contact.sub}</span>
-          <span className="font-mono text-xs text-white/30 tracking-widest">§ FIN — HANDSHAKE</span>
+        <div className="w-full px-6 md:px-12 py-5 flex items-center justify-between relative z-10">
+          <span className="font-mono text-[10px] text-neutral-500 tracking-[0.6em] uppercase">{t.contact.sub}</span>
+          <span className="font-mono text-[10px] text-white/20 tracking-widest">§ FIN</span>
         </div>
 
-        {/* Giant headline */}
-        <div className="flex-1 flex flex-col justify-center px-6 md:px-12 lg:px-20 py-20 md:py-28 relative">
+        {/* Giant headline & HUB */}
+        <div className="flex-1 flex flex-col justify-center items-center px-6 md:px-12 lg:px-20 py-16 relative z-10">
           
-          {/* Ambient blobs */}
-          <div className="absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full bg-white/[0.01] blur-[120px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] rounded-full bg-white/[0.02] blur-[100px] pointer-events-none" />
-
           <motion.h2
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-            className="font-syne font-black leading-[0.85]  mb-16 relative z-10"
-            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3rem, 12vw, 10rem)", x: contactHeadX, opacity: contactHeadOpacity }}
+            className="font-syne font-black leading-[0.9] text-center mb-24 cursor-default group relative overflow-hidden"
+            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3.5rem, 12vw, 11rem)", x: contactHeadX, y: contactHeadY, opacity: contactHeadOpacity }}
           >
-            {t.contact.t1}<br />
-            <span
-              className="text-transparent hover:text-white transition-colors duration-700"
-              style={{ WebkitTextStroke: "1px rgba(255,255,255,0.4)" }}
-            >
-              {t.contact.t2}
+            <span className="text-[#E2E2EC] block tracking-tighter transition-colors duration-700 group-hover:text-white relative z-10">{t.contact.t1}</span>
+            <span className="relative block tracking-tighter z-10">
+              <span className="text-transparent bg-clip-text transition-all duration-700 block"
+                    style={{ 
+                      backgroundImage: "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 100%)",
+                      WebkitTextFillColor: "transparent",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text"
+                    }}>
+                {t.contact.t2}
+              </span>
+              <span className="absolute inset-0 z-20 text-transparent bg-clip-text pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[length:200%_100%] animate-shimmer block"
+                    style={{
+                      backgroundImage: "linear-gradient(90deg, transparent 0%, transparent 40%, rgba(255,255,255,0.9) 50%, transparent 60%, transparent 100%)",
+                      WebkitTextFillColor: "transparent",
+                      WebkitBackgroundClip: "text",
+                      backgroundClip: "text"
+                    }}>
+                {t.contact.t2}
+              </span>
             </span>
           </motion.h2>
 
-          {/* Grid divider */}
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-8 md:gap-0 border-t border-[#E2E2EC]/10 pt-10">
+          {/* Liquid Glass Contact Container */}
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full max-w-4xl rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 relative overflow-hidden"
+            style={{
+              background: `linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)`,
+              border: `1px solid rgba(255, 255, 255, 0.05)`,
+              backdropFilter: "blur(40px) saturate(150%)",
+              boxShadow: `0 30px 60px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 1px rgba(0,0,0,0.3)`,
+            }}
+          >
+            {/* Inner top highlight line for glass thickness */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
-            {/* Email CTA */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7 }}
-              className="flex flex-col gap-3"
-            >
-              <span className="font-mono text-xs text-white/40 tracking-[0.4em] uppercase">Primary Channel</span>
-              <MagneticButton
-                href="mailto:123kevinlio@gmail.com"
-                className="group inline-flex items-center gap-4 font-mono text-base md:text-xl text-white hover:text-[#07070F] hover:bg-white px-5 py-3 border border-white/20 transition-all duration-300 self-start"
-                style={{ fontFamily: "var(--font-mono)" }}
-              >
-                <span>123KEVINLIO@GMAIL.COM</span>
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-              </MagneticButton>
-            </motion.div>
-
-            {/* Divider vertical */}
-            <div className="hidden md:block w-[1px] bg-[#E2E2EC]/10 mx-12" />
-
-            {/* Social links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.15 }}
-              className="flex flex-col gap-3"
-            >
-              <span className="font-mono text-xs text-white/40 tracking-[0.4em] uppercase">Networks</span>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  { name: 'Github',    url: 'https://github.com/treehey',                      accent: 'rgba(255,255,255,0.7)' },
-                  { name: 'Instagram', url: 'https://www.instagram.com/tree_hey/',              accent: 'rgba(255,255,255,0.7)' },
-                  { name: 'Facebook',  url: 'https://www.facebook.com/chihei.lio',              accent: 'rgba(255,255,255,0.7)' },
-                ].map((link, li) => (
-                  <motion.div
-                    key={link.name}
-                    initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
-                    transition={{ delay: 0.2 + li * 0.08 }}
-                  >
-                    <MagneticButton
-                      href={link.url} target="_blank" rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 font-mono text-sm uppercase tracking-widest border px-4 py-2.5 transition-all duration-300 hover:text-[#07070F]"
-                      style={{
-                        color: link.accent,
-                        borderColor: `${link.accent}40`,
-                        backgroundColor: `${link.accent}0D`,
-                      }}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: link.accent }} />
-                      {link.name}
-                    </MagneticButton>
-                  </motion.div>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 items-center">
+              
+              {/* Left: Email Primary */}
+              <div className="flex flex-col gap-6 min-w-0">
+                <span className="font-mono text-[10px] text-white/30 tracking-[0.3em] uppercase block">{t.contact.channel}</span>
+                <MagneticButton
+                  href="mailto:123kevinlio@gmail.com"
+                  className="group flex flex-nowrap items-center gap-3 sm:gap-4 text-sm sm:text-lg lg:text-xl text-white/90 hover:text-white transition-all duration-300 w-full whitespace-nowrap"
+                  style={{ fontFamily: "var(--font-mono)", flexWrap: "nowrap" }}
+                >
+                  <span className="border-b border-white/20 group-hover:border-white/60 pb-1 transition-colors duration-500 truncate inline-block flex-1 min-w-0">123KEVINLIO@GMAIL.COM</span>
+                  <div className="relative shrink-0 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:scale-110 group-hover:bg-white transition-all duration-500">
+                    <svg className="w-4 h-4 text-white group-hover:text-black transition-colors duration-500 rotate-45 group-hover:rotate-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </div>
+                </MagneticButton>
               </div>
-            </motion.div>
-          </div>
+
+              {/* Right: Socials */}
+              <div className="flex flex-col gap-6 md:pl-12 md:border-l md:border-white/5">
+                <span className="font-mono text-[10px] text-white/30 tracking-[0.3em] uppercase block">{t.contact.networks}</span>
+                <div className="flex flex-col gap-4">
+                  {[
+                    { name: 'Github',    url: 'https://github.com/treehey' },
+                    { name: 'Instagram', url: 'https://www.instagram.com/tree_hey/' },
+                    { name: 'Facebook',  url: 'https://www.facebook.com/chihei.lio' },
+                  ].map((link, li) => (
+                    <motion.div
+                      key={link.name}
+                      initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
+                      transition={{ delay: 0.2 + li * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <MagneticButton
+                        href={link.url} target="_blank" rel="noopener noreferrer"
+                        className="group flex items-center justify-between py-2 text-white/50 hover:text-white transition-colors duration-500"
+                      >
+                        <span className="font-syne font-semibold text-lg tracking-wide">{link.name}</span>
+                        <span className="font-mono text-[10px] tracking-widest opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">↗ OPEN</span>
+                      </MagneticButton>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </motion.div>
         </div>
 
-        {/* Footer strip */}
-        <div className="relative w-full border-t border-[#E2E2EC]/10 px-6 md:px-12 py-4 flex items-center justify-between">
-          <span className="font-mono text-[10px] /25 tracking-widest relative z-10">© 2026 TREEHEY — ALL RIGHTS RESERVED</span>
-          <span className="font-mono text-[10px] /25 tracking-widest relative z-10">BUILT WITH NEXT.JS + FRAMER MOTION</span>
+        {/* Footer strip - Cleaned up to max minimalism */}
+        <div className="w-full mt-auto border-t border-white/5 px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10 text-center">
+          <span className="font-mono text-[9px] text-white/20 tracking-[0.2em] uppercase">© 2026 TREE HEY. ALL RIGHTS RESERVED.</span>
+          <span className="font-mono text-[9px] text-white/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
         </div>
       </section>
 
