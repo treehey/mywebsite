@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
 import { DICT } from "@/lib/data";
 import { DanmakuSystem } from "@/components/DanmakuSystem";
 
@@ -9,7 +9,23 @@ const maskVariants = {
   visible: { y: "0%", transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as any } }
 };
 
-export default function Hero({ lang }: { lang: "EN" | "简" | "繁" }) {
+export default function Hero({ 
+  lang, 
+  slothMode, 
+  heroClickedSet = new Set(), 
+  heroExploding = new Set(), 
+  heroVectors = {}, 
+  onCharClick,
+  onSlothDismiss
+}: { 
+  lang: "EN" | "简" | "繁";
+  slothMode?: boolean;
+  heroClickedSet?: Set<string>;
+  heroExploding?: Set<string>;
+  heroVectors?: Record<string, { x: number; y: number; rotate: number }>;
+  onCharClick?: (wIdx: number, charIdx: number) => void;
+  onSlothDismiss?: () => void;
+}) {
   const t = DICT[lang].hero;
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
@@ -48,18 +64,54 @@ export default function Hero({ lang }: { lang: "EN" | "简" | "繁" }) {
         {/* Main Title with subtle 3D / Magnetic Follow */}
         <motion.div 
           style={{ x: springX, y: springY }}
-          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap"
+          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-10"
         >
-          <div className="reveal-mask overflow-hidden pt-4 -mt-4">
-            <motion.div variants={maskVariants} initial="hidden" animate="visible" className="flex items-center gap-4">
-              TREE
-            </motion.div>
-          </div>
-          <div className="reveal-mask overflow-hidden">
-            <motion.div variants={maskVariants} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
-              HEY.
-            </motion.div>
-          </div>
+          {slothMode ? (
+            <div className="flex">
+              {"SLOTH".split("").map((ch, i) => {
+                const v = heroVectors[`sloth-${i}`] ?? { x: 0, y: -200, rotate: 0 };
+                return (
+                  <motion.div
+                    key={`sloth-${i}`}
+                    className="relative inline-block overflow-visible"
+                    initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
+                    animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 190, damping: 16, delay: i * 0.08 }}
+                  >
+                    <span className="text-foreground">{ch}</span>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <>
+              {['TREE', 'HEY.'].map((word, wIdx) => (
+                <div key={word} className={`reveal-mask overflow-hidden ${wIdx === 0 ? 'pt-4 -mt-4' : ''}`}>
+                  <motion.div variants={maskVariants} initial="hidden" animate="visible" transition={{ delay: wIdx * 0.1 }} className="flex items-center">
+                    {word.split("").map((ch, i) => {
+                      const isLetter = /[A-Z]/.test(ch);
+                      const key = `${wIdx}-${i}`;
+                      const isExploding = heroExploding.has(key);
+                      const isClicked = heroClickedSet.has(key);
+                      const v = heroVectors[key] ?? { x: (Math.random() - 0.5) * 400, y: -200, rotate: 45 };
+
+                      return (
+                        <motion.span
+                          key={i}
+                          onClick={() => isLetter && onCharClick && onCharClick(wIdx, i)}
+                          animate={isExploding ? { x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 1.5 } : { x: 0, y: 0, rotate: 0, opacity: isClicked ? 0.3 : 1, scale: 1 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
+                          className={`inline-block text-foreground ${isLetter ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                        >
+                          {ch}
+                        </motion.span>
+                      );
+                    })}
+                  </motion.div>
+                </div>
+              ))}
+            </>
+          )}
         </motion.div>
 
         {/* Info Box */}
@@ -85,6 +137,32 @@ export default function Hero({ lang }: { lang: "EN" | "简" | "繁" }) {
           </div>
         </motion.div>
       </div>
+
+      {/* ── Sloth Easter Egg Mascot ── */}
+      <AnimatePresence>
+        {slothMode && (
+          <motion.div
+            key="sloth-mascot"
+            className="absolute bottom-24 right-6 md:right-12 z-20 select-none cursor-pointer group"
+            initial={{ y: 280, x: 40, rotate: 12, opacity: 0 }}
+            animate={{ y: 0, x: 0, rotate: 0, opacity: 1 }}
+            exit={{ y: 280, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 40, damping: 12, delay: 0.55 }}
+            onClick={onSlothDismiss}
+          >
+            <motion.img
+              src={process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/sloth_color.png` : "/sloth_color.png"}
+              alt="sloth"
+              className="w-32 md:w-48 lg:w-60 drop-shadow-[0_0_30px_rgba(255,255,255,0.25)] group-hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.5)] transition-all duration-300"
+              animate={{ rotate: [0, -3, 2, -1, 0] }}
+              transition={{ rotate: { repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 1.2 } }}
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 font-mono text-[9px] text-white/0 group-hover:text-white/50 tracking-widest transition-colors duration-300 whitespace-nowrap pointer-events-none">
+              click to dismiss
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Decorative Grid / Scroll hint */}
       <motion.div 

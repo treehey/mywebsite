@@ -165,7 +165,7 @@ function MinecraftHUD({ onExit }: { onExit: () => void }) {
       <button
         onClick={onExit}
         className="mt-1 text-[7px] text-foreground/50 hover:text-foreground/90 tracking-widest transition-colors mc-exempt"
-        style={{ fontFamily: 'var(--font-minecraft), monospace' }}
+        style={{ fontFamily: 'var(--font-minecraft), "Zpix", monospace' }}
       >
         [ ESC ] EXIT MINECRAFT MODE
       </button>
@@ -1151,7 +1151,19 @@ export default function Home() {
         
       </div>
 
-      <Hero lang={lang as any} />
+      <Hero
+        lang={lang as any}
+        slothMode={slothMode}
+        heroClickedSet={heroClickedSet}
+        heroExploding={heroExploding}
+        heroVectors={heroVectorsRef.current}
+        onCharClick={handleHeroCharClick}
+        onSlothDismiss={() => {
+          setSlothMode(false);
+          setHeroClickedSet(new Set());
+          setHeroExploding(new Set());
+        }}
+      />
 
       {/* ════════════════════════════════════
           1.5 ABOUT / INTERACTIVE IDENTITY
