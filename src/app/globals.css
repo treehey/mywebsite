@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
 @layer base {
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
@@ -27,6 +32,14 @@
   --foreground: #fafafa;
 }
 
+html.light {
+  --background: #f4f4f5;
+  --foreground: #0a0a0a;
+  /* Override Tailwind v4's implicit white/black behavior so utilities flip automatically */
+  --color-white: #0a0a0a;
+  --color-black: #fafafa;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -37,6 +50,15 @@ body {
 
 /* Hide scrollbar for a cleaner look */
 ::-webkit-scrollbar { width: 0; background: transparent; display: none; }
+
+/* Dark mode overrides */
+.always-dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  color: var(--foreground);
+}
 
 /*  FONT ALIASES  */
 .font-syne    { font-family: var(--font-syne),   system-ui, sans-serif; }

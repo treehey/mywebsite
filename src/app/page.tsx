@@ -164,7 +164,7 @@ function MinecraftHUD({ onExit }: { onExit: () => void }) {
       {/* ESC hint */}
       <button
         onClick={onExit}
-        className="mt-1 text-[7px] text-white/50 hover:text-white/90 tracking-widest transition-colors mc-exempt"
+        className="mt-1 text-[7px] text-foreground/50 hover:text-foreground/90 tracking-widest transition-colors mc-exempt"
         style={{ fontFamily: 'var(--font-minecraft), monospace' }}
       >
         [ ESC ] EXIT MINECRAFT MODE
@@ -308,33 +308,33 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
     <section ref={sectionRef} id="timeline" className="relative bg-transparent py-24 md:py-32 overflow-hidden">
 
       {/* Section Header */}
-      <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
-        <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-white/50" style={{ fontFamily: "var(--font-syne)" }}>
+      <div className="w-full border-b border-foreground/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
+        <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
           {t.timeline.title}
         </h2>
-        <span className="font-mono text-xs text-white/30 tracking-widest hidden md:block">§ 00{TIMELINE.length} ENTRIES</span>
+        <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">§ 00{TIMELINE.length} ENTRIES</span>
       </div>
 
       {/* Background large year ghost */}
-      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-white/[0.02] pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)" }}>
+      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-foreground pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)", opacity: 0.03 }}>
         LOG
       </div>
 
       <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
         {/* Dim background line */}
-        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-white/5" />
+        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-foreground/5" />
         {/* Signal particle */}
         <motion.div
-          className="absolute w-[5px] h-[5px] rounded-full pointer-events-none z-20 bg-white"
+          className="absolute w-[5px] h-[5px] rounded-full pointer-events-none z-20 bg-foreground"
           style={{
             left: 'calc(1.5rem + 16px - 2px)', // minus half of 5px (-2.5 ~ -2)
             top: '4rem',
             y: particleY,
-            boxShadow: '0 0 10px 2px rgba(255,255,255,0.4)',
+            boxShadow: '0 0 10px 2px color-mix(in srgb, var(--foreground) 40%, transparent)',
           }}
         />
 
-        <div className="flex flex-col gap-0 border-t border-white/[0.03]">
+        <div className="flex flex-col gap-0 border-t border-foreground/[0.03]">
           {TIMELINE.map((node, i) => {
             const item = t.timeline.items[i];
             return (
@@ -343,17 +343,17 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
                 initial={{ opacity: 0, y: 20 }}
                 animate={visible[i] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-start gap-6 md:gap-14 group border-b border-white/[0.03] py-8 md:py-14 relative hover:bg-white/[0.02] transition-colors duration-700"
+                className="flex items-start gap-6 md:gap-14 group border-b border-foreground/[0.03] py-8 md:py-14 relative hover:bg-foreground/[0.02] transition-colors duration-700"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
                 {/* Dot */}
                 <div className="relative flex-shrink-0 flex flex-col items-center pt-2 md:pt-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-white/20 transition-all duration-500 group-hover:scale-150 group-hover:bg-white group-hover:shadow-[0_0_15px_rgba(255,255,255,0.5)] z-10 relative" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-foreground/20 transition-all duration-500 group-hover:scale-150 group-hover:bg-foreground group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_50%,transparent)] z-10 relative" />
                 </div>
 
                 {/* Year */}
                 <div className="flex-shrink-0 w-16 md:w-24 pt-1">
-                  <span className="font-mono text-lg md:text-2xl text-white/50 group-hover:text-white transition-colors duration-500">
+                  <span className="font-mono text-lg md:text-2xl text-foreground/50 group-hover:text-foreground transition-colors duration-500">
                     {node.year}
                   </span>
                 </div>
@@ -362,18 +362,18 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
                 <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0">
                   <div className="flex-1">
                     <h3 
-                      className="font-syne font-black text-2xl md:text-4xl leading-none mb-3 text-white/80 group-hover:text-white group-hover:translate-x-3 transition-all duration-500"
+                      className="font-syne font-black text-2xl md:text-4xl leading-none mb-3 text-foreground/80 group-hover:text-foreground group-hover:translate-x-3 transition-all duration-500"
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       {item.label}
                     </h3>
-                    <p className="font-mono text-sm text-white/40 group-hover:text-white/60 tracking-wider transition-colors duration-500 max-w-sm">
+                    <p className="font-mono text-sm text-foreground/40 group-hover:text-foreground/60 tracking-wider transition-colors duration-500 max-w-sm">
                       {item.detail}
                     </p>
                   </div>
 
                   {/* Thumbnail Container */}
-                  <div className="w-28 h-18 md:w-48 md:h-32 rounded flex-shrink-0 overflow-hidden border border-white/5 group-hover:border-white/20 transition-all duration-700 md:ml-auto relative shadow-lg group-hover:shadow-2xl">
+                  <div className="w-28 h-18 md:w-48 md:h-32 rounded flex-shrink-0 overflow-hidden border border-foreground/5 group-hover:border-foreground/20 transition-all duration-700 md:ml-auto relative shadow-lg group-hover:shadow-2xl">
                     <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700" />
                     <img 
                       src={node.img} 
@@ -387,9 +387,9 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
 
                 {/* Milestone badge */}
                 <div 
-                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border border-white/10 bg-white/5 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0 text-white/50 group-hover:text-white/80"
+                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border border-foreground/10 bg-foreground/5 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0 text-foreground/50 group-hover:text-foreground/80"
                 >
-                  <span className="w-1 h-1 rounded-full bg-white/60 animate-pulse" />
+                  <span className="w-1 h-1 rounded-full bg-foreground/60 animate-pulse" />
                   MILESTONE_{String(i + 1).padStart(2, '0')}
                 </div>
               </motion.div>
@@ -936,14 +936,14 @@ export default function Home() {
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
                   {/* Shadow layer for dark backgrounds */}
                   <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="rgba(0,0,0,0.55)" strokeWidth="4" />
+                    stroke="color-mix(in srgb, var(--foreground) 55%, transparent)" strokeWidth="4" />
                   <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="rgba(0,0,0,0.4)" strokeWidth="3.5" strokeDasharray="10 6" />
-                  {/* White line on top */}
+                    stroke="color-mix(in srgb, var(--foreground) 40%, transparent)" strokeWidth="3.5" strokeDasharray="10 6" />
+                  {/* Line on top */}
                   <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="rgba(255,255,255,0.95)" strokeWidth="1.5" />
+                    stroke="color-mix(in srgb, var(--background) 95%, transparent)" strokeWidth="1.5" />
                   <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeDasharray="10 6" />
+                    stroke="color-mix(in srgb, var(--background) 70%, transparent)" strokeWidth="1.5" strokeDasharray="10 6" />
                 </svg>
               )}
             </motion.div>
@@ -956,8 +956,10 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full bg-white/5 backdrop-blur-2xl ring-1 ring-inset ring-white/10 w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
+        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
       >
+        <div className="absolute inset-0 bg-foreground/5 backdrop-blur-2xl rounded-full z-[-1] border border-foreground/[0.05]" />
+        
         {/* Logo + active section index */}
         <div className="shrink-0 flex items-end gap-1.5">
           <a
@@ -965,12 +967,12 @@ export default function Home() {
             onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             onMouseEnter={() => setCursorBig(true)}
             onMouseLeave={() => setCursorBig(false)}
-            className="font-syne font-bold text-lg text-white tracking-widest hover:opacity-60 transition-opacity cursor-pointer"
+            className="font-syne font-bold text-lg text-foreground tracking-widest hover:opacity-60 transition-opacity cursor-pointer"
             style={{ fontFamily: "var(--font-syne)" }}
           >
             TH
           </a>
-          <span className="font-mono text-[9px] text-white/20 mb-[3px] leading-none tabular-nums">
+          <span className="font-mono text-[9px] text-foreground/20 mb-[3px] leading-none tabular-nums">
             {activeIdx >= 0 ? <RollingNumber value={activeIdx + 1} /> : "·"}
           </span>
         </div>
@@ -992,13 +994,13 @@ export default function Home() {
               <FlipText
                 text={item.label}
                 className={`${lang === 'EN' ? 'font-mono text-[11px] tracking-widest' : 'font-syne font-semibold text-[12px] tracking-[0.08em]'} uppercase transition-opacity duration-300 ${
-                  activeSection === item.id ? 'text-white' : 'text-white/40'
+                  activeSection === item.id ? 'text-foreground' : 'text-foreground/40'
                 }`}
               />
               {activeSection === item.id && (
                 <motion.div
                   layoutId="nav-line"
-                  className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-white"
+                  className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-foreground"
                   transition={{ type: "spring", stiffness: 380, damping: 32 }}
                 />
               )}
@@ -1010,21 +1012,21 @@ export default function Home() {
         <div className="flex flex-1 justify-center md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/40 hover:text-white transition-colors px-3 py-1"
+            className="font-mono text-[10px] tracking-[0.25em] uppercase text-foreground/40 hover:text-foreground transition-colors px-3 py-1"
           >
             {mobileMenuOpen ? 'CLOSE' : 'MENU'}
           </button>
         </div>
 
         {/* Toggles */}
-        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-white/10 pl-4 md:pl-5">
+        <div className="shrink-0 flex items-center gap-3 md:gap-4 border-l border-foreground/10 pl-4 md:pl-5">
           <button
             aria-label="Toggle Theme"
             data-theme-btn="true"
             onPointerDown={handleThemePointerDown}
             onPointerMove={handleThemePointerMove}
             onPointerUp={handleThemePointerUp}
-            className="text-white/50 hover:text-white text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
+            className="text-foreground/50 hover:text-foreground text-xs md:text-sm transition-colors touch-none select-none cursor-grab active:cursor-grabbing"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             {theme === 'dark' ? (
@@ -1036,7 +1038,7 @@ export default function Home() {
           <div className="relative flex items-center">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className={`p-1 transition-colors ${langOpen ? 'text-white' : 'text-white/35 hover:text-white'}`}
+              className={`p-1 transition-colors ${langOpen ? 'text-foreground' : 'text-foreground/35 hover:text-foreground'}`}
               onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               aria-label="Toggle Language"
             >
@@ -1049,18 +1051,20 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col bg-white/10 backdrop-blur-2xl border border-white/10 rounded-xl p-2 min-w-[120px] shadow-[0_8px_32px_rgba(0,0,0,0.4)] origin-bottom-right md:origin-top z-[1000]"
+                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col rounded-2xl p-2 min-w-[120px] origin-bottom-right md:origin-top z-[1000] border border-foreground/10 shadow-xl text-foreground bg-foreground/5 backdrop-blur-2xl"
                 >
                   {['EN', '简', '繁'].map(l => (
                     <button
                       key={l}
                       onClick={() => { setLang(l); setLangOpen(false); }}
                       className={`text-[11px] font-mono px-3 py-2.5 rounded-lg text-left transition-all flex items-center gap-2 ${
-                        lang === l ? 'bg-white/10 text-white font-bold' : 'text-white/50 hover:bg-white/5 hover:text-white'
+                        lang === l
+                          ? (theme === 'dark' ? 'bg-foreground/15 text-foreground font-bold' : 'bg-background/10 text-foreground font-bold')
+                          : (theme === 'dark' ? 'text-foreground/60 hover:bg-foreground/10 hover:text-foreground' : 'text-foreground/60 hover:bg-background/5 hover:text-foreground')
                       }`}
                       onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                     >
-                      {lang === l && <span className="w-1 h-1 rounded-full bg-white inline-block shrink-0" />}
+                      {lang === l && <span className={`w-1 h-1 rounded-full inline-block shrink-0 ${theme === 'dark' ? 'bg-foreground' : 'bg-foreground'}`} />}
                       {l === 'EN' ? 'English' : l === '简' ? '简体中文' : '繁體中文'}
                     </button>
                   ))}
@@ -1079,7 +1083,7 @@ export default function Home() {
             animate={{ opacity: 1, clipPath: "inset(0% 0% 0% 0%)" }}
             exit={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden fixed inset-0 z-[975] bg-transparent/97 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
+            className="md:hidden fixed inset-0 z-[975] bg-background/95 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
           >
             <nav className="flex flex-col flex-1 justify-center">
               {navItems.map((item, i) => (
@@ -1094,27 +1098,27 @@ export default function Home() {
                     setTimeout(() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }), 400);
                   }}
                   className={`group w-full py-4 flex items-center gap-4 border-b text-left transition-colors ${
-                    activeSection === item.id ? 'border-white/15' : 'border-white/[0.06]'
+                    activeSection === item.id ? 'border-foreground/15' : 'border-foreground/[0.06]'
                   }`}
                 >
-                  <span className="font-mono text-[11px] text-white/20 tabular-nums w-5 shrink-0 leading-none">
+                  <span className="font-mono text-[11px] text-foreground/20 tabular-nums w-5 shrink-0 leading-none">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <span
                     className={`font-syne font-black text-3xl uppercase tracking-tight transition-all duration-300 group-hover:translate-x-2 leading-none ${
-                      activeSection === item.id ? 'text-white' : 'text-white/45'
+                      activeSection === item.id ? 'text-foreground' : 'text-foreground/45'
                     }`}
                     style={{ fontFamily: "var(--font-syne)" }}
                   >
                     {item.label}
                   </span>
                   {activeSection === item.id && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white shrink-0" />
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-foreground shrink-0" />
                   )}
                 </motion.button>
               ))}
             </nav>
-            <p className="font-mono text-[10px] text-white/15 tracking-[0.3em] uppercase">
+            <p className="font-mono text-[10px] text-foreground/15 tracking-[0.3em] uppercase">
               TH // CREATIVE DEV
             </p>
           </motion.div>
@@ -1128,8 +1132,8 @@ export default function Home() {
         animate={{
           width: cursorBig ? 90 : 16,
           height: cursorBig ? 90 : 16,
-          backgroundColor: cursorBig ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,1)",
-          border: cursorBig ? "1px solid rgba(255,255,255,0.5)" : "none",
+          backgroundColor: cursorBig ? "color-mix(in srgb, var(--foreground) 5%, transparent)" : "var(--foreground)",
+          border: cursorBig ? "1px solid color-mix(in srgb, var(--foreground) 50%, transparent)" : "none",
           mixBlendMode: "difference" as const,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
@@ -1164,20 +1168,20 @@ export default function Home() {
         {/* Mouse spotlight */}
         <div
           className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(700px circle at ${aboutMouse.x}px ${aboutMouse.y}px, rgba(255,255,255,0.03), transparent 65%)` }}
+          style={{ background: `radial-gradient(700px circle at ${aboutMouse.x}px ${aboutMouse.y}px, color-mix(in srgb, var(--foreground) 3%, transparent), transparent 65%)` }}
         />
 
         {/* Row 1 — Section header with animated line */}
-        <div className="relative w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <span className="font-mono text-xs text-white tracking-[0.5em] uppercase text-white/80">{t.about.sub}</span>
+        <div className="relative w-full border-b border-[var(--color-white)]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <span className="font-mono text-xs tracking-[0.5em] uppercase text-foreground/80">{t.about.sub}</span>
           <div className="flex items-center gap-4">
             <motion.div
-              className="h-[1px] bg-gradient-to-r from-transparent to-white/20 origin-left"
+              className="h-[1px] bg-gradient-to-r from-transparent to-foreground/20 origin-left"
               initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
               transition={{ duration: 1.4, ease: "easeOut" }}
               style={{ width: "80px" }}
             />
-            <span className="font-mono text-xs /30 tracking-widest">§ 001 — IDENTITY</span>
+            <span className="font-mono text-xs text-foreground/30 tracking-widest">§ 001 — IDENTITY</span>
           </div>
         </div>
 
@@ -1199,7 +1203,7 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="md:mb-8 flex flex-col items-start md:items-end gap-2"
             >
-              <p className="font-grotesk text-sm md:text-base text-white/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split(".")[0]}.</p>
+              <p className="font-grotesk text-sm md:text-base text-foreground/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split(".")[0]}.</p>
             </motion.div>
           </div>
           <motion.h2
@@ -1208,7 +1212,7 @@ export default function Home() {
             viewport={{ once: true, margin: "0px" }}
             transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className={`font-syne font-black leading-[0.85] text-transparent uppercase cursor-default select-none whitespace-nowrap origin-bottom-right ${lang==="EN"?"text-[16vw] md:text-[13vw] lg:text-[13vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-[0.2em] pl-4"}`}
-            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px rgba(255,255,255,0.4)", x: aboutH2X }}
+            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px color-mix(in srgb, var(--color-white) 40%, transparent)", x: aboutH2X }}
           >
             {t.about.title2}
           </motion.h2>
@@ -1217,12 +1221,12 @@ export default function Home() {
         {/* ── BENTO PHOTO GRID ── */}
         {/* Desktop: 3-col × 2-row asymmetric  [ NJU(tall) | MC | Assoc ]
                                                [           | mbot | steam ] */}
-        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] border-t border-[#E2E2EC]/10 overflow-hidden"
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] border-t border-[var(--color-white)]/10 overflow-hidden text-foreground"
           style={{ gridTemplateRows: "minmax(260px,35vh) minmax(260px,35vh)" }}>
 
           {/* Cell A — NJU, spans 2 rows */}
           <div
-            className="relative md:row-span-2 overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 group"
+            className="relative md:row-span-2 overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 md:border-r border-foreground/10 group"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               setAboutImgMouse({ x: ((e.clientX - r.left) / r.width - 0.5) * 22, y: ((e.clientY - r.top) / r.height - 0.5) * 22 });
@@ -1242,23 +1246,23 @@ export default function Home() {
               />
               <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
                 style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/90 via-[#07070F]/20 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
             </motion.div>
             {/* Badge */}
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-neutral-500 bg-white/5 border border-white/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
             {/* Text overlay at bottom */}
             <motion.div
               initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}
               transition={{ duration: 0.9, delay: 0.45 }}
               className="absolute bottom-6 left-6 right-6 z-10"
             >
-              <p className="font-grotesk text-sm /75 leading-[1.75]">{t.about.p2}</p>
+              <p className="font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
             </motion.div>
           </div>
 
           {/* Cell B — Minecraft, top col 2 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-[#E2E2EC]/10 group cursor-pointer"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-foreground/10 group cursor-pointer"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             onClick={() => minecraftMode ? exitMinecraft() : enterMinecraft()}
             title={minecraftMode ? "点击退出 Minecraft 模式" : "点击进入 Minecraft 模式"}
@@ -1268,13 +1272,13 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.15}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-neutral-500 bg-white/5 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
           </div>
 
           {/* Cell C — Student Association, top col 3 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-[#E2E2EC]/10 group cursor-default"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-foreground/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             <DarkroomImage src={`${B}/images/about/student-association.jpg`} alt="Student Association"
@@ -1282,13 +1286,13 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.22}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-white bg-white/5 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
           </div>
 
           {/* Cell D — mbot robotics, bottom col 2 */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-[#E2E2EC]/10 group cursor-default"
+            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-foreground/10 group cursor-default"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
             <DarkroomImage src={`${B}/images/about/mbot.jpg`} alt="Robotics"
@@ -1296,8 +1300,8 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.1}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-neutral-500 bg-white/5 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
           </div>
 
           {/* Cell E — STEAM & IoT, bottom col 3 */}
@@ -1310,35 +1314,35 @@ export default function Home() {
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
               delay={0.18}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#07070F]/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-neutral-500 bg-white/5 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
           </div>
         </div>
 
         {/* ── Info band: p1 text | stat cards | tags ── */}
-        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] border-t border-[#E2E2EC]/10">
+        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] border-t border-foreground/10">
 
           {/* p1 paragraph */}
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.9 }}
-            className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 flex flex-col justify-center gap-5"
+            className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-foreground/10 flex flex-col justify-center gap-5"
           >
-            <p className="font-grotesk text-sm md:text-[15px] /58 leading-[1.9]">{t.about.p1}</p>
+            <p className="font-grotesk text-sm md:text-[15px] text-foreground/60 leading-[1.9]">{t.about.p1}</p>
           </motion.div>
 
           {/* Stat cards */}
-          <div className="border-b md:border-b-0 md:border-r border-[#E2E2EC]/10 p-6 md:p-8 flex flex-col justify-between gap-4">
+          <div className="border-b md:border-b-0 md:border-r border-foreground/10 p-6 md:p-8 flex flex-col justify-between gap-4">
             {[
-              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学", accent: "bg-white", grad: "from-white/10 to-transparent" },
-              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-white/70", grad: "from-white/5 to-transparent" },
-              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code", accent: "bg-white/50", grad: "from-white/5 to-transparent" },
+              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学", accent: "bg-foreground", grad: "from-foreground/10 to-transparent" },
+              { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-foreground/70", grad: "from-foreground/5 to-transparent" },
+              { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code", accent: "bg-foreground/50", grad: "from-foreground/5 to-transparent" },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.12 }}
-                className="group relative border border-transparent hover:border-white/10 p-3 -mx-3 rounded-sm transition-all duration-500 hover:bg-white/5 cursor-default overflow-hidden"
+                className="group relative border border-transparent hover:border-foreground/10 p-3 -mx-3 rounded-sm transition-all duration-500 hover:bg-foreground/5 cursor-default overflow-hidden"
               >
                 <div className={`absolute left-0 top-0 bottom-0 w-[2px] ${stat.accent} scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-bottom`} />
                 <div className={`absolute inset-0 bg-gradient-to-r ${stat.grad} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
@@ -1347,17 +1351,17 @@ export default function Home() {
                     animate={{ opacity: [0.4, 1, 0.4] }}
                     transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
                   />
-                  <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.4em]">{stat.label}</p>
+                  <p className="font-mono text-[10px] text-foreground/40 uppercase tracking-[0.4em]">{stat.label}</p>
                 </div>
-                <p className="font-syne font-bold text-lg md:text-xl text-white/80 group-hover:text-white transition-colors duration-300 pl-1 relative z-10" style={{ fontFamily: "var(--font-syne)" }}>{stat.val}</p>
-                <p className="font-mono text-[10px] text-transparent group-hover:text-white/40 transition-colors duration-300 mt-1 pl-1 tracking-widest relative z-10">→ {stat.sub}</p>
+                <p className="font-syne font-bold text-lg md:text-xl text-foreground/80 group-hover:text-foreground transition-colors duration-300 pl-1 relative z-10" style={{ fontFamily: "var(--font-syne)" }}>{stat.val}</p>
+                <p className="font-mono text-[10px] text-transparent group-hover:text-foreground/40 transition-colors duration-300 mt-1 pl-1 tracking-widest relative z-10">→ {stat.sub}</p>
               </motion.div>
             ))}
           </div>
 
           {/* Tags with animated progress bars */}
           <div className="p-6 md:p-8 flex flex-col justify-center gap-5">
-            <p className="font-mono text-[10px] text-white/40 uppercase tracking-[0.4em]">Modules</p>
+            <p className="font-mono text-[10px] text-foreground/40 uppercase tracking-[0.4em]">Modules</p>
             <div className="flex flex-col gap-5">
               {t.about.tags.map((tag, i) => {
                 return (
@@ -1369,15 +1373,15 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <motion.span
-                      className={`w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-white flex-shrink-0 transition-colors duration-500`}
+                      className={`w-1.5 h-1.5 rounded-full bg-foreground/40 group-hover:bg-foreground flex-shrink-0 transition-colors duration-500`}
                       animate={{ scale: [1, 1.4, 1] }}
                       transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.7 }}
                     />
-                    <span className="font-mono text-xs text-white/70 group-hover:text-white transition-colors duration-500 uppercase tracking-widest">{tag}</span>
+                    <span className="font-mono text-xs text-foreground/70 group-hover:text-foreground transition-colors duration-500 uppercase tracking-widest">{tag}</span>
                   </div>
-                  <div className="ml-4 h-[1px] bg-white/10 rounded-full overflow-hidden">
+                  <div className="ml-4 h-[1px] bg-foreground/10 rounded-full overflow-hidden">
                     <motion.div
-                      className={`h-full bg-white/60 group-hover:bg-white transition-colors duration-500`}
+                      className={`h-full bg-foreground/60 group-hover:bg-foreground transition-colors duration-500`}
                       initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
                       transition={{ duration: 1.1, delay: 0.4 + i * 0.15, ease: "easeOut" }}
                       style={{ transformOrigin: "left", width: `${[88, 92, 78][i]}%` }}
@@ -1391,7 +1395,7 @@ export default function Home() {
         </div>
 
         {/* ── System metrics ── */}
-        <div className="relative w-full border-t border-[#E2E2EC]/10 grid grid-cols-3">
+        <div className="relative w-full border-t border-foreground/10 grid grid-cols-3">
           {[
             { num: 50, suffix: "K+", label: lang === "EN" ? "LINES OF CODE" : "代码行数" },
             { num: 4,  suffix: "+",  label: lang === "EN" ? "YEARS BUILDING" : "年开发经验" },
@@ -1401,15 +1405,15 @@ export default function Home() {
               key={m.label}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className={`group px-6 md:px-10 py-6 md:py-8 flex flex-col gap-1 cursor-default${i < 2 ? " border-r border-[#E2E2EC]/10" : ""}`}
+              className={`group px-6 md:px-10 py-6 md:py-8 flex flex-col gap-1 cursor-default${i < 2 ? " border-r border-foreground/10" : ""}`}
             >
               <span
-                className="font-syne font-black text-3xl md:text-4xl text-white/80 group-hover:text-white transition-colors duration-500"
+                className="font-syne font-black text-3xl md:text-4xl text-foreground/80 group-hover:text-foreground transition-colors duration-500"
                 style={{ fontFamily: "var(--font-syne)" }}
               >
                 <CountUp to={m.num} suffix={m.suffix} />
               </span>
-              <span className="font-mono text-[10px] text-white/30 group-hover:text-white/60 transition-colors duration-500 uppercase tracking-[0.3em]">{m.label}</span>
+              <span className="font-mono text-[10px] text-foreground/30 group-hover:text-foreground/60 transition-colors duration-500 uppercase tracking-[0.3em]">{m.label}</span>
             </motion.div>
           ))}
         </div>
@@ -1418,19 +1422,19 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works" ref={worksContainerRef} className="relative z-10 w-full bg-[#0A0A14] [overflow:clip]">
+      <section id="works" ref={worksContainerRef} className="relative z-10 w-full bg-background [overflow:clip] text-foreground">
 
         {/* Section Header */}
-        <div className="w-full border-b border-[#E2E2EC]/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-white/50" style={{ fontFamily: "var(--font-syne)" }}>
+        <div className="w-full border-b border-foreground/10 px-6 md:px-12 py-5 flex items-center justify-between">
+          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
             {t.works.title1} {t.works.title2}
           </h2>
-          <span className="font-mono text-xs text-white/30 tracking-widest hidden md:block">{t.works.archive}</span>
+          <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">{t.works.archive}</span>
         </div>
 
         {/* ── Project Theater ── */}
         <div ref={worksRef} className="relative h-[200vh]">
-          <motion.div className="sticky top-0 h-screen overflow-hidden bg-[#0A0A14]"
+          <motion.div className="sticky top-0 h-screen overflow-hidden bg-background"
              style={{ scale: worksOverallScale, opacity: worksOverallOpacity, borderRadius: worksOverallBorder }}
           >
 
@@ -1448,34 +1452,34 @@ export default function Home() {
                     {/* Image — LEFT on even */}
                     <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1 group/img">
                       {/* Floating glowing orb */}
-                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-white/5 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-foreground/5 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
                         animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
                         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                       />
                       <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
                         animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
                         transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-[#0A0A14] pointer-events-none" />
-                      <div className="absolute inset-0 bg-[#0A0A14]/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
-                      <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background pointer-events-none" />
+                      <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
+                      <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
                     </div>
                     {/* Text — RIGHT on even */}
                     <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-2">
                       <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
+                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
                         <RollingNumber value={1} />
                       </span>
                       <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
                         style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
                         <span className="relative z-10">{wi.tag}</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
                       </span>
                       <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
-                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl leading-[1.05] mb-5 hover:text-white/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl leading-[1.05] mb-5 hover:text-foreground/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
                           <BlurFocusText text={wi.title} trigger={active} />
                         </h3>
                       </a>
-                      <motion.p className="font-grotesk text-sm md:text-base /60 max-w-md leading-relaxed mb-8 relative"
+                      <motion.p className="font-grotesk text-sm md:text-base text-foreground/60 max-w-md leading-relaxed mb-8 relative"
                         animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
                         transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
                         {wi.desc}
@@ -1483,9 +1487,9 @@ export default function Home() {
                       <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
                         animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
                         transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <div className="absolute -inset-4 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase /60 group-hover/cta:text-white transition-colors duration-300 relative z-10">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F] group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-foreground/0 via-foreground/5 to-foreground/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-foreground/60 group-hover/cta:text-foreground transition-colors duration-300 relative z-10">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-foreground/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-foreground group-hover/cta:border-foreground group-hover/cta:-rotate-45 group-hover/cta:text-background group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_color-mix(in srgb, var(--foreground) 30%, transparent)] relative z-10">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </div>
                       </motion.a>
@@ -1501,25 +1505,25 @@ export default function Home() {
               {(() => {
                 const wm = WORKS_META[1]; const wi = t.works.items[1]; const active = activeWork === 1;
                 return (
-                  <div className="relative w-full h-full flex flex-col md:flex-row bg-[#0A0A14]"
+                  <div className="relative w-full h-full flex flex-col md:flex-row bg-background"
                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                     {/* Text — LEFT on odd */}
                     <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-1">
                       <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px rgba(255,255,255,0.04)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
+                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
                         <RollingNumber value={2} />
                       </span>
                       <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
                         style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
                         <span className="relative z-10">{wi.tag}</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
                       </span>
                       <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
-                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5 hover:text-white/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5 hover:text-foreground/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
                           <BlurFocusText text={wi.title} trigger={active} />
                         </h3>
                       </a>
-                      <motion.p className="font-grotesk text-sm md:text-base /60 max-w-md leading-relaxed mb-8 relative"
+                      <motion.p className="font-grotesk text-sm md:text-base text-foreground/60 max-w-md leading-relaxed mb-8 relative"
                         animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
                         transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
                         {wi.desc}
@@ -1527,9 +1531,9 @@ export default function Home() {
                       <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
                         animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
                         transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <div className="absolute -inset-4 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase /60 group-hover/cta:text-white transition-colors duration-300 relative z-10">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-white group-hover/cta:border-white group-hover/cta:-rotate-45 group-hover/cta:text-[#07070F] group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_rgba(255,255,255,0.3)] relative z-10">
+                        <div className="absolute -inset-4 bg-gradient-to-r from-foreground/0 via-foreground/5 to-foreground/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
+                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-foreground/60 group-hover/cta:text-foreground transition-colors duration-300 relative z-10">{t.works.view}</span>
+                        <div className="w-11 h-11 rounded-full border border-foreground/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-foreground group-hover/cta:border-foreground group-hover/cta:-rotate-45 group-hover/cta:text-background group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_color-mix(in srgb, var(--foreground) 30%, transparent)] relative z-10">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </div>
                       </motion.a>
@@ -1546,9 +1550,9 @@ export default function Home() {
                       <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
                         animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
                         transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
-                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-[#0A0A14] pointer-events-none" />
-                      <div className="absolute inset-0 bg-[#0A0A14]/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
-                      <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-white/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
+                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background pointer-events-none" />
+                      <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
+                      <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
                     </div>
                   </div>
                 );
@@ -1561,7 +1565,7 @@ export default function Home() {
                 <div key={i} className="group relative flex items-center justify-center">
                   <motion.div 
                     className="h-[2px] rounded-full transition-all duration-700 relative z-10"
-                    animate={{ width: i === activeWork ? 36 : 12, backgroundColor: i === activeWork ? wm.accent : "rgba(255,255,255,0.2)" }}
+                    animate={{ width: i === activeWork ? 36 : 12, backgroundColor: i === activeWork ? wm.accent : "color-mix(in srgb, var(--foreground) 20%, transparent)" }}
                     layout
                   />
                   {i === activeWork && (
@@ -1583,7 +1587,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           2. HORIZONTAL SCROLL (Manifesto + Gallery)
       ════════════════════════════════════ */}
-      <section id="gallery" ref={horizontalRef} className="relative z-10 h-[500vh] bg-[#0A0A14]">
+      <section id="gallery" ref={horizontalRef} className="relative z-10 h-[500vh] bg-background text-foreground">
         <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
           
           {/* Main Horizontal Track */}
@@ -1605,16 +1609,16 @@ export default function Home() {
                 />
                 
                 {/* Geometric Circle */}
-                <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] border border-white/10 rounded-full mix-blend-overlay z-10" />
+                <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] border border-foreground/10 rounded-full mix-blend-overlay z-10" />
               </motion.div>
 
               <div className="max-w-6xl w-full relative z-10">
                 <h2 className="font-syne font-black text-[12vw] md:text-[5.5vw] leading-[1.1] pb-2 drop-shadow-lg" style={{ fontFamily: "var(--font-syne)" }}>
-                  <ScrambleText text={t.gallery.m1} className="block text-white" trigger={panel1Visible} />
-                  <span className="block text-white/30">
+                  <ScrambleText text={t.gallery.m1} className="block text-foreground" trigger={panel1Visible} />
+                  <span className="block text-foreground/30">
                     <ScrambleText text={t.gallery.m2} trigger={panel1Visible} />
                   </span>
-                  <ScrambleText text={t.gallery.m3} className="block text-white/90 md:mt-2" trigger={panel1Visible} />
+                  <ScrambleText text={t.gallery.m3} className="block text-foreground/90 md:mt-2" trigger={panel1Visible} />
                   
                   {/* Highlight core keyword "EMOTIONS" with a high-end texture */}
                   <div className="block w-fit bg-clip-text text-transparent bg-gradient-to-r from-[#A0B0FF] via-[#D0A0FF] to-[#FFCF90] drop-shadow-sm filter brightness-125">
@@ -1633,7 +1637,7 @@ export default function Home() {
                   whileInView={{ x: 0, opacity: 1 }}
                   viewport={{ root: horizontalRef, margin: "0px", amount: "some" }}
                   transition={{ duration: 1, ease: "easeOut" }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] /[0.03] select-none whitespace-nowrap z-0 pointer-events-none" 
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] text-foreground opacity-[0.03] select-none whitespace-nowrap z-0 pointer-events-none" 
                   style={{ fontFamily: "var(--font-syne)" }}
                 >
                   {photo.num}
@@ -1643,7 +1647,7 @@ export default function Home() {
                   href={photo.src} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card cursor-pointer z-10 shadow-2xl transition-all duration-700 hover:shadow-[0_0_50px_rgba(255,255,255,0.05)] border border-transparent hover:border-white/10"
+                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card cursor-pointer z-10 shadow-2xl transition-all duration-700 hover:shadow-[0_0_50px_color-mix(in srgb, var(--foreground) 5%, transparent)] border border-transparent hover:border-foreground/10"
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                 >
                   <motion.img 
@@ -1659,7 +1663,7 @@ export default function Home() {
                   />
                   
                   {/* Overlay gradients & Data */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A14]/90 via-[#0A0A14]/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
                   
                   <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none">
                     <div className="overflow-hidden">
@@ -1668,7 +1672,7 @@ export default function Home() {
                         whileInView={{ y: 0, opacity: 1 }} 
                         viewport={{ root: horizontalRef, margin: "0px" }}
                         transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
-                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 group-hover/photo:text-white transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 text-[#fafafa]/80 group-hover/photo:text-[#fafafa] transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
                         {t.gallery.photos[i]}
                       </motion.h3>
                     </div>
@@ -1679,13 +1683,13 @@ export default function Home() {
                       transition={{ duration: 0.8, delay: 0.4 }}
                       className="flex items-center gap-4"
                     >
-                      <span className="font-mono text-xs md:text-sm text-white/70 group-hover/photo:text-white tracking-widest uppercase border border-white/10 px-3 py-1 bg-white/5 transition-colors duration-500">{photo.num}</span>
-                      <span className="font-mono text-sm text-white/40 group-hover/photo:text-white/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
+                      <span className="font-mono text-xs md:text-sm text-[#fafafa]/70 group-hover/photo:text-[#fafafa] tracking-widest uppercase border border-[#fafafa]/10 px-3 py-1 bg-[#fafafa]/5 transition-colors duration-500">{photo.num}</span>
+                      <span className="font-mono text-sm text-[#fafafa]/40 group-hover/photo:text-[#fafafa]/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
                     </motion.div>
                   </div>
                   
                   {/* Subtle Scanline strictly on image */}
-                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.02)_2px,rgba(255,255,255,0.02)_4px)] pointer-events-none mix-blend-overlay opactiy-50" />
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none mix-blend-overlay opacity-50" />
                 </a>
               </div>
             ))}
@@ -1696,10 +1700,10 @@ export default function Home() {
 
       {/* ── MARQUEE BAND ── */}
       <div 
-        className="relative z-10 py-6 overflow-hidden border-y border-white/10 bg-white/[0.01] backdrop-blur-3xl"
+        className="relative z-10 py-6 overflow-hidden border-y border-foreground/10 bg-foreground/[0.01] backdrop-blur-3xl"
         style={{ 
-          maskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)',
-          WebkitMaskImage: 'linear-gradient(to right, transparent, black 15%, black 85%, transparent)' 
+          maskImage: 'none',
+          WebkitMaskImage: 'none' 
         }}
       >
         <div className="flex whitespace-nowrap marquee-track items-center">
@@ -1708,12 +1712,12 @@ export default function Home() {
               key={i} 
               className="font-syne font-black text-2xl md:text-3xl tracking-[0.1em] mr-12 text-transparent uppercase select-none" 
               style={{ 
-                fontFamily: "var(--font-syne)", 
-                WebkitTextStroke: "1px rgba(255,255,255,0.3)",
-                textShadow: i % 2 === 0 ? "none" : "0 0 20px rgba(255,255,255,0.15)"
+                fontFamily: "var(--font-syne)",
+                WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 30%, transparent)",
+                textShadow: i % 2 === 0 ? "none" : "0 0 20px color-mix(in srgb, var(--foreground) 15%, transparent)"
               }}
             >
-              {i % 2 === 0 ? t.marquee : <span className="text-white/80" style={{ WebkitTextStroke: "0px" }}>{t.marquee}</span>}
+              {i % 2 === 0 ? t.marquee : <span style={{ color: "color-mix(in srgb, var(--foreground) 80%, transparent)", WebkitTextStroke: "0px" }}>{t.marquee}</span>}
             </span>
           ))}
         </div>
@@ -1724,7 +1728,7 @@ export default function Home() {
       ════════════════════════════════════ */}
       <section id="skills" className="relative z-10 py-32 px-4 md:px-12 bg-transparent flex flex-col items-center">
         <div className="w-full max-w-7xl mb-10 md:mb-16">
-          <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl " style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-white">{t.skills.title2}</span></h2>
+          <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl " style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-foreground">{t.skills.title2}</span></h2>
         </div>
 
 <div className="w-full max-w-7xl flex flex-col gap-16">
@@ -1734,27 +1738,27 @@ export default function Home() {
             {SKILLS.map((skill, i) => (
               <div 
                 key={i}
-                className="relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-[#E2E2EC]/10 hover:border-white/30"
+                className="relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-foreground/10 hover:border-foreground/30"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
                 <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[30%] opacity-70 group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
                 
                 {/* Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#07070F] via-[#07070F]/50 to-transparent opacity-90 group-hover/card:opacity-80 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-[#07070F]/40 group-hover/card:bg-transparent transition-colors duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-90 group-hover/card:opacity-80 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-background/40 group-hover/card:bg-transparent transition-colors duration-700" />
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 p-6 md:p-8 flex flex-col w-full h-full justify-end">
-                  <span className="font-mono text-xs tracking-[0.3em] uppercase mb-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transform translate-y-0 md:translate-y-4 group-hover/card:translate-y-0 transition-all duration-500 delay-100 inline-block px-3 py-1 bg-white/5 border border-white/20 self-start w-auto whitespace-nowrap text-white/70">
+                  <span className="font-mono text-xs tracking-[0.3em] uppercase mb-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transform translate-y-0 md:translate-y-4 group-hover/card:translate-y-0 transition-all duration-500 delay-100 inline-block px-3 py-1 bg-foreground/5 border border-foreground/20 self-start w-auto whitespace-nowrap text-foreground/70">
                     MODULE_{String(i + 1).padStart(2, '0')}
                   </span>
                   
-                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-24 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "#E2E2EC" }}>
+                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-24 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "var(--foreground)" }}>
                     {t.skills.items[i].split('·')[0]?.trim()}
                   </h3>
                   
                   <div className="overflow-hidden h-auto md:h-0 group-hover/card:h-[40px] md:group-hover/card:h-[60px] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]">
-                    <p className="font-mono text-sm md:text-base mt-2 md:mt-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200 whitespace-normal text-white/50" style={{ fontFamily: "var(--font-mono)" }}>
+                    <p className="font-mono text-sm md:text-base mt-2 md:mt-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200 whitespace-normal text-foreground/50" style={{ fontFamily: "var(--font-mono)" }}>
                       {t.skills.items[i].split('·')[1]?.trim() || t.skills.items[i]}
                     </p>
                   </div>
@@ -1774,26 +1778,26 @@ export default function Home() {
       {/* ════════════════════════════════════
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
-        <section id="guestbook" className="relative min-h-screen">
+        <section id="guestbook" className="relative min-h-screen bg-background text-foreground">
           <GuestbookWall lang={lang} />
         </section>
 
       {/* ════════════════════════════════════
           4. CONTACT — Immersive Glass Hub
       ════════════════════════════════════ */}
-      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-[90vh] flex flex-col bg-transparent overflow-hidden">
+      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-[90vh] flex flex-col bg-background overflow-hidden text-foreground">
         
         {/* Soft immersive top separator */}
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#E2E2EC]/10 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--foreground)]/10 to-transparent" />
         
         {/* Environmental Deep Space Lighting at bottom center - Amped up visibility & width */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0" 
-             style={{ background: 'radial-gradient(ellipse at bottom, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 40%, transparent 70%)', filter: 'blur(80px)' }} />
+             style={{ background: 'radial-gradient(ellipse at bottom, color-mix(in srgb, var(--foreground) 12%, transparent) 0%, color-mix(in srgb, var(--foreground) 3%, transparent) 40%, transparent 70%)', filter: 'blur(80px)' }} />
 
         {/* Section label row */}
         <div className="w-full px-6 md:px-12 py-5 flex items-center justify-between relative z-10">
           <span className="font-mono text-[10px] text-neutral-500 tracking-[0.6em] uppercase">{t.contact.sub}</span>
-          <span className="font-mono text-[10px] text-white/20 tracking-widest">§ FIN</span>
+          <span className="font-mono text-[10px] text-foreground/20 tracking-widest">§ FIN</span>
         </div>
 
         {/* Giant headline & HUB */}
@@ -1804,11 +1808,11 @@ export default function Home() {
             className="font-syne font-black leading-[0.9] text-center mb-24 cursor-default group relative overflow-hidden"
             style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3.5rem, 12vw, 11rem)", x: contactHeadX, y: contactHeadY, opacity: contactHeadOpacity }}
           >
-            <span className="text-[#E2E2EC] block tracking-tighter transition-colors duration-700 group-hover:text-white relative z-10">{t.contact.t1}</span>
+            <span className="text-foreground block tracking-tighter transition-colors duration-700 group-hover:text-foreground relative z-10">{t.contact.t1}</span>
             <span className="relative block tracking-tighter z-10">
               <span className="text-transparent bg-clip-text transition-all duration-700 block"
                     style={{ 
-                      backgroundImage: "linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.1) 100%)",
+                      backgroundImage: "linear-gradient(135deg, var(--foreground) 0%, color-mix(in srgb, var(--foreground) 40%, transparent) 50%, color-mix(in srgb, var(--foreground) 10%, transparent) 100%)",
                       WebkitTextFillColor: "transparent",
                       WebkitBackgroundClip: "text",
                       backgroundClip: "text"
@@ -1817,7 +1821,7 @@ export default function Home() {
               </span>
               <span className="absolute inset-0 z-20 text-transparent bg-clip-text pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 bg-[length:200%_100%] animate-shimmer block"
                     style={{
-                      backgroundImage: "linear-gradient(90deg, transparent 0%, transparent 40%, rgba(255,255,255,0.9) 50%, transparent 60%, transparent 100%)",
+                      backgroundImage: "linear-gradient(90deg, transparent 0%, transparent 40%, color-mix(in srgb, var(--foreground) 90%, transparent) 50%, transparent 60%, transparent 100%)",
                       WebkitTextFillColor: "transparent",
                       WebkitBackgroundClip: "text",
                       backgroundClip: "text"
@@ -1835,35 +1839,35 @@ export default function Home() {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-4xl rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 relative overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)`,
-              border: `1px solid rgba(255, 255, 255, 0.05)`,
+              background: `linear-gradient(135deg, color-mix(in srgb, var(--foreground) 3%, transparent) 0%, color-mix(in srgb, var(--foreground) 1%, transparent) 100%)`,
+              border: `1px solid color-mix(in srgb, var(--foreground) 5%, transparent)`,
               backdropFilter: "blur(40px) saturate(150%)",
-              boxShadow: `0 30px 60px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 1px rgba(0,0,0,0.3)`,
+              boxShadow: `0 30px 60px -10px color-mix(in srgb, var(--foreground) 50%, transparent), inset 0 1px 1px color-mix(in srgb, var(--foreground) 15%, transparent), inset 0 -1px 1px color-mix(in srgb, var(--foreground) 30%, transparent)`,
             }}
           >
             {/* Inner top highlight line for glass thickness */}
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-8 items-center">
               
               {/* Left: Email Primary */}
               <div className="flex flex-col gap-6 min-w-0">
-                <span className="font-mono text-[10px] text-white/30 tracking-[0.3em] uppercase block">{t.contact.channel}</span>
+                <span className="font-mono text-[10px] text-foreground/30 tracking-[0.3em] uppercase block">{t.contact.channel}</span>
                 <MagneticButton
                   href="mailto:123kevinlio@gmail.com"
-                  className="group flex flex-nowrap items-center gap-3 sm:gap-4 text-sm sm:text-lg lg:text-xl text-white/90 hover:text-white transition-all duration-300 w-full whitespace-nowrap"
+                  className="group flex flex-nowrap items-center gap-3 sm:gap-4 text-sm sm:text-lg lg:text-xl text-foreground/90 hover:text-foreground transition-all duration-300 w-full whitespace-nowrap"
                   style={{ fontFamily: "var(--font-mono)", flexWrap: "nowrap" }}
                 >
-                  <span className="border-b border-white/20 group-hover:border-white/60 pb-1 transition-colors duration-500 truncate inline-block flex-1 min-w-0">123KEVINLIO@GMAIL.COM</span>
-                  <div className="relative shrink-0 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:scale-110 group-hover:bg-white transition-all duration-500">
-                    <svg className="w-4 h-4 text-white group-hover:text-black transition-colors duration-500 rotate-45 group-hover:rotate-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  <span className="border-b border-foreground/20 group-hover:border-foreground/60 pb-1 transition-colors duration-500 truncate inline-block flex-1 min-w-0">123KEVINLIO@GMAIL.COM</span>
+                  <div className="relative shrink-0 w-8 h-8 rounded-full border border-foreground/10 flex items-center justify-center bg-foreground/5 group-hover:scale-110 group-hover:bg-foreground transition-all duration-500">
+                    <svg className="w-4 h-4 text-foreground group-hover:text-background transition-colors duration-500 rotate-45 group-hover:rotate-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                   </div>
                 </MagneticButton>
               </div>
 
               {/* Right: Socials */}
-              <div className="flex flex-col gap-6 md:pl-12 md:border-l md:border-white/5">
-                <span className="font-mono text-[10px] text-white/30 tracking-[0.3em] uppercase block">{t.contact.networks}</span>
+              <div className="flex flex-col gap-6 md:pl-12 md:border-l md:border-foreground/5">
+                <span className="font-mono text-[10px] text-foreground/30 tracking-[0.3em] uppercase block">{t.contact.networks}</span>
                 <div className="flex flex-col gap-4">
                   {[
                     { name: 'Github',    url: 'https://github.com/treehey' },
@@ -1877,7 +1881,7 @@ export default function Home() {
                     >
                       <MagneticButton
                         href={link.url} target="_blank" rel="noopener noreferrer"
-                        className="group flex items-center justify-between py-2 text-white/50 hover:text-white transition-colors duration-500"
+                        className="group flex items-center justify-between py-2 text-foreground/50 hover:text-foreground transition-colors duration-500"
                       >
                         <span className="font-syne font-semibold text-lg tracking-wide">{link.name}</span>
                         <span className="font-mono text-[10px] tracking-widest opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">↗ OPEN</span>
@@ -1892,9 +1896,9 @@ export default function Home() {
         </div>
 
         {/* Footer strip - Cleaned up to max minimalism */}
-        <div className="w-full mt-auto border-t border-white/5 px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10 text-center">
-          <span className="font-mono text-[9px] text-white/20 tracking-[0.2em] uppercase">© 2026 TREE HEY. ALL RIGHTS RESERVED.</span>
-          <span className="font-mono text-[9px] text-white/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
+        <div className="w-full mt-auto border-t border-foreground/5 px-6 md:px-12 py-6 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10 text-center">
+          <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">© 2026 TREE HEY. ALL RIGHTS RESERVED.</span>
+          <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
         </div>
       </section>
 

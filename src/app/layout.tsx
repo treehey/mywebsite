@@ -39,7 +39,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body
-        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} bg-[#0a0a0a] text-[#fafafa] antialiased selection:bg-white/20 selection:text-white overflow-x-clip`}
+        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} antialiased selection:bg-white/20 selection:text-white overflow-x-clip`}
         style={{ fontFamily: "var(--font-grotesk), system-ui, sans-serif" }}
       >
         <div className="bg-noise" />

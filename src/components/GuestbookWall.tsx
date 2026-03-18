@@ -253,15 +253,15 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mb-10"
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-white mb-4">
+          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-foreground mb-4">
             GUESTBOOK
           </p>
           <div className="flex items-end justify-between gap-6 flex-wrap">
             <div>
-              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-[#E2E2EC] leading-[1] mb-4">
+              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-foreground leading-[1] mb-4">
                 {tr.title}
               </h2>
-              <p className="font-grotesk text-[#E2E2EC]/40 text-base max-w-sm">
+              <p className="font-grotesk text-foreground/40 text-base max-w-sm">
                 {tr.subtitle}
               </p>
             </div>
@@ -308,8 +308,8 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                   {/* Message (required) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-white">{tr.msgLabel}</label>
-                      <span className="font-mono text-[10px] text-[#E2E2EC]/30">{messageText.length}/150</span>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground">{tr.msgLabel}</label>
+                      <span className="font-mono text-[10px] text-foreground/30">{messageText.length}/150</span>
                     </div>
                     <textarea
                       ref={textareaRef}
@@ -318,14 +318,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       maxLength={150}
                       rows={3}
                       placeholder={tr.msgPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border border-[#E2E2EC]/10 focus:border-white rounded-lg p-3 resize-none transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-foreground placeholder-foreground/25 outline-none border border-foreground/10 focus:border-foreground rounded-lg p-3 resize-none transition-colors duration-300"
                     />
                   </div>
                   {/* Danmaku title (optional) */}
                   <div>
                     <div className="flex justify-between mb-2">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-white">{tr.dmkLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
-                      <span className="font-mono text-[10px] text-[#E2E2EC]/30">{titleText.length}/30</span>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground">{tr.dmkLabel} <span className="text-foreground/30">{tr.optional}</span></label>
+                      <span className="font-mono text-[10px] text-foreground/30">{titleText.length}/30</span>
                     </div>
                     <input
                       type="text"
@@ -334,20 +334,20 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
                       onKeyDown={e => e.key === "Enter" && handleSubmit()}
                       maxLength={30}
                       placeholder={tr.dmkPlaceholder}
-                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/20 focus:border-white pb-2 transition-colors duration-300"
+                      className="w-full bg-transparent font-grotesk text-base md:text-sm text-foreground placeholder-foreground/25 outline-none border-b border-foreground/20 focus:border-foreground pb-2 transition-colors duration-300"
                     />
                   </div>
                   {/* Nickname + submit */}
                   <div className="flex items-end gap-4">
                     <div className="flex-1">
-                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-white mb-2 block">{tr.nickLabel} <span className="text-[#E2E2EC]/30">{tr.optional}</span></label>
+                      <label className="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground mb-2 block">{tr.nickLabel} <span className="text-foreground/30">{tr.optional}</span></label>
                       <input
                         type="text"
                         value={nickname}
                         onChange={e => setNickname(e.target.value)}
                         maxLength={20}
                         placeholder={tr.nickPlaceholder}
-                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-[#E2E2EC] placeholder-[#E2E2EC]/25 outline-none border-b border-[#E2E2EC]/10 focus:border-white pb-2 transition-colors duration-300"
+                        className="w-full bg-transparent font-grotesk text-base md:text-sm text-foreground placeholder-foreground/25 outline-none border-b border-foreground/10 focus:border-foreground pb-2 transition-colors duration-300"
                       />
                     </div>
                     <button
@@ -380,7 +380,7 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
         {/* Empty state */}
         {entries.length === 0 && (
           <div className="text-center py-32">
-            <p className="font-mono text-[#E2E2EC]/20 text-sm">{tr.empty}</p>
+            <p className="font-mono text-foreground/20 text-sm">{tr.empty}</p>
           </div>
         )}
       </div>
@@ -527,18 +527,18 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
 
         {/* Content */}
         <p
-          className={`relative z-10 font-grotesk text-white/85 group-hover:text-white transition-colors duration-500 leading-loose tracking-wide mb-6 break-words ${textSize}`}
+          className={`relative z-10 font-grotesk text-foreground/85 group-hover:text-foreground transition-colors duration-500 leading-loose tracking-wide mb-6 break-words ${textSize}`}
         >
           {entry.message}
         </p>
 
         <div className="relative z-10 flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] tracking-[0.2em] text-white/40 group-hover:text-white/70 transition-colors duration-500 uppercase">
+            <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/40 group-hover:text-foreground/70 transition-colors duration-500 uppercase">
               {entry.nickname ?? tr.anon}
             </span>
           </div>
-          <span className="font-mono text-[10px] tracking-wider text-white/30 group-hover:text-white/50 transition-colors duration-500">
+          <span className="font-mono text-[10px] tracking-wider text-foreground/30 group-hover:text-foreground/50 transition-colors duration-500">
             {formatDate(entry.created_at)}
           </span>
         </div>
