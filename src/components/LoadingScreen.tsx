@@ -91,7 +91,7 @@ export default function LoadingScreen() {
           {/* ====== 1. Massive Sloth Watermark (Background Texture) ====== */}
           <div className="absolute right-[-20vw] sm:right-[-10vw] top-1/2 -translate-y-1/2 opacity-[0.15] md:opacity-[0.25] pointer-events-none w-[150vw] sm:w-[80vw] md:w-[70vw] max-w-[1200px] mix-blend-screen invert">
             <motion.img
-              src="/sloth.svg"
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/sloth.svg`}
               alt="Sloth Protocol"
               className="w-full h-auto object-contain"
               initial={{ x: 100, opacity: 0 }}
