@@ -40,6 +40,11 @@ export default function Hero({
   const springX = useSpring(mouseX, { stiffness: 150, damping: 25, mass: 0.5 });
   const springY = useSpring(mouseY, { stiffness: 150, damping: 25, mass: 0.5 });
 
+  const slothX1 = useTransform(springX, (val) => val * -1.2);
+  const slothY1 = useTransform(springY, (val) => val * -1.2);
+  const slothX2 = useTransform(springX, (val) => val * -0.8);
+  const slothY2 = useTransform(springY, (val) => val * -0.8);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { innerWidth, innerHeight } = window;
@@ -59,30 +64,74 @@ export default function Hero({
     >
       <DanmakuSystem lang={lang} />
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-12 relative z-10">
+      {/* ── Awwwards Sloth Easter Egg Cinematic Takeover ── */}
+      <AnimatePresence>
+        {slothMode && (
+          <motion.div
+            key="sloth-cinematic-bg"
+            className="fixed inset-0 z-40 bg-background/90 backdrop-blur-3xl flex items-center justify-center overflow-hidden pointer-events-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* Spotlight Gradient */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] mix-blend-screen" />
+
+            {/* Giant Drifting Background Typography */}
+            <motion.div
+              className="absolute font-syne font-black text-[45vw] tracking-tighter leading-none opacity-5 whitespace-nowrap text-foreground mix-blend-overlay"
+              style={{
+                x: slothX1,
+                y: slothY1
+              }}
+            >
+              SLOTH
+            </motion.div>
+            <motion.div
+              className="absolute font-syne font-black text-[35vw] tracking-tighter leading-none opacity-[0.02] whitespace-nowrap text-foreground mix-blend-overlay scale-y-[-1] mt-[30vw]"
+              style={{
+                x: slothX2,
+                y: slothY2
+              }}
+            >
+              SLOTH
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-12 relative z-50">
         
         {/* Main Title with subtle 3D / Magnetic Follow */}
         <motion.div 
           style={{ x: springX, y: springY }}
-          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-10"
+          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-50"
         >
           {slothMode ? (
-            <div className="flex">
+            <motion.div 
+              className="flex pointer-events-none"
+              initial={{ scale: 1.1, opacity: 0, filter: "blur(15px)" }}
+              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            >
               {"SLOTH".split("").map((ch, i) => {
                 const v = heroVectors[`sloth-${i}`] ?? { x: 0, y: -200, rotate: 0 };
                 return (
                   <motion.div
                     key={`sloth-${i}`}
-                    className="relative inline-block overflow-visible"
+                    className="relative inline-block overflow-visible mix-blend-difference"
                     initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
                     animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 190, damping: 16, delay: i * 0.08 }}
+                    transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.3 + i * 0.08 }}
                   >
-                    <span className="text-foreground">{ch}</span>
+                    <span className="relative z-10 text-[#fafafa] drop-shadow-[0_0_40px_rgba(255,255,255,0.6)]">
+                      {ch}
+                    </span>
                   </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           ) : (
             <>
               {['TREE', 'HEY.'].map((word, wIdx) => (
@@ -114,27 +163,60 @@ export default function Hero({
           )}
         </motion.div>
 
-        {/* Info Box */}
+        {/* Subtitle & Awwwards Meta Info */}
         <motion.div 
-          className="max-w-sm flex flex-col gap-6 md:pb-8 relative z-20"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-md space-y-4 md:text-right mix-blend-difference pb-4"
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6, duration: 1 }}
         >
-          <p className="font-grotesk text-sm md:text-base text-neutral-400 leading-relaxed font-light mix-blend-difference">
-            {t.desc}
-          </p>
-          
-          <div className="grid grid-cols-2 gap-4 font-mono text-[10px] md:text-xs uppercase tracking-widest text-neutral-500">
-            <div className="flex flex-col gap-1">
-              <span className="text-neutral-600 border-b border-white/10 pb-2 mb-1">{t.loc}</span>
-              <span className="text-white/90">{t.locVal}</span>
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-neutral-600 border-b border-white/10 pb-2 mb-1">{t.foc}</span>
-              <span className="text-white/90">{t.focVal}</span>
-            </div>
-          </div>
+          {slothMode ? (
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="space-y-4 font-geist text-[#a8a8a8]"
+              >
+                <div className="flex flex-col md:items-end uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium space-y-1 mt-12">
+                  <span className="block border-b border-[#333] pb-1">Hidden System: 0xSLOTH</span>
+                  <span className="block">Status: OVERRIDDEN</span>
+                </div>
+                <p className="text-sm md:text-base leading-relaxed text-[#c0c0c0] font-light italic">
+                  "You found the secret frequency."
+                </p>
+                <button 
+                  className="mt-6 border border-[#fafafa] bg-transparent text-[#fafafa] hover:bg-[#fafafa] hover:text-black transition-colors duration-300 px-6 py-4 uppercase tracking-widest text-[10px] font-mono group relative overflow-hidden"
+                  onClick={onSlothDismiss}
+                >
+                  <span className="relative z-10">RESTORE SYSTEM</span>
+                  <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+                </button>
+              </motion.div>
+            </AnimatePresence>
+          ) : (
+            <motion.div 
+              className="max-w-sm flex flex-col gap-6 md:pb-8 relative z-20"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <p className="font-grotesk text-sm md:text-base text-neutral-400 leading-relaxed font-light mix-blend-difference">
+                {t.desc}
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 font-mono text-[10px] md:text-xs uppercase tracking-widest text-neutral-500">
+                <div className="flex flex-col gap-1">
+                  <span className="text-neutral-600 border-b border-white/10 pb-2 mb-1">{t.loc}</span>
+                  <span className="text-white/90">{t.locVal}</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-neutral-600 border-b border-white/10 pb-2 mb-1">{t.foc}</span>
+                  <span className="text-white/90">{t.focVal}</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
         </motion.div>
       </div>
 
@@ -143,22 +225,28 @@ export default function Hero({
         {slothMode && (
           <motion.div
             key="sloth-mascot"
-            className="absolute bottom-24 right-6 md:right-12 z-20 select-none cursor-pointer group"
-            initial={{ y: 280, x: 40, rotate: 12, opacity: 0 }}
-            animate={{ y: 0, x: 0, rotate: 0, opacity: 1 }}
-            exit={{ y: 280, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 40, damping: 12, delay: 0.55 }}
+            className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] select-none cursor-pointer group"
+            initial={{ scale: 0.8, y: -50, opacity: 0, filter: "blur(20px)" }}
+            animate={{ scale: 1, y: 0, opacity: 1, filter: "blur(0px)" }}
+            exit={{ scale: 0.9, y: 50, opacity: 0, filter: "blur(20px)" }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
             onClick={onSlothDismiss}
           >
             <motion.img
               src={process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/sloth_color.png` : "/sloth_color.png"}
-              alt="sloth"
-              className="w-32 md:w-48 lg:w-60 drop-shadow-[0_0_30px_rgba(255,255,255,0.25)] group-hover:drop-shadow-[0_0_50px_rgba(255,255,255,0.5)] transition-all duration-300"
-              animate={{ rotate: [0, -3, 2, -1, 0] }}
-              transition={{ rotate: { repeat: Infinity, duration: 4, ease: 'easeInOut', delay: 1.2 } }}
+              alt="sloth mascot"
+              className="w-48 md:w-64 lg:w-80 brightness-110 contrast-125 drop-shadow-[0_0_80px_rgba(255,255,255,0.25)] group-hover:drop-shadow-[0_0_120px_rgba(255,255,255,0.6)] group-hover:brightness-125 transition-all duration-700 hover:scale-[1.03]"
+              animate={{ 
+                y: [-12, 12, -12],
+                rotate: [-2, 2, -2]
+              }}
+              transition={{ 
+                y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
+                rotate: { repeat: Infinity, duration: 8, ease: "easeInOut" }
+              }}
             />
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 font-mono text-[9px] text-white/0 group-hover:text-white/50 tracking-widest transition-colors duration-300 whitespace-nowrap pointer-events-none">
-              click to dismiss
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs md:text-sm text-white/0 group-hover:text-white/80 tracking-[0.4em] uppercase transition-colors duration-500 whitespace-nowrap pointer-events-none drop-shadow-lg font-bold">
+              [ Disconnect ]
             </div>
           </motion.div>
         )}

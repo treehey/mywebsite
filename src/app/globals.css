@@ -134,11 +134,19 @@ body {
 }
 
 /*  MINECRAFT MODE  */
+@font-face {
+  font-family: 'Zpix';
+  src: url('/fonts/zpix.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 html.minecraft-mode {
   filter: contrast(1.2) saturate(1.6) brightness(0.92);
 }
 html.minecraft-mode *:not(.mc-exempt) {
-  font-family: var(--font-minecraft), monospace !important;
+  font-family: var(--font-minecraft), "Zpix", monospace !important;
   letter-spacing: 0.02em;
 }
 html.minecraft-mode img {
