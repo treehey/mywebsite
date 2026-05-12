@@ -8,9 +8,10 @@ export let globalLenis: Lenis | null = null;
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.07,
+      lerp: 0.08,
       smoothWheel: true,
       syncTouch: true,
+      touchMultiplier: 2.5, // 增加触摸滑动补偿，使手机端滑动更省力、更丝滑
     });
     globalLenis = lenis;
 

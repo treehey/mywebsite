@@ -218,14 +218,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
         <div 
           className="absolute inset-0 transition-opacity duration-500 ease-out"
           style={{
-            background: `radial-gradient(120vw 120vh at calc(var(--mx, 50vw)) calc(var(--my, 50vh)), rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 30%, transparent 80%)`,
+            background: `radial-gradient(120vw 120vh at calc(var(--mx, 50vw)) calc(var(--my, 50vh)), rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 30%, transparent 80%)`,
           }}
         />
         {/* 动态斜向大面积光幕：不再是光带，而是纯粹的方向性环境光洗刷 */}
         <div 
           className="absolute left-[-50%] top-[-50%] w-[200%] h-[200%] transition-transform duration-[800ms] ease-out mix-blend-screen pointer-events-none"
           style={{
-            background: `linear-gradient(var(--light-deg, 135deg), rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 20%, transparent 50%)`,
+            background: `linear-gradient(var(--light-deg, 135deg), rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 20%, transparent 50%)`,
             transform: `translate(calc((var(--mx, 50vw) - 50vw) * 0.1), calc((var(--my, 50vh) - 50vh) * 0.1))`,
           }}
         />
@@ -235,14 +235,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
 
       {/* Ambient glow blobs */}
-      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.04] blur-[120px] pointer-events-none" style={{ background: "#FFFFFF" }} />
-      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.04] blur-[100px] pointer-events-none" style={{ background: "#FFFFFF" }} />
+      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.12] blur-[120px] pointer-events-none" style={{ background: "#FFFFFF" }} />
+      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.12] blur-[100px] pointer-events-none" style={{ background: "#FFFFFF" }} />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
@@ -510,9 +510,9 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 mix-blend-screen" 
              style={{ 
                background: `
-                 radial-gradient(500px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.15) 0%, transparent 40%),
-                 radial-gradient(300px circle at var(--card-x, 50%) var(--card-y, 50%), ${accentColor}20 0%, transparent 50%),
-                 linear-gradient(var(--card-deg, var(--light-deg, 135deg)), rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 20%, transparent 50%)
+                 radial-gradient(500px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.25) 0%, transparent 40%),
+                 radial-gradient(300px circle at var(--card-x, 50%) var(--card-y, 50%), ${accentColor}40 0%, transparent 50%),
+                 linear-gradient(var(--card-deg, var(--light-deg, 135deg)), rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 20%, transparent 50%)
                ` 
              }} />
 

@@ -215,34 +215,34 @@ function MagneticButton({ children, className, ...props }: React.AnchorHTMLAttri
 const DICT = {
   'EN': {
     nav: { about: 'About', works: 'Works', gallery: 'Gallery', skills: 'Skills', timeline: 'Timeline', guestbook: 'Guestbook', contact: 'Contact' },
-    hero: { desc: "Operating from NJU. Engineering robust software architectures and crafting immersive digital experiences.", loc: "Location", locVal: "Macau → Nanjing", foc: "Focus", focVal: "Full-Stack / Creative Dev" },
-    about: { sub: "About.exe", title1: "Behind the", title2: "Screen.", p1: "My journey into software engineering didn't start with standard syntax—it began with Redstone in Minecraft. Building virtual logic arrays slowly evolved into writing robust backend frameworks, ultimately leading to architecting expansive modern internet systems.", p2: "Currently operating out of NJU, I thrive at the intersection of logical engineering and raw aesthetic emotion. Photography teaches me about composition and light, while code gives me the tools to build and manipulate entire digital worlds.", tags: ["FULL-STACK WEB", "SYSTEM ARCH", "PHOTOGRAPHY"] },
-    works: { title1: "SELECTED", title2: "WORKS.", archive: "v2.0 // Archive", view: "VIEW PROJECT", items: [ { title: "Wide Research Finance", desc: "An AI-powered financial intelligence terminal. Automates 17+ global news sources via DeepSeek LLM for real-time sentiment and event analysis.", tag: "AI / AUTOMATION", link: "https://finai.org.cn" }, { title: "Enzyme Explorer", desc: "An immersive science education website exploring enzyme biochemistry across bread, wine, and cheese — built with pure HTML/CSS/JS featuring rich interactive labs.", tag: "SCIENCE / CREATIVE WEB", link: "https://treehey.github.io/Enzyme/" } ] },
+    hero: { desc: "Operating from Nanjing University. Engineering robust software architectures and crafting immersive digital experiences.", loc: "Location", locVal: "Macau → Nanjing", foc: "Focus", focVal: "Full-Stack / Creative Dev" },
+    about: { sub: "About.exe", title1: "Behind the", title2: "Screen.", p1: "My journey into software engineering didn't start with standard syntax—it began with Redstone in Minecraft. Building virtual logic arrays slowly evolved into writing robust backend frameworks, ultimately leading to architecting expansive modern internet systems.", p2: "Currently studying in Nanjing University, I thrive at the intersection of logical engineering and raw aesthetic emotion. Photography teaches me about composition and light, while code gives me the tools to build and manipulate entire digital worlds.", tags: ["FULL-STACK WEB", "SYSTEM ARCH", "PHOTOGRAPHY", "COMPETITIVE DEBATE"] },
+    works: { title1: "SELECTED", title2: "WORKS.", archive: "v2.0 // Archive", view: "VIEW PROJECT", items: [ { title: "NJUMatch", desc: "An exclusive campus dating and social matching platform designed for Nanjing University students. Features smart matching algorithms and verified student profiles for secure networking.", tag: "SOCIAL / FULL-STACK", link: "https://njumatch.com" }, { title: "Fimel Studio", desc: "An immersive landing page for a creative Minecraft studio. Features cutting-edge interactive web design and smooth scrolling experiences to showcase voxel arts.", tag: "CREATIVE WEB", link: "https://treehey.github.io/Fimel/" }, { title: "Wide Research Finance", desc: "An AI-powered financial intelligence terminal. Automates 17+ global news sources via DeepSeek LLM for real-time sentiment and event analysis.", tag: "AI / AUTOMATION", link: "https://finai.org.cn" }, { title: "Enzyme Explorer", desc: "An immersive science education website exploring enzyme biochemistry across bread, wine, and cheese — built with pure HTML/CSS/JS featuring rich interactive labs.", tag: "SCIENCE / CREATIVE WEB", link: "https://treehey.github.io/Enzyme/" } ] },
     gallery: { m1: "I DON'T JUST", m2: "WRITE CODE.", m3: "I ENGINEER", m4: "EMOTIONS.", photos: [ "Mong Kok · Neon & Dust", "Lujiazui · Urban Spine", "Love Post Office · Letter", "Panda · Gentle Power" ] },
     skills: { title1: "SYSTEM", title2: "OVERVIEW", items: [ "Computer Sys. · Hardware & Software", "Front-End · Website Design", "Python · Proficiency", "Office Suite · Advanced Mastery", "Photography · Foodie / Life" ] },
-    timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
+    timeline: { title: "Runtime Logs", items: [ { label: "Minecraft", detail: "Redstone & Logical Gates" }, { label: "Python/Algos", detail: "Macau Python Competition Top 5" }, { label: "Office Master", detail: "Macau Office Software Competition 3rd" }, { label: "STEAM & IoT", detail: "STEAM & IoT Competition 2nd Place" }, { label: "Web Tech", detail: "Macau Web Design Competition 2nd" }, { label: "Debate", detail: "Debater since high school, now in SE Debate Team" }, { label: "NJU", detail: "Nanjing University Software Eng." } ] },
     contact: { sub: "COLLABORATION", t1: "LET'S CREATE", t2: "TOGETHER.", channel: "PRIMARY CHANNEL", networks: "NETWORKS" },
     marquee: "SOFTWARE ENGINEERING — CREATIVE CODING — SLOTH — "
   },
   '简': {
     nav: { about: '关于', works: '项目', gallery: '画廊', skills: '技能', timeline: '日志', guestbook: '留言墙', contact: '联系' },
-    hero: { desc: "坐标南京大学（NJU）。致力于构建可靠的软件架构与沉浸式的现代数字交互体验。", loc: "位置", locVal: "澳门 → 南京", foc: "专注", focVal: "软件工程 / 创意编程" },
-    about: { sub: "关于.exe", title1: "屏幕", title2: "背后。", p1: "我的软件工程之旅并非始于标准语法——而是从 Minecraft 的红石电路开始。搭建早期的虚拟逻辑门逐渐演变为编写稳健的后端框架，最终将我引向了构建广阔的现代全栈架构与互联网系统。", p2: "目前坐标南京大学，我游走于严谨的系统抽象与纯粹的视觉交互交汇处。摄影教会我何为构图与光影，而代码则赋予我构筑世界、操控数据的纯粹力量。", tags: ["全栈架构设计", "现代前端工程", "摄影与视觉表达"] },
-    works: { title1: "精选", title2: "项目。", archive: "v2.0 // 归档", view: "查看项目", items: [ { title: "Wide Research 金融智库", desc: "基于大语言模型（DeepSeek V3）的自动化财经情报系统。全天候聚合17+全球信源，实现深度热点提取与市场情感分析网。", tag: "AI智能分析 / 自动化", link: "https://finai.org.cn" }, { title: "酶学探索平台", desc: "沉浸式生物科学教育展示网站，以面包发酵、葡萄酿酒、奶酪制作为载体，生动呈现酶在食品工业中的奥秘，纯 HTML/CSS/JS 精心打造。", tag: "科学教育 / 创意展示", link: "https://treehey.github.io/Enzyme/" } ] },
+    hero: { desc: "坐标南京大学。致力于构建可靠的软件架构与沉浸式的现代数字交互体验。", loc: "位置", locVal: "澳门 → 南京", foc: "专注", focVal: "软件工程 / 创意编程" },
+    about: { sub: "关于.exe", title1: "屏幕", title2: "背后。", p1: "我的软件工程之旅并非始于标准语法——而是从 Minecraft 的红石电路开始。搭建早期的虚拟逻辑门逐渐演变为编写稳健的后端框架，最终将我引向了构建广阔的现代全栈架构与互联网系统。", p2: "目前就读于南京大学，我游走于严谨的系统抽象与纯粹的视觉交互交汇处。摄影教会我何为构图与光影，而代码则赋予我构筑世界、操控数据的纯粹力量。", tags: ["全栈架构设计", "现代前端工程", "摄影与视觉表达", "逻辑思辨与辩论"] },
+    works: { title1: "精选", title2: "项目。", archive: "v2.0 // 归档", view: "查看项目", items: [ { title: "NJUMatch 南大扩列", desc: "专为南京大学学生打造的校园交友与恋爱匹配平台。集成校园专属匹配算法与严格的学生身份认证，构建安全、真诚的南大专属社交网络。", tag: "社交平台 / 全栈开发", link: "https://njumatch.com" }, { title: "Fimel 繁梦工作室", desc: "创意 Minecraft 游戏工作室展示官网。融合前沿的网页交互设计与视差滚动体验，完美呈现沉浸式的体素艺术项目与团队风采。", tag: "创意展示 / 品牌设计", link: "https://treehey.github.io/Fimel/" }, { title: "Wide Research 金融智库", desc: "基于大语言模型（DeepSeek V3）的自动化财经情报系统。全天候聚合17+全球信源，实现深度热点提取与市场情感分析网。", tag: "AI智能分析 / 自动化", link: "https://finai.org.cn" }, { title: "酶学探索平台", desc: "沉浸式生物科学教育展示网站，以面包发酵、葡萄酿酒、奶酪制作为载体，生动呈现酶在食品工业中的奥秘，纯 HTML/CSS/JS 精心打造。", tag: "科学教育 / 创意展示", link: "https://treehey.github.io/Enzyme/" } ] },
     gallery: { m1: "我不仅仅", m2: "编写代码。", m3: "我更在", m4: "编织情绪。", photos: [ "旺角 · 霓虹与尘埃", "陆家嘴 · 城市脊梁", "爱情邮局 · 一纸情书", "大熊猫 · 温柔力量" ] },
     skills: { title1: "系统", title2: "概览", items: [ "计算机系统 · 软硬件与Linux", "前端开发 · 现代网站设计", "Python · 代码与运行熟练", "Office 套件 · 深度精通", "人文纪实 · 摄影与干饭热爱" ] },
-    timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
+    timeline: { title: "运行日志", items: [ { label: "逻辑启蒙", detail: "Minecraft 红石机械与指令实验" }, { label: "初试代码", detail: "Python解难赛全澳 Top 5" }, { label: "效率先锋", detail: "Office技能比赛全澳季军" }, { label: "硬核创客", detail: "STEAM及IoT创意解难赛全澳亚军" }, { label: "前端构建", detail: "手机网页技术比赛亚军及独立程序开发" }, { label: "言语思辨", detail: "高三起步辩论，现任软院辩论队成员" }, { label: "南京大学", detail: "软件工程本科深造新篇章" } ] },
     contact: { sub: "合作与联系", t1: "探索未知，", t2: "共同创造。", channel: "主要通道", networks: "社交网络" },
     marquee: "现代软件工程 — 创意编程与体验架构 — 树懒 — "
   },
   '繁': {
     nav: { about: '關於', works: '項目', gallery: '畫廊', skills: '技能', timeline: '日誌', guestbook: '留言牆', contact: '聯繫' },
-    hero: { desc: "座標南京大學（NJU）。致力於構建可靠的軟件架構與沉浸式的現代數字交互體驗。", loc: "位置", locVal: "澳門 → 南京", foc: "專注", focVal: "軟件工程 / 創意編程" },
-    about: { sub: "關於.exe", title1: "屏幕", title2: "背後。", p1: "我的軟件工程之旅並非始於標準語法——而是從 Minecraft 的紅石電路開始。搭建早期的虛擬邏輯門逐漸演變為編寫穩健的後端框架，最終將我引向了構建廣闊的現代全棧架構與互聯網系統。", p2: "目前座標南京大學，我遊走於嚴謹的系統抽象與純粹的視覺交互交匯處。攝影教會我何為構圖與光影，而代碼則賦予我構築世界、操控數據的純粹力量。", tags: ["全棧架構設計", "現代前端工程", "攝影與視覺表達"] },
-    works: { title1: "精選", title2: "項目。", archive: "v2.0 // 歸檔", view: "查看項目", items: [ { title: "Wide Research 金融智庫", desc: "基於大語言模型（DeepSeek V3）的自動化財經情報系統。全天候聚合17+全球信源，實現深度熱點提取與市場情感分析網。", tag: "AI智能分析 / 自動化", link: "https://finai.org.cn" }, { title: "酶學探索平台", desc: "沉浸式生物科學教育展示網站，以麵包發酵、葡萄釀酒、奶酪製作為載體，生動呈現酶在食品工業中的奧秘，純 HTML/CSS/JS 精心打造。", tag: "科學教育 / 創意展示", link: "https://treehey.github.io/Enzyme/" } ] },
+    hero: { desc: "座標南大蘇州校區。致力於構建可靠的軟件架構與沉浸式的現代數字交互體驗。", loc: "位置", locVal: "澳門 → 蘇州", foc: "專注", focVal: "軟件工程 / 創意編程" },
+    about: { sub: "關於.exe", title1: "屏幕", title2: "背後。", p1: "我的軟件工程之旅並非始於標準語法——而是從 Minecraft 的紅石電路開始。搭建早期的虛擬邏輯門逐漸演變為編寫穩健的後端框架，最終將我引向了構建廣闊的現代全棧架構與互聯網系統。", p2: "目前就讀於南京大學，我遊走於嚴謹的系統抽象與純粹的視覺交互交匯處。攝影教會我何為構圖與光影，而代碼則賦予我構築世界、操控數據的純粹力量。", tags: ["全棧架構設計", "現代前端工程", "攝影與視覺表達", "邏輯思辨與辯論"] },
+    works: { title1: "精選", title2: "項目。", archive: "v2.0 // 歸檔", view: "查看項目", items: [ { title: "NJUMatch 南大擴列", desc: "專為南京大學學生打造的校園交友與戀愛匹配平台。集成校園專屬匹配算法與嚴格的學生身份認證，構建安全、真誠的專屬社交網絡。", tag: "社交平台 / 全棧開發", link: "https://njumatch.com" }, { title: "Fimel 繁夢工作室", desc: "創意 Minecraft 遊戲工作室官網。融合前沿的網頁交互設計與視差滾動體驗，沉浸式呈現體素藝術項目與團隊風采。", tag: "創意展示 / 品牌視覺", link: "https://treehey.github.io/Fimel/" }, { title: "Wide Research 金融智庫", desc: "基於大語言模型（DeepSeek V3）的自動化財經情報系統。全天候聚合17+全球信源，實現深度熱點提取與市場情感分析網。", tag: "AI智能分析 / 自動化", link: "https://finai.org.cn" }, { title: "酶學探索平台", desc: "沉浸式生物科學教育展示網站，以麵包發酵、葡萄釀酒、奶酪製作為載體，生動呈現酶在食品工業中的奧秘，純 HTML/CSS/JS 精心打造。", tag: "科學教育 / 創意展示", link: "https://treehey.github.io/Enzyme/" } ] },
     gallery: { m1: "我不僅僅", m2: "編寫代碼。", m3: "我更在", m4: "編織情緒。", photos: [ "旺角 · 霓虹與塵埃", "陸家嘴 · 城市脊梁", "愛情郵局 · 一紙情書", "大熊貓 · 溫柔力量" ] },
     skills: { title1: "系統", title2: "概覽", items: [ "計算機系統 · 軟硬件與Linux", "前端開發 · 現代網站設計", "Python · 代碼與運行熟練", "Office 套件 · 深度精通", "人文紀實 · 攝影與乾飯熱愛" ] },
-    timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
+    timeline: { title: "運行日誌", items: [ { label: "邏輯啟蒙", detail: "Minecraft 紅石機械與指令實驗" }, { label: "初試代碼", detail: "Python解難賽全澳 Top 5" }, { label: "效率先鋒", detail: "Office技能比賽全澳季軍" }, { label: "硬核創客", detail: "STEAM及IoT創意解難賽全澳亞軍" }, { label: "前端構建", detail: "手機網頁技術比賽亞軍及獨立程序開發" }, { label: "言語思辨", detail: "高三起步辯論，現任軟院辯論隊成員" }, { label: "南京大學", detail: "軟件工程本科深造新篇章" } ] },
     contact: { sub: "合作與聯繫", t1: "探索未知，", t2: "共同創造。", channel: "主要通道", networks: "社交網絡" },
     marquee: "現代軟件工程 — 創意編程與體驗架構 — 樹懶 — "
   }
@@ -256,8 +256,10 @@ const PHOTOS = [
 ];
 
 const WORKS_META = [
-  { img: `${B}/images/wide-research.png`, accent: "#4F46E5" }, // Elegant Indigo
-  { img: `${B}/images/enzyme.png`,        accent: "#10B981" }, // Elegant Emerald
+  { img: `${B}/images/njumatch.png`,      accent: "#E11D48", objPos: "center" }, // Elegant Rose
+  { img: `${B}/images/fimel.png`,         accent: "#2563EB", objPos: "20% center" }, // Shifted right for better frame
+  { img: `${B}/images/wide-research.png`, accent: "#4F46E5", objPos: "center" }, // Elegant Indigo
+  { img: `${B}/images/enzyme.png`,        accent: "#10B981", objPos: "center" }, // Elegant Emerald
 ];
 
 const SKILLS = [
@@ -274,6 +276,7 @@ const TIMELINE = [
     { year: "2022", img: `${B}/images/about/ppt.jpg` },
     { year: "2022", img: `${B}/images/about/steam&iot.jpg` },
     { year: "2023", img: `${B}/images/about/information-technology.jpg` },
+    { year: "2023", img: `${B}/images/about/sp-school.jpg` },
     { year: "2024", img: `${B}/images/about/nju.jpg` },
   ];
 
@@ -568,11 +571,56 @@ export default function Home() {
   
   /* Horizontal scroll mapping */
   const { scrollYProgress: horizontalProgress } = useScroll({ target: horizontalRef, offset: ["start start", "end end"] });
-  const xTransform = useTransform(horizontalProgress, [0, 1], ["0%", "-80%"]); // 5 panels = -80%
+  
+  // Use a spring to make the scroll incredibly silky on mobile devices
+  const smoothHorizontalProgress = useSpring(horizontalProgress, {
+    stiffness: 150,
+    damping: 25,
+    mass: 0.5,
+    restDelta: 0.001
+  });
+  
+  // 恢复平滑流畅的线性映射
+  const xTransform = useTransform(smoothHorizontalProgress, [0, 1], ["0%", "-80%"]); // 5 panels = -80%
+
+  /* Gallery 轻微吸附中心 (Magnetic Snap) */
+  useEffect(() => {
+    let timeoutId: any;
+    const handleScroll = () => {
+      if (typeof window === "undefined" || !globalLenis) return;
+      clearTimeout(timeoutId);
+      
+      // 停止滚动 150ms 后触发检测
+      timeoutId = setTimeout(() => {
+        if (!horizontalRef.current) return;
+        const rect = horizontalRef.current.getBoundingClientRect();
+        const progress = -rect.top / (rect.height - window.innerHeight);
+        
+        // 仅在画廊范围内时进行吸附
+        if (progress > 0.02 && progress < 0.98) {
+          const nearest = Math.round(progress * 4) / 4; // 计算最近的卡片 (0, 0.25, 0.5, 0.75, 1)
+          const dist = Math.abs(progress - nearest);
+          
+          // "轻微吸附"：只有在离某张卡片较近时（例如偏差 15% 以内）才吸附过去，
+          // 防止用户想停在两张卡片中间时被强行拽走，保证手感绝对自由又自带磁吸
+          if (dist > 0.005 && dist < 0.12) {
+            const targetY = window.scrollY + rect.top + nearest * (rect.height - window.innerHeight);
+            globalLenis?.scrollTo(targetY, { lerp: 0.08 });
+          }
+        }
+      }, 150);
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   /* Panel 1 (manifesto) visible when horizontal progress < 0.15 */
   const [panel1Visible, setPanel1Visible] = useState(false);
-  useMotionValueEvent(horizontalProgress, "change", (v) => {
+  useMotionValueEvent(smoothHorizontalProgress, "change", (v) => {
     setPanel1Visible(v > 0.02 && v < 0.15);
   });
 
@@ -582,107 +630,14 @@ export default function Home() {
   const worksSpring = useSpring(worksSP, { stiffness: 60, damping: 20, restDelta: 0.001 });
   const [activeWork, setActiveWork] = useState(0);
 
-  /* Works Theater — snap helper */
-  const worksSnapRef = useRef(false);
-  const worksDeltaAccum = useRef(0);
-  const worksDeltaTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // NOT useRef(fn) — that captures globalLenis=null at mount time.
-  // Instead, define as a plain function and call it directly.
-  const worksSnapTo = (targetY: number, dur = 1.2) => {
-    if (worksSnapRef.current) return;
-    const lenis = globalLenis; // read at call time, not at mount time
-    if (!lenis) return;
-    worksSnapRef.current = true;
-    worksDeltaAccum.current = 0;
-    
-    lenis.scrollTo(targetY, {
-      duration: dur,
-      easing: (t) => 1 - Math.pow(1 - t, 4), // Silky smooth ease out
-      lock: true, // Prevent wheel interference during scroll
-      onComplete: () => {
-        worksSnapRef.current = false;
-        worksDeltaAccum.current = 0;
-      }
-    });
-  };
-
-  /* Reliable Snap Logic — Uses requestAnimationFrame to robustly detect scroll end */
-  useEffect(() => {
-    let checkRafId: number;
-    let isSnapping = false;
-    let lastScrollY = window.scrollY;
-    let idleFrames = 0;
-
-    const checkSnap = () => {
-      checkRafId = requestAnimationFrame(checkSnap);
-
-      const el = worksRef.current;
-      const lenis = globalLenis;
-      if (!el || !lenis || isSnapping) {
-        lastScrollY = window.scrollY;
-        idleFrames = 0;
-        return;
-      }
-
-      // Detect if scroll has completely stopped for exactly 15 frames (~250ms)
-      if (Math.abs(window.scrollY - lastScrollY) < 1) {
-        idleFrames++;
-      } else {
-        idleFrames = 0;
-        lastScrollY = window.scrollY;
-      }
-
-      if (idleFrames === 15) {
-        // We have stopped scrolling
-        const rect = el.getBoundingClientRect();
-        const sectionDocTop = rect.top + window.scrollY;
-        const sectionScrollable = el.offsetHeight - window.innerHeight;
-
-        const p0 = sectionDocTop;
-        const p1 = sectionDocTop + 0.5 * sectionScrollable;
-        const p2 = sectionDocTop + sectionScrollable;
-        const currentY = window.scrollY;
-
-        // Skip if outside
-        if (currentY < p0 - 200 || currentY > p2 + 200) return;
-
-        const targets = [p0, p1, p2];
-        let closest = targets[0];
-        let minDiff = Math.abs(currentY - p0);
-        
-        targets.forEach(t => {
-          const diff = Math.abs(currentY - t);
-          if (diff < minDiff) { 
-            minDiff = diff; 
-            closest = t; 
-          }
-        });
-
-        // Trigger snap if off-target
-        if (minDiff > 5) {
-          isSnapping = true;
-          lenis.scrollTo(closest, {
-            duration: 0.8,
-            easing: (t) => 1 - Math.pow(1 - t, 4),
-            onComplete: () => { 
-              isSnapping = false;
-              // Reset idle logic to prevent immediate re-triggering
-              lastScrollY = window.scrollY;
-              idleFrames = 0;
-            }
-          });
-        }
-      }
-    };
-
-    checkRafId = requestAnimationFrame(checkSnap);
-
-    return () => {
-      cancelAnimationFrame(checkRafId);
-    };
-  }, []);
   // Trigger the active state slightly earlier (e.g. 0.35 instead of 0.5) to ensure it's fully active when snapping settles, and creating a nice overlapping animation.
-  useMotionValueEvent(worksSP, "change", (v) => { setActiveWork(v < 0.35 ? 0 : 1); });
+  useMotionValueEvent(worksSP, "change", (v) => {
+    // Dynamic activeWork assignment based on scroll progress
+    const maxIdx = WORKS_META.length - 1;
+    let idx = Math.round(v * maxIdx + 0.15); // Slightly earlier trigger
+    idx = Math.max(0, Math.min(idx, maxIdx));
+    setActiveWork(idx);
+  });
 
   // Intelligent JS Smooth Snapping to preserve silky interaction
   useEffect(() => {
@@ -694,8 +649,19 @@ export default function Home() {
         const sp = worksSP.get();
         // Check if user is resting "inside" the transition boundary
         if (sp > 0.02 && sp < 0.98) {
-          const targets = [0, 0.5, 1];
-          const closest = targets.reduce((prev, curr) => Math.abs(curr - sp) < Math.abs(prev - sp) ? curr : prev);
+          const N = WORKS_META.length;
+          const steps = N - 1;
+          const targets = WORKS_META.map((_, i) => i / steps);
+          
+          let closest = targets[0];
+          for (let i = 1; i < N; i++) {
+            // Trigger jump to the next card if more than ~35% of the transition is visible
+            // This prevents snapping back when you've already pulled the next card > 50% up.
+            const snapBoundary = (i - 0.65) / steps;
+            if (sp >= snapBoundary) {
+              closest = targets[i];
+            }
+          }
           
           if (Math.abs(closest - sp) < 0.02) return; // Already exactly at the snap point
           
@@ -716,13 +682,34 @@ export default function Home() {
     };
   }, [worksSP]);
   
+  const N = WORKS_META.length;
   // Make the card transition happen faster over a shorter scroll distance
   // Transition now spans from 10% to 50% of the entire section duration
-  const card1Y        = useTransform(worksSpring, [0.10, 0.50], ["100%", "0%"]);
-  const card0Scale    = useTransform(worksSpring, [0.10, 0.50], [1, 0.93]);
-  const card0Opacity  = useTransform(worksSpring, [0.25, 0.55], [1, 0]);
-  const tintOpacity0  = useTransform(worksSpring, [0, 0.15, 0.50, 1], [0.06, 0.06, 0, 0]);
-  const tintOpacity1  = useTransform(worksSpring, [0, 0.15, 0.50, 1], [0, 0, 0.06, 0.06]);
+  const steps = N - 1;
+  const cY0 = useTransform(worksSpring, [ -0.9/steps, -0.5/steps ], ["100%", "0%"]);
+  const cS0 = useTransform(worksSpring, [ 0.1/steps, 0.5/steps ], [1, 0.93]);
+  const cO0 = useTransform(worksSpring, [ 0.25/steps, 0.55/steps ], [1, 0]);
+  const cT0 = useTransform(worksSpring, [ -1/steps, -0.85/steps, -0.5/steps, 0/steps ], [0, 0, 0.06, 0.06]);
+
+  const cY1 = useTransform(worksSpring, [ 0.1/steps, 0.5/steps ], ["100%", "0%"]);
+  const cS1 = useTransform(worksSpring, [ 1.1/steps, 1.5/steps ], [1, 0.93]);
+  const cO1 = useTransform(worksSpring, [ 1.25/steps, 1.55/steps ], [1, 0]);
+  const cT1 = useTransform(worksSpring, [ 0/steps, 0.15/steps, 0.5/steps, 1/steps ], [0, 0, 0.06, 0.06]);
+
+  const cY2 = useTransform(worksSpring, [ 1.1/steps, 1.5/steps ], ["100%", "0%"]);
+  const cS2 = useTransform(worksSpring, [ 2.1/steps, 2.5/steps ], [1, 0.93]);
+  const cO2 = useTransform(worksSpring, [ 2.25/steps, 2.55/steps ], [1, 0]);
+  const cT2 = useTransform(worksSpring, [ 1/steps, 1.15/steps, 1.5/steps, 2/steps ], [0, 0, 0.06, 0.06]);
+
+  const cY3 = useTransform(worksSpring, [ 2.1/steps, 2.5/steps ], ["100%", "0%"]);
+  const cS3 = useTransform(worksSpring, [ 3.1/steps, 3.5/steps ], [1, 0.93]);
+  const cO3 = useTransform(worksSpring, [ 3.25/steps, 3.55/steps ], [1, 0]);
+  const cT3 = useTransform(worksSpring, [ 2/steps, 2.15/steps, 2.5/steps, 3/steps ], [0, 0, 0.06, 0.06]);
+
+  const cardY = [cY0, cY1, cY2, cY3];
+  const cardScale = [cS0, cS1, cS2, cS3];
+  const cardOpacity = [cO0, cO1, cO2, cO3];
+  const tintOpacity = [cT0, cT1, cT2, cT3];
 
   /* Works Overall entry and exit */
   const worksContainerRef = useRef<HTMLElement>(null);
@@ -1213,9 +1200,17 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="md:mb-8 flex flex-col items-start md:items-end gap-2"
+              className="md:mb-12 hidden md:flex flex-col items-end gap-2 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/40 mix-blend-difference"
             >
-              <p className="font-grotesk text-sm md:text-base text-foreground/50 max-w-[240px] text-left md:text-right leading-relaxed">{t.about.p1.split(".")[0]}.</p>
+              <div className="flex items-center gap-3 border-b border-foreground/10 pb-2 mb-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-foreground/50 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-foreground/80"></span>
+                </span>
+                <span>SYSTEM STATUS // ACTIVE</span>
+              </div>
+              <span>FULL-STACK DEVELOPMENT</span>
+              <span>CREATIVE ARCHITECTURE</span>
             </motion.div>
           </div>
           <motion.h2
@@ -1346,7 +1341,7 @@ export default function Home() {
           {/* Stat cards */}
           <div className="border-b md:border-b-0 md:border-r border-foreground/10 p-6 md:p-8 flex flex-col justify-between gap-4">
             {[
-              { label: "BASE",   val: "Macau → NJU", sub: "澳门 · 南京大学", accent: "bg-foreground", grad: "from-foreground/10 to-transparent" },
+              { label: "BASE",   val: "Macau → Nanjing", sub: "澳门 · 南京大学", accent: "bg-foreground", grad: "from-foreground/10 to-transparent" },
               { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-foreground/70", grad: "from-foreground/5 to-transparent" },
               { label: "ORIGIN", val: "Minecraft",   sub: "Redstone → Code", accent: "bg-foreground/50", grad: "from-foreground/5 to-transparent" },
             ].map((stat, i) => (
@@ -1445,41 +1440,59 @@ export default function Home() {
         </div>
 
         {/* ── Project Theater ── */}
-        <div ref={worksRef} className="relative h-[200vh]">
+        <div ref={worksRef} className="relative" style={{ height: `${WORKS_META.length * 100}vh` }}>
           <motion.div className="sticky top-0 h-screen overflow-hidden bg-background"
              style={{ scale: worksOverallScale, opacity: worksOverallOpacity, borderRadius: worksOverallBorder }}
           >
 
             {/* Accent environment tints */}
-            <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: WORKS_META[0].accent, opacity: tintOpacity0 }} />
-            <motion.div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: WORKS_META[1].accent, opacity: tintOpacity1 }} />
+            {WORKS_META.map((wm, i) => (
+              <motion.div key={`tint-${i}`} className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: wm.accent, opacity: tintOpacity[i] }} />
+            ))}
 
-            {/* Card 0 — scales down as Card 1 rises */}
-            <motion.div className="absolute inset-0 z-10" style={{ scale: card0Scale, opacity: card0Opacity }}>
-              {(() => {
-                const wm = WORKS_META[0]; const wi = t.works.items[0]; const active = activeWork === 0;
-                return (
+            {/* Dynamic Cards */}
+            {WORKS_META.map((wm, i) => {
+              const wi = t.works.items[i];
+              const active = activeWork === i;
+              const isEven = i % 2 === 0;
+
+              return (
+                <motion.div
+                  key={`card-${i}`}
+                  className="absolute inset-0 bg-background"
+                  style={{
+                    zIndex: 10 + i * 10,
+                    y: i === 0 ? 0 : cardY[i],
+                    scale: cardScale[i],
+                    opacity: cardOpacity[i]
+                  }}
+                >
                   <div className="relative w-full h-full flex flex-col md:flex-row"
                     onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-                    {/* Image — LEFT on even */}
-                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-1 group/img">
-                      {/* Floating glowing orb */}
-                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-foreground/5 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
-                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                    
+                    {/* Image Panel */}
+                    <div className={`relative md:w-1/2 h-[38vh] md:h-full overflow-hidden group/img ${isEven ? 'md:order-1' : 'md:order-2'}`}>
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
+                        style={{ backgroundColor: isEven ? 'var(--foreground)' : `${wm.accent}15`, opacity: isEven ? 0.05 : 1 }}
+                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? (isEven ? [0.3, 0.7, 0.3] : [0.3, 0.7, 0.3]) : 0 }}
+                        transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: isEven ? 0 : 1 }}
                       />
                       <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
+                        style={{ objectPosition: wm.objPos || "center" }}
                         animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
                         transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-background pointer-events-none" />
+                      <div className={`absolute inset-0 bg-gradient-to-${isEven ? 'r' : 'l'} from-transparent via-transparent to-background pointer-events-none`} />
                       <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
-                      <span className="absolute bottom-5 left-6 font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block">01 / 0{WORKS_META.length}</span>
+                      <span className={`absolute bottom-5 ${isEven ? 'left-6' : 'right-6'} font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block`}>
+                        0{i + 1} / 0{WORKS_META.length}
+                      </span>
                     </div>
-                    {/* Text — RIGHT on even */}
-                    <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-2">
+
+                    {/* Text Panel */}
+                    <div className={`relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden ${isEven ? 'md:order-2' : 'md:order-1'}`}>
                       <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", right: "-1vw", bottom: "-3vw" }}>
-                        <RollingNumber value={1} />
+                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", [isEven ? 'right' : 'left']: "-1vw", bottom: "-3vw" }}>
+                        <RollingNumber value={i + 1} />
                       </span>
                       <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
                         style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
@@ -1508,68 +1521,9 @@ export default function Home() {
                       <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
                     </div>
                   </div>
-                );
-              })()}
-            </motion.div>
-
-            {/* Card 1 — slides up from below */}
-            <motion.div className="absolute inset-0 z-20" style={{ y: card1Y }}>
-              {(() => {
-                const wm = WORKS_META[1]; const wi = t.works.items[1]; const active = activeWork === 1;
-                return (
-                  <div className="relative w-full h-full flex flex-col md:flex-row bg-background"
-                    onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-                    {/* Text — LEFT on odd */}
-                    <div className="relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden md:order-1">
-                      <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", left: "-1vw", bottom: "-3vw" }}>
-                        <RollingNumber value={2} />
-                      </span>
-                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
-                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
-                        <span className="relative z-10">{wi.tag}</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
-                      </span>
-                      <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
-                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl  leading-[1.05] mb-5 hover:text-foreground/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
-                          <BlurFocusText text={wi.title} trigger={active} />
-                        </h3>
-                      </a>
-                      <motion.p className="font-grotesk text-sm md:text-base text-foreground/60 max-w-md leading-relaxed mb-8 relative"
-                        animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
-                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
-                        {wi.desc}
-                      </motion.p>
-                      <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
-                        animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
-                        transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <div className="absolute -inset-4 bg-gradient-to-r from-foreground/0 via-foreground/5 to-foreground/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-foreground/60 group-hover/cta:text-foreground transition-colors duration-300 relative z-10">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-foreground/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-foreground group-hover/cta:border-foreground group-hover/cta:-rotate-45 group-hover/cta:text-background group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_color-mix(in srgb, var(--foreground) 30%, transparent)] relative z-10">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </div>
-                      </motion.a>
-                      <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
-                    </div>
-                    {/* Image — RIGHT on odd */}
-                    <div className="relative md:w-1/2 h-[38vh] md:h-full overflow-hidden md:order-2 group/img">
-                      {/* Floating glowing orb */}
-                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
-                        style={{ backgroundColor: `${wm.accent}15` }}
-                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? [0.3, 0.7, 0.3] : 0 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: 1 }}
-                      />
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
-                        animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
-                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
-                      <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-background pointer-events-none" />
-                      <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
-                      <span className="absolute bottom-5 right-6 font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block">02 / 0{WORKS_META.length}</span>
-                    </div>
-                  </div>
-                );
-              })()}
-            </motion.div>
+                </motion.div>
+              );
+            })}
 
             {/* Progress indicator */}
             <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-3 z-30 pointer-events-none items-center">

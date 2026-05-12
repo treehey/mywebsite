@@ -201,18 +201,18 @@ export default function Hero({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-              <p className="font-grotesk text-sm md:text-base text-neutral-400 leading-relaxed font-light mix-blend-difference">
+              <p className="font-grotesk text-base md:text-lg text-neutral-300 leading-relaxed font-light mix-blend-difference drop-shadow-md">
                 {t.desc}
               </p>
               
-              <div className="grid grid-cols-2 gap-4 font-mono text-[10px] md:text-xs uppercase tracking-widest text-neutral-500">
+              <div className="grid grid-cols-2 gap-4 font-mono text-[11px] md:text-sm uppercase tracking-widest text-neutral-400 mix-blend-difference">
                 <div className="flex flex-col gap-1">
-                  <span className="text-neutral-600 border-b border-white/10 pb-2 mb-1">{t.loc}</span>
-                  <span className="text-white/90">{t.locVal}</span>
+                  <span className="text-neutral-500 border-b border-white/20 pb-2 mb-1">{t.loc}</span>
+                  <span className="text-white drop-shadow-sm font-medium">{t.locVal}</span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-neutral-600 border-b border-white/10 pb-2 mb-1">{t.foc}</span>
-                  <span className="text-white/90">{t.focVal}</span>
+                  <span className="text-neutral-500 border-b border-white/20 pb-2 mb-1">{t.foc}</span>
+                  <span className="text-white drop-shadow-sm font-medium">{t.focVal}</span>
                 </div>
               </div>
             </motion.div>
