@@ -1192,8 +1192,8 @@ export default function Home() {
               whileInView={{ y: 0, opacity: 1, rotate: 0, filter: "blur(0px)" }}
               viewport={{ once: true, margin: "0px" }}
               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-              className={`font-syne font-black leading-[0.85] uppercase cursor-default select-none whitespace-nowrap origin-bottom-left ${lang==="EN"?"text-[13vw] md:text-[11vw] lg:text-[11vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-widest pl-4"}`}
-              style={{ fontFamily: "var(--font-syne)", x: aboutH1X }}
+              className={`font-syne font-black leading-[0.85] uppercase cursor-default select-none whitespace-nowrap origin-bottom-left will-change-transform ${lang==="EN"?"text-[13vw] md:text-[11vw] lg:text-[11vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-widest pl-4"}`}
+              style={{ fontFamily: "var(--font-syne)", x: aboutH1X, transform: "translateZ(0)" }}
             >
               {t.about.title1}
             </motion.h2>
@@ -1218,8 +1218,8 @@ export default function Home() {
             whileInView={{ y: 0, opacity: 1, rotate: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "0px" }}
             transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className={`font-syne font-black leading-[0.85] text-transparent uppercase cursor-default select-none whitespace-nowrap origin-bottom-right ${lang==="EN"?"text-[16vw] md:text-[13vw] lg:text-[13vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-[0.2em] pl-4"}`}
-            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px color-mix(in srgb, var(--color-white) 40%, transparent)", x: aboutH2X }}
+            className={`font-syne font-black leading-[0.85] text-transparent uppercase cursor-default select-none whitespace-nowrap origin-bottom-right will-change-transform ${lang==="EN"?"text-[16vw] md:text-[13vw] lg:text-[13vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-[0.2em] pl-4"}`}
+            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px color-mix(in srgb, var(--color-white) 40%, transparent)", x: aboutH2X, transform: "translateZ(0)" }}
           >
             {t.about.title2}
           </motion.h2>
@@ -1459,7 +1459,7 @@ export default function Home() {
               return (
                 <motion.div
                   key={`card-${i}`}
-                  className="absolute inset-0 bg-background"
+                  className="absolute inset-0 bg-background will-change-transform"
                   style={{
                     zIndex: 10 + i * 10,
                     y: i === 0 ? 0 : cardY[i],
@@ -1472,15 +1472,22 @@ export default function Home() {
                     
                     {/* Image Panel */}
                     <div className={`relative md:w-1/2 h-[38vh] md:h-full overflow-hidden group/img ${isEven ? 'md:order-1' : 'md:order-2'}`}>
-                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen"
-                        style={{ backgroundColor: isEven ? 'var(--foreground)' : `${wm.accent}15`, opacity: isEven ? 0.05 : 1 }}
+                      {/* Restored ambient glow but with hardware acceleration */}
+                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen will-change-transform"
+                        style={{ backgroundColor: isEven ? 'var(--foreground)' : `${wm.accent}15`, opacity: isEven ? 0.05 : 1, transform: "translateZ(0)" }}
                         animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? (isEven ? [0.3, 0.7, 0.3] : [0.3, 0.7, 0.3]) : 0 }}
                         transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: isEven ? 0 : 1 }}
                       />
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110"
+                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110 will-change-transform"
                         style={{ objectPosition: wm.objPos || "center" }}
-                        animate={{ scale: active ? 1.05 : 1.0, filter: active ? 'blur(0px)' : 'blur(10px)' }}
-                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" }, filter: { duration: 1.2, ease: "easeOut" } }} />
+                        animate={{ scale: active ? 1.05 : 1.0 }}
+                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" } }} />
+                      {/* Dim overlay for inactive state instead of expensive blur filter */}
+                      <motion.div 
+                        className="absolute inset-0 bg-background pointer-events-none"
+                        animate={{ opacity: active ? 0 : 0.6 }}
+                        transition={{ duration: 1.2, ease: "easeOut" }}
+                      />
                       <div className={`absolute inset-0 bg-gradient-to-${isEven ? 'r' : 'l'} from-transparent via-transparent to-background pointer-events-none`} />
                       <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
                       <span className={`absolute bottom-5 ${isEven ? 'left-6' : 'right-6'} font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block`}>
@@ -1569,13 +1576,14 @@ export default function Home() {
               >
                 {/* Advanced Ambient Glow (Emotional Colors: Sapphire -> Amethyst -> Amber) */}
                 <motion.div 
-                  className="absolute w-[80vw] h-[40vw] md:w-[40vw] md:h-[20vw] bg-gradient-to-r from-[#4158D0] via-[#C850C0] to-[#FFCC70] rounded-full blur-[100px] md:blur-[140px] opacity-[0.25] mix-blend-screen"
+                  className="absolute w-[80vw] h-[40vw] md:w-[40vw] md:h-[20vw] bg-gradient-to-r from-[#4158D0] via-[#C850C0] to-[#FFCC70] rounded-full blur-[100px] md:blur-[140px] opacity-[0.25] mix-blend-screen will-change-transform"
+                  style={{ transform: "translateZ(0)" }}
                   animate={{ scale: [1, 1.15, 1], rotate: [0, 5, 0] }}
                   transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                 />
                 
                 {/* Geometric Circle */}
-                <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] border border-foreground/10 rounded-full mix-blend-overlay z-10" />
+                <div className="w-[80vw] h-[80vw] md:w-[40vw] md:h-[40vw] border border-foreground/10 rounded-full z-10" />
               </motion.div>
 
               <div className="max-w-6xl w-full relative z-10">
@@ -1625,7 +1633,7 @@ export default function Home() {
                     whileInView={{ scale: 1.05, filter: 'blur(0px)' }}
                     viewport={{ root: horizontalRef }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="w-full h-full object-cover grayscale-[20%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-700 group-hover/photo:scale-100" 
+                    className="w-full h-full object-cover grayscale-[20%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-700 group-hover/photo:scale-100 will-change-transform" 
                   />
                   
                   {/* Overlay gradients & Data */}
@@ -1655,7 +1663,7 @@ export default function Home() {
                   </div>
                   
                   {/* Subtle Scanline strictly on image */}
-                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none mix-blend-overlay opacity-50" />
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none opacity-50" />
                 </a>
               </div>
             ))}
@@ -1757,8 +1765,8 @@ export default function Home() {
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--foreground)]/10 to-transparent" />
         
         {/* Environmental Deep Space Lighting at bottom center - Amped up visibility & width */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0" 
-             style={{ background: 'radial-gradient(ellipse at bottom, color-mix(in srgb, var(--foreground) 12%, transparent) 0%, color-mix(in srgb, var(--foreground) 3%, transparent) 40%, transparent 70%)', filter: 'blur(80px)' }} />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0 will-change-transform" 
+             style={{ background: 'radial-gradient(ellipse at bottom, color-mix(in srgb, var(--foreground) 12%, transparent) 0%, color-mix(in srgb, var(--foreground) 3%, transparent) 40%, transparent 70%)', filter: 'blur(80px)', transform: "translateZ(0)" }} />
 
         {/* Section label row */}
         <div className="w-full px-6 md:px-12 py-5 flex items-center justify-between relative z-10">

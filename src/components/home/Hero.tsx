@@ -76,11 +76,11 @@ export default function Hero({
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Spotlight Gradient */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] dark:bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)] mix-blend-screen" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,color-mix(in srgb, var(--color-white) 3%, transparent)_0%,transparent_70%)] dark:bg-[radial-gradient(circle_at_center,color-mix(in srgb, var(--color-white) 3%, transparent)_0%,transparent_70%)]" />
 
             {/* Giant Drifting Background Typography */}
             <motion.div
-              className="absolute font-syne font-black text-[45vw] tracking-tighter leading-none opacity-5 whitespace-nowrap text-foreground mix-blend-overlay"
+              className="absolute font-syne font-black text-[45vw] tracking-tighter leading-none opacity-5 whitespace-nowrap text-foreground will-change-transform"
               style={{
                 x: slothX1,
                 y: slothY1
@@ -89,7 +89,7 @@ export default function Hero({
               SLOTH
             </motion.div>
             <motion.div
-              className="absolute font-syne font-black text-[35vw] tracking-tighter leading-none opacity-[0.02] whitespace-nowrap text-foreground mix-blend-overlay scale-y-[-1] mt-[30vw]"
+              className="absolute font-syne font-black text-[35vw] tracking-tighter leading-none opacity-[0.02] whitespace-nowrap text-foreground scale-y-[-1] mt-[30vw] will-change-transform"
               style={{
                 x: slothX2,
                 y: slothY2
@@ -120,7 +120,7 @@ export default function Hero({
                 return (
                   <motion.div
                     key={`sloth-${i}`}
-                    className="relative inline-block overflow-visible mix-blend-difference"
+                    className="relative inline-block overflow-visible will-change-transform"
                     initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
                     animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
                     transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.3 + i * 0.08 }}
@@ -165,7 +165,7 @@ export default function Hero({
 
         {/* Subtitle & Awwwards Meta Info */}
         <motion.div 
-          className="max-w-md space-y-4 md:text-right mix-blend-difference pb-4"
+          className="max-w-md space-y-4 md:text-right pb-4"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6, duration: 1 }}
@@ -267,7 +267,7 @@ export default function Hero({
       </motion.div>
 
       {/* Video / Gradient Abstract blob in background */}
-      <div className="absolute right-[10%] top-[30%] w-[40vw] h-[40vw] rounded-full mix-blend-screen filter blur-[100px] opacity-30 pointer-events-none -z-10" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,0,0,0) 70%)" }} />
+      <div className="absolute right-[10%] top-[30%] w-[40vw] h-[40vw] rounded-full mix-blend-screen filter blur-[100px] opacity-30 pointer-events-none -z-10 will-change-transform" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,0,0,0) 70%)", transform: "translateZ(0)" }} />
     </motion.section>
   );
 }

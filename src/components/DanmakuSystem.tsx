@@ -150,7 +150,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
             style={{
               background: "rgba(10,10,10,0.85)",
               border: "1px solid rgba(255,255,255,0.1)",
-              backdropFilter: "blur(40px)",
+              backdropFilter: "blur(20px)",
               boxShadow: "0 24px 64px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.4)",
             }}
           >
