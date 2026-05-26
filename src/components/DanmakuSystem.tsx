@@ -133,7 +133,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         onClick={() => { setShowInput(v => !v); resetPanel(); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="absolute bottom-12 right-6 md:right-12 z-[25] flex items-center gap-3 px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-500 pointer-events-auto group bg-white/5 backdrop-blur-md border border-white/10 text-white/80 hover:bg-white hover:text-black hover:scale-105 shadow-2xl"
+        className="absolute bottom-12 right-6 md:right-12 z-[60] flex items-center gap-3 px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-500 pointer-events-auto group bg-white/5 backdrop-blur-md border border-white/10 text-white/80 hover:bg-white hover:text-black hover:scale-105 shadow-2xl"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-white group-hover:bg-black transition-colors" />
         {tr.btn}
@@ -146,7 +146,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 40, scale: 0.98 }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-28 right-6 md:right-12 z-[30] pointer-events-auto w-[min(400px,90vw)] rounded-2xl overflow-hidden"
+            className="absolute bottom-28 right-6 md:right-12 z-[60] pointer-events-auto w-[min(400px,90vw)] rounded-2xl overflow-hidden"
             style={{
               background: "rgba(10,10,10,0.85)",
               border: "1px solid rgba(255,255,255,0.1)",
