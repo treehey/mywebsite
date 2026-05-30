@@ -1,13 +1,15 @@
 "use client";
 import { useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from "framer-motion";
+import { motion, useSpring, useMotionValue, AnimatePresence, useTransform } from "framer-motion";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import ScrollTrigger from "gsap/ScrollTrigger";
 import { DICT } from "@/lib/data";
 import { DanmakuSystem } from "@/components/DanmakuSystem";
 
-const maskVariants = {
-  hidden: { y: "110%" },
-  visible: { y: "0%", transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] as any } }
-};
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export default function Hero({ 
   lang, 
@@ -27,14 +29,68 @@ export default function Hero({
   onSlothDismiss?: () => void;
 }) {
   const t = DICT[lang].hero;
-  const containerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
   
-  // Parallax effects
-  const yParallax = useTransform(scrollYProgress, [0, 1], [0, 600]);
-  const opacityFade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  // GSAP Refs
+  const containerRef = useRef<HTMLElement>(null);
+  const textContainerRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+  const uiElementsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
-  // Magnetic Title mouse interaction
+  useGSAP(() => {
+    // Timeline that controls the entire Hero animation
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "bottom bottom", 
+        scrub: true,
+      }
+    });
+
+    // Animate out the UI elements gradually so they don't vanish instantly
+    tl.to(uiElementsRef.current, {
+      autoAlpha: 0,
+      y: -30,
+      duration: 0.4, // Increased duration so it takes 40% of the scroll to fade completely
+      ease: "power2.inOut"
+    }, 0.05); // Small delay so it feels stable right when you start touching the trackpad
+
+    // Widen the hole gently inside the text group
+    letterRefs.current.forEach((el, i) => {
+      if (!el) return;
+      const isLeft = i < 4;
+      tl.to(el, {
+        x: isLeft ? -450 : 450,
+        y: (Math.random() - 0.5) * 150,
+        rotationZ: (Math.random() - 0.5) * 35,
+        rotationX: (Math.random() - 0.5) * 35,
+        rotationY: (Math.random() - 0.5) * 35,
+        duration: 0.9,
+        ease: "power1.inOut"
+      }, 0.1);
+    });
+
+    // Zoom Scale on the text container
+    tl.to(textContainerRef.current, {
+      scale: 30,
+      opacity: 0,
+      force3D: true, // Forces GPU acceleration to prevent lag
+      duration: 0.8,
+      transformOrigin: "50% 50%",
+      ease: "power2.in" 
+    }, 0.2);
+
+    // Fade out the background completely BEFORE the text finishes scaling, 
+    // revealing the perfectly synced sliding About section underneath
+    tl.to(backgroundRef.current, {
+      opacity: 0,
+      duration: 0.2,
+      ease: "power2.inOut"
+    }, 0.3);
+
+  }, { scope: containerRef });
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
   const springX = useSpring(mouseX, { stiffness: 150, damping: 25, mass: 0.5 });
@@ -58,13 +114,16 @@ export default function Hero({
   }, [mouseX, mouseY]);
 
   return (
-    <motion.section ref={containerRef}
-      style={{ y: yParallax, opacity: opacityFade }}
-      className="relative w-full h-[100svh] overflow-hidden flex flex-col justify-end pb-12 md:pb-24 px-6 md:px-12 z-10 selection:bg-white/30"
-    >
-      <DanmakuSystem lang={lang} />
+    <section ref={containerRef} className="relative w-full h-[250vh] z-[100]" style={{ marginBottom: "-100vh" }}>
+      <div 
+        className="sticky top-0 w-full h-[100svh] overflow-hidden flex flex-col justify-end pb-12 md:pb-24 px-6 md:px-12 selection:bg-white/30 pointer-events-auto"
+      >
+        <div ref={backgroundRef} className="absolute inset-0 bg-background z-[-2]"></div>
 
-      {/* ── Awwwards Sloth Easter Egg Cinematic Takeover ── */}
+        <div className="absolute inset-0 pointer-events-none" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
+          <DanmakuSystem lang={lang} />
+        </div>
+
       <AnimatePresence>
         {slothMode && (
           <motion.div
@@ -75,25 +134,16 @@ export default function Hero({
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Spotlight Gradient */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,color-mix(in srgb, var(--color-white) 3%, transparent)_0%,transparent_70%)] dark:bg-[radial-gradient(circle_at_center,color-mix(in srgb, var(--color-white) 3%, transparent)_0%,transparent_70%)]" />
-
-            {/* Giant Drifting Background Typography */}
             <motion.div
               className="absolute font-syne font-black text-[45vw] tracking-tighter leading-none opacity-5 whitespace-nowrap text-foreground will-change-transform"
-              style={{
-                x: slothX1,
-                y: slothY1
-              }}
+              style={{ x: slothX1, y: slothY1 }}
             >
               SLOTH
             </motion.div>
             <motion.div
               className="absolute font-syne font-black text-[35vw] tracking-tighter leading-none opacity-[0.02] whitespace-nowrap text-foreground scale-y-[-1] mt-[30vw] will-change-transform"
-              style={{
-                x: slothX2,
-                y: slothY2
-              }}
+              style={{ x: slothX2, y: slothY2 }}
             >
               SLOTH
             </motion.div>
@@ -103,7 +153,6 @@ export default function Hero({
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-12 relative z-50">
         
-        {/* Main Title with subtle 3D / Magnetic Follow */}
         <motion.div 
           style={{ x: springX, y: springY }}
           className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-50"
@@ -123,7 +172,7 @@ export default function Hero({
                     className="relative inline-block overflow-visible will-change-transform"
                     initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
                     animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 120, damping: 14, delay: 0.3 + i * 0.08 }}
+                    transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.3 + i * 0.08 }}
                   >
                     <span className="relative z-10 text-[#fafafa] drop-shadow-[0_0_40px_rgba(255,255,255,0.6)]">
                       {ch}
@@ -133,39 +182,53 @@ export default function Hero({
               })}
             </motion.div>
           ) : (
-            <>
-              {['TREE', 'HEY.'].map((word, wIdx) => (
-                <div key={word} className={`reveal-mask overflow-hidden ${wIdx === 0 ? 'pt-4 -mt-4' : ''}`}>
-                  <motion.div variants={maskVariants} initial="hidden" animate="visible" transition={{ delay: wIdx * 0.1 }} className="flex items-center">
-                    {word.split("").map((ch, i) => {
-                      const isLetter = /[A-Z]/.test(ch);
-                      const key = `${wIdx}-${i}`;
-                      const isExploding = heroExploding.has(key);
-                      const isClicked = heroClickedSet.has(key);
-                      const v = heroVectors[key] ?? { x: (Math.random() - 0.5) * 400, y: -200, rotate: 45 };
+            <div 
+              ref={textContainerRef}
+              style={{ perspective: "1000px" }} 
+              className="flex flex-col transform-origin-fly-through"
+            >
+              {["TREE", "HEY."].map((word, wIdx) => {
+                const startIdx = wIdx === 0 ? 0 : 4;
+                return (
+                <div 
+                  key={word} 
+                  className={`relative overflow-visible flex items-center ${wIdx === 0 ? "pt-4 -mt-4" : ""}`}
+                >
+                  {word.split("").map((ch, i) => {
+                    const isLetter = /[A-Z.]/.test(ch);
+                    const key = `${wIdx}-${i}`;
+                    const isExploding = heroExploding.has(key);
+                    const isClicked = heroClickedSet.has(key);
+                    const v = heroVectors[key] ?? { x: (Math.random() - 0.5) * 400, y: -200, rotate: 45 };
 
-                      return (
+                    return (
+                      <div
+                        key={i}
+                        className="inline-block"
+                        ref={(el) => { if(el) letterRefs.current[startIdx + i] = el; }}
+                        style={{ transformOrigin: "center center" }}
+                      >
                         <motion.span
-                          key={i}
                           onClick={() => isLetter && onCharClick && onCharClick(wIdx, i)}
-                          animate={isExploding ? { x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 1.5 } : { x: 0, y: 0, rotate: 0, opacity: isClicked ? 0.3 : 1, scale: 1 }}
-                          transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-                          className={`inline-block text-foreground ${isLetter ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                          animate={isExploding ? { x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 1.5 } : { x: 0, y: 0, rotateZ: 0, opacity: isClicked ? 0.3 : 1, rotateX: 0, scale: 1 }}
+                          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                          style={{ display: "inline-block", transformOrigin: "center center" }}
+                          className={`text-foreground ${isLetter ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
                         >
                           {ch}
                         </motion.span>
-                      );
-                    })}
-                  </motion.div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-            </>
+              )})}
+            </div>
           )}
         </motion.div>
 
-        {/* Subtitle & Awwwards Meta Info */}
+        <div ref={(el) => { if(el) uiElementsRef.current[1] = el; }}>
         <motion.div 
-          className="max-w-md space-y-4 md:text-right pb-4"
+          className="max-w-md space-y-4 md:text-right pb-4 will-change-transform"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.6, duration: 1 }}
@@ -218,9 +281,9 @@ export default function Hero({
             </motion.div>
           )}
         </motion.div>
+        </div>
       </div>
 
-      {/* ── Sloth Easter Egg Mascot ── */}
       <AnimatePresence>
         {slothMode && (
           <motion.div
@@ -252,26 +315,27 @@ export default function Hero({
         )}
       </AnimatePresence>
 
-      {/* Decorative Grid / Scroll hint */}
-      <motion.div 
-        className="w-full flex justify-between items-center border-t border-white/10 pt-6 font-mono text-[10px] text-neutral-500 uppercase tracking-[0.2em]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-2 h-2 rounded-full bg-white/20 animate-pulse" />
-          <span>SCROLL TO EXPLORE</span>
-        </div>
-        <span>PORTFOLIO v3.1</span>
-      </motion.div>
+      <div ref={(el) => { if (el) uiElementsRef.current[2] = el; }}>
+        <motion.div 
+          className="w-full flex justify-between items-center border-t border-white/10 pt-6 font-mono text-[10px] text-neutral-500 uppercase tracking-[0.2em]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 1 }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-2 h-2 rounded-full bg-white/20 animate-pulse" />
+            <span>SCROLL TO EXPLORE</span>
+          </div>
+          <span>PORTFOLIO v3.1</span>
+        </motion.div>
+      </div>
 
-      {/* Video / Gradient Abstract blob in background */}
-      <div className="absolute right-[10%] top-[30%] w-[40vw] h-[40vw] rounded-full mix-blend-screen filter blur-[100px] opacity-30 pointer-events-none -z-10 will-change-transform" style={{ background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,0,0,0) 70%)", transform: "translateZ(0)" }} />
-    </motion.section>
+      <div 
+        ref={(el) => { if (el) uiElementsRef.current[3] = el; }} 
+        className="absolute right-[10%] top-[30%] w-[40vw] h-[40vw] rounded-full mix-blend-screen pointer-events-none z-[-1] will-change-transform" 
+        style={{ background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,0,0,0) 70%)", filter: "blur(100px)", opacity: 0.3 }}
+      />
+      </div>
+    </section>
   );
 }
-
-
-
-

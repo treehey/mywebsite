@@ -39,8 +39,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body
-        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} antialiased selection:bg-white/20 selection:text-white overflow-x-clip`}
-        style={{ fontFamily: "var(--font-grotesk), system-ui, sans-serif" }}
+        className={`${syne.variable} ${grotesk.variable} ${mono.variable} ${pressStart.variable} font-grotesk antialiased selection:bg-white/20 selection:text-white overflow-x-clip`}
+        suppressHydrationWarning
       >
         <div className="bg-noise" />
         <LoadingScreen />

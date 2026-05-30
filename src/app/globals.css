@@ -107,10 +107,14 @@ body {
   from { transform: translateX(0); }    
   to { transform: translateX(-50%); } 
 }
-.marquee-track { 
-  animation: marquee-fwd 25s linear infinite; 
-  will-change: transform;
+.marquee-track {
+  animation: marquee-fwd 60s linear infinite;
 }
+
+/* Hardcoded center alignment for "Fly Through Text" effect */
+.transform-origin-fly-through {
+  transform-origin: 30% 64%;
+} 
 
 /* Link hover line reveal */
 .hover-underline {
