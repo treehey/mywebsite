@@ -39,55 +39,61 @@ export default function Hero({
 
   useGSAP(() => {
     // Timeline that controls the entire Hero animation
+    const wrapper = document.querySelector("#hero-about-wrapper");
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: containerRef.current,
+        trigger: wrapper || containerRef.current,
         start: "top top",
-        end: "bottom bottom", 
+        end: wrapper ? "+=1500" : "bottom bottom", 
         scrub: true,
       }
     });
 
-    // Animate out the UI elements gradually so they don't vanish instantly
+    // Animate out the UI elements gradually, synced to stick around MUCH longer
     tl.to(uiElementsRef.current, {
       autoAlpha: 0,
-      y: -30,
-      duration: 0.4, // Increased duration so it takes 40% of the scroll to fade completely
+      y: -40,
+      duration: 0.4,
       ease: "power2.inOut"
-    }, 0.05); // Small delay so it feels stable right when you start touching the trackpad
+    }, 0.2); // Pushed the delay to 0.2 so they only fade when the zoom really kicks in
 
-    // Widen the hole gently inside the text group
+    // Center hole penetration - widen the words and scatter the letters immensely
     letterRefs.current.forEach((el, i) => {
       if (!el) return;
+      // First word "TREE" moves left and up, "HEY" moves right and down
       const isLeft = i < 4;
+      const moveX = isLeft ? -800 - Math.random() * 400 : 800 + Math.random() * 400;
+      const moveY = (Math.random() - 0.5) * 500;
+      
       tl.to(el, {
-        x: isLeft ? -450 : 450,
-        y: (Math.random() - 0.5) * 150,
-        rotationZ: (Math.random() - 0.5) * 35,
-        rotationX: (Math.random() - 0.5) * 35,
-        rotationY: (Math.random() - 0.5) * 35,
+        x: moveX,
+        y: moveY,
+        rotationZ: (Math.random() - 0.5) * 90,
+        rotationX: (Math.random() - 0.5) * 90,
+        rotationY: (Math.random() - 0.5) * 90,
         duration: 0.9,
-        ease: "power1.inOut"
+        ease: "power2.in"
       }, 0.1);
     });
 
-    // Zoom Scale on the text container
+    // Extreme zoom into the gap between the words to "pass through"
     tl.to(textContainerRef.current, {
-      scale: 30,
-      opacity: 0,
-      force3D: true, // Forces GPU acceleration to prevent lag
-      duration: 0.8,
+      scale: 150, // Massive scale to simulate camera flying directly through the gap
+      opacity: 0, // Fade out the text just as it hits the camera
+      force3D: true,
+      duration: 0.9,
       transformOrigin: "50% 50%",
-      ease: "power2.in" 
-    }, 0.2);
+      ease: "expo.in"
+    }, 0.1);
 
-    // Fade out the background completely BEFORE the text finishes scaling, 
-    // revealing the perfectly synced sliding About section underneath
+    // Fade out the dark background completely to reveal the About section underneath
+    // Moved to the very end of the zoom so the user bursts into the About section 
+    // exactly as the pin is released, preventing the "stuck" feeling.
     tl.to(backgroundRef.current, {
       opacity: 0,
       duration: 0.2,
-      ease: "power2.inOut"
-    }, 0.3);
+      ease: "power2.in"
+    }, 0.8);
 
   }, { scope: containerRef });
 
@@ -114,9 +120,9 @@ export default function Hero({
   }, [mouseX, mouseY]);
 
   return (
-    <section ref={containerRef} className="relative w-full h-[250vh] z-[100]" style={{ marginBottom: "-100vh" }}>
+    <section ref={containerRef} className="relative w-full h-[100svh] z-[100]">
       <div 
-        className="sticky top-0 w-full h-[100svh] overflow-hidden flex flex-col justify-end pb-12 md:pb-24 px-6 md:px-12 selection:bg-white/30 pointer-events-auto"
+        className="w-full h-[100svh] overflow-hidden flex flex-col justify-end pb-12 md:pb-24 px-6 md:px-12 selection:bg-white/30 pointer-events-auto"
       >
         <div ref={backgroundRef} className="absolute inset-0 bg-background z-[-2]"></div>
 
@@ -259,23 +265,24 @@ export default function Hero({
             </AnimatePresence>
           ) : (
             <motion.div 
-              className="max-w-sm flex flex-col gap-6 md:pb-8 relative z-20"
+              className="max-w-sm flex flex-col gap-6 md:pb-8 relative z-20 backdrop-blur-2xl bg-white/[0.03] border border-white/[0.06] p-8 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
-              <p className="font-grotesk text-base md:text-lg text-neutral-300 leading-relaxed font-light mix-blend-difference drop-shadow-md">
+              <p className="font-grotesk text-sm md:text-base text-neutral-300 leading-relaxed font-light">
                 {t.desc}
               </p>
               
-              <div className="grid grid-cols-2 gap-4 font-mono text-[11px] md:text-sm uppercase tracking-widest text-neutral-400 mix-blend-difference">
-                <div className="flex flex-col gap-1">
-                  <span className="text-neutral-500 border-b border-white/20 pb-2 mb-1">{t.loc}</span>
-                  <span className="text-white drop-shadow-sm font-medium">{t.locVal}</span>
+              <div className="flex items-center gap-6 font-grotesk text-[11px] md:text-xs">
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-neutral-500 uppercase tracking-widest">{t.loc}</span>
+                  <span className="text-white font-medium">{t.locVal}</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-neutral-500 border-b border-white/20 pb-2 mb-1">{t.foc}</span>
-                  <span className="text-white drop-shadow-sm font-medium">{t.focVal}</span>
+                <div className="w-[1px] h-8 bg-white/10" />
+                <div className="flex flex-col gap-1.5">
+                  <span className="text-neutral-500 uppercase tracking-widest">{t.foc}</span>
+                  <span className="text-white font-medium">{t.focVal}</span>
                 </div>
               </div>
             </motion.div>
@@ -315,26 +322,41 @@ export default function Hero({
         )}
       </AnimatePresence>
 
-      <div ref={(el) => { if (el) uiElementsRef.current[2] = el; }}>
+      <div ref={(el) => { if (el) uiElementsRef.current[2] = el; }} className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <motion.div 
-          className="w-full flex justify-between items-center border-t border-white/10 pt-6 font-mono text-[10px] text-neutral-500 uppercase tracking-[0.2em]"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
+          className="flex items-center gap-3 backdrop-blur-xl bg-white/[0.03] border border-white/[0.08] px-5 py-2.5 rounded-full shadow-2xl"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="flex items-center gap-4">
-            <div className="w-2 h-2 rounded-full bg-white/20 animate-pulse" />
-            <span>SCROLL TO EXPLORE</span>
+          <div className="w-3.5 h-6 rounded-full border border-white/40 flex items-start justify-center p-[2px]">
+            <motion.div 
+              animate={{ y: [0, 8, 0], opacity: [1, 0, 1] }} 
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }} 
+              className="w-1 h-1.5 bg-white rounded-full" 
+            />
           </div>
-          <span>PORTFOLIO v3.1</span>
+          <span className="font-grotesk text-[10px] text-white/70 uppercase tracking-widest whitespace-nowrap">Scroll</span>
         </motion.div>
       </div>
 
       <div 
         ref={(el) => { if (el) uiElementsRef.current[3] = el; }} 
-        className="absolute right-[10%] top-[30%] w-[40vw] h-[40vw] rounded-full mix-blend-screen pointer-events-none z-[-1] will-change-transform" 
-        style={{ background: "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(0,0,0,0) 70%)", filter: "blur(100px)", opacity: 0.3 }}
-      />
+        className="absolute inset-0 pointer-events-none z-[-1] overflow-hidden" 
+      >
+        <motion.div 
+          className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full mix-blend-screen opacity-30"
+          style={{ background: "radial-gradient(circle, rgba(99,102,241,0.6) 0%, rgba(0,0,0,0) 70%)", filter: "blur(90px)" }}
+          animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-screen opacity-30"
+          style={{ background: "radial-gradient(circle, rgba(225,29,72,0.4) 0%, rgba(0,0,0,0) 70%)", filter: "blur(100px)" }}
+          animate={{ x: [0, -40, 0], y: [0, -50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        />
+      </div>
       </div>
     </section>
   );

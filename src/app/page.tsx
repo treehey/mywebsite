@@ -19,6 +19,13 @@ import {
   AnimatePresence,
   type Variants,
 } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 /* ════════════════════════════════════════════════════════
    TEXT SCRAMBLE HOOK
@@ -283,7 +290,8 @@ const TIMELINE = [
 function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const lineRef    = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start 85%', 'end 25%'] });
+  // Track ahead of center to complete the curve earlier!
+  const { scrollYProgress } = useScroll({ target: lineRef, offset: ['start 60%', 'end 95%'] });
 
   /* Signal particle y-position (imperative, no re-renders) */
   const particleY = useMotionValue(0);
@@ -307,11 +315,16 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
     });
   });
 
+  // (No longer using Framer Motion exit parallax for this section)
+
   return (
-    <section ref={sectionRef} id="timeline" className="relative bg-transparent py-24 md:py-32 overflow-hidden">
+    <section ref={sectionRef} id="timeline" className="awwwards-card relative z-10 w-full min-h-[90vh] bg-background text-foreground overflow-hidden py-16">
+      <div className="awwwards-card-inner py-24 md:py-32 w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)] overflow-hidden relative">
+      {/* High-end ambient inner glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent pointer-events-none rounded-[3rem]" />
 
       {/* Section Header */}
-      <div className="w-full border-b border-foreground/10 px-6 md:px-12 py-5 flex items-center justify-between mb-0">
+      <div className="w-[96%] max-w-7xl mx-auto border border-foreground/10 bg-foreground/[0.02] backdrop-blur-3xl rounded-[2rem] px-6 md:px-12 py-5 flex items-center justify-between mb-20 shadow-2xl relative z-10">
         <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
           {t.timeline.title}
         </h2>
@@ -324,34 +337,35 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
       </div>
 
       <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
-        {/* Dim background line */}
-        <div ref={lineRef} className="absolute left-[calc(1.5rem+16px)] md:left-[calc(3rem+16px)] lg:left-[calc(6rem+16px)] top-16 bottom-8 w-[1px] bg-foreground/5" />
-        {/* Signal particle */}
-        <motion.div
-          className="absolute w-[5px] h-[5px] rounded-full pointer-events-none z-20 bg-foreground"
-          style={{
-            left: 'calc(1.5rem + 16px - 2px)', // minus half of 5px (-2.5 ~ -2)
-            top: '4rem',
-            y: particleY,
-            boxShadow: '0 0 10px 2px color-mix(in srgb, var(--foreground) 40%, transparent)',
-          }}
-        />
+                  {/* Straight Precision Line Drawing */}
+          <div ref={lineRef} className="absolute left-[calc(1.5rem+14.5px)] md:left-[calc(3rem+14.5px)] lg:left-[calc(6rem+14.5px)] top-[6.5rem] bottom-16 w-[2px] pointer-events-none z-0">
+            <div className="absolute inset-0 bg-foreground/10 h-full w-full" />
+            <motion.div 
+              className="absolute top-0 left-0 w-full bg-foreground shadow-[0_0_10px_color-mix(in_srgb,var(--foreground)_60%,transparent)] origin-top"
+              style={{ scaleY: scrollYProgress, height: "100%" }} 
+            />
+          </div>
 
         <div className="flex flex-col gap-0 border-t border-foreground/[0.03]">
           {TIMELINE.map((node, i) => {
             const item = t.timeline.items[i];
+            const isActive = visible[i];
             return (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
-                animate={visible[i] ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="flex items-start gap-6 md:gap-14 group border-b border-foreground/[0.03] py-8 md:py-14 relative hover:bg-foreground/[0.02] transition-colors duration-700"
+                className="flex items-start gap-6 md:gap-14 group border-b border-foreground/[0.03] py-8 md:py-14 relative transition-colors duration-700"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                {/* Dot */}
-                <div className="relative flex-shrink-0 flex flex-col items-center pt-2 md:pt-3">
-                  <div className="w-2.5 h-2.5 rounded-full bg-foreground/20 transition-all duration-500 group-hover:scale-150 group-hover:bg-foreground group-hover:shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_50%,transparent)] z-10 relative" />
+                {/* Organic Breathing Node */}
+                <div className="relative flex-shrink-0 flex flex-col items-center pt-2 md:pt-3 z-10 pl-[8.5px]">
+                  <motion.div 
+                    animate={isActive ? { scale: [1, 1.5, 1.2], opacity: [0.5, 1, 1] } : { scale: 1, opacity: 0.2 }}
+                    transition={isActive ? { duration: 1.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" } : { duration: 0.3 }}
+                    className={`w-3 h-3 rounded-full bg-foreground shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_60%,transparent)]`} 
+                  />
                 </div>
 
                 {/* Year */}
@@ -399,6 +413,7 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
             );
           })}
         </div>
+      </div>
       </div>
     </section>
   );
@@ -498,7 +513,9 @@ export default function Home() {
   } | null>(null);
   const wipeCompletingRef = useRef(false); // ref to prevent stale-closure multi-fire
   const aboutRef = useRef<HTMLElement>(null);
-  
+  const worksContainerRef = useRef<HTMLElement>(null);
+  const skillsRef = useRef<HTMLElement>(null);
+  const guestbookRef = useRef<HTMLElement>(null);
   const contactSectionRef = useRef<HTMLElement>(null);
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
 
@@ -520,6 +537,122 @@ export default function Home() {
   const contactHeadX       = useTransform(contactProgress, [0, 1], [300, 0]); // 原来只有100太短了，放大到300
   const contactHeadY       = useTransform(contactProgress, [0, 1], [150, 0]); // 加上一点Y轴的上浮配合
   const contactHeadOpacity = useTransform(contactProgress, [0, 0.3], [0, 1]);
+
+  useGSAP(() => {
+    // ----------------------------------------------------
+    // 1. FLYTHROUGH PIN
+    // ----------------------------------------------------
+    // Pin Hero and About together. Hero.tsx uses this wrapper for its ScrollTrigger scrub.
+    ScrollTrigger.create({
+      trigger: "#hero-about-wrapper",
+      start: "top top",
+      end: "+=1500", 
+      pin: true,
+      // pinSpacing: true allows the subsequent content to be pushed down
+    });
+
+    // ----------------------------------------------------
+    // 2. ABOUT LIQUID REVEAL (液体磁吸与文字解构) - TRIGGERED LATE!
+    // ----------------------------------------------------
+    // Since About is pinned alongside Hero, its physical location doesn't change for 1500px.
+    // Use the wrapper as the trigger, and start exactly at 1200px (when the black veil fades)!
+    gsap.fromTo(".about-reveal-text", 
+      { y: 120, opacity: 0, rotateZ: 5, transformPerspective: 800, rotationX: -60 },
+      { 
+        y: 0, opacity: 1, rotateZ: 0, rotationX: 0, 
+        duration: 1.8, stagger: 0.1, ease: "power4.out",
+        scrollTrigger: { 
+          trigger: "#hero-about-wrapper", 
+          start: "top -1200px",  // Triggers exactly 300px before the pin drops!
+        }
+      }
+    );
+
+    // ----------------------------------------------------
+    // 3. WORKS DECK DEALING (作品集发牌式层叠)
+    // ----------------------------------------------------
+    // Pin the works section temporarily to throw the cards up
+    const worksDeck = gsap.utils.toArray('.work-deck-card') as HTMLElement[];
+    if (worksDeck.length > 1) {
+      const totalTransitions = worksDeck.length - 1;
+      const tlDeck = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#works-pin-container",
+          start: "top top",
+          // 控制总吸附滑动距离为：每张卡片平均占用 1.2 倍一屏的滚动区域
+          end: () => `+=${window.innerHeight * totalTransitions * 1.2}`, 
+          pin: true,
+          scrub: 1,
+          snap: {
+            snapTo: 1 / totalTransitions,  // 关键！开启轻微磁吸：依据卡片数量等分进行吸附
+            duration: { min: 0.2, max: 0.6 },
+            delay: 0.05,                   // 手指停下 0.05 秒后立刻轻微吸过去
+            ease: "circ.out"
+          }
+        }
+      });
+      
+      worksDeck.forEach((card, i) => {
+        if (i !== 0) {
+          // 精准锁帧：让下一张卡在 0.05 秒稍微停顿后立马爽快飞出 (power3.out)，解决“滑半天没反应”
+          tlDeck.fromTo(card,
+            { y: window.innerHeight + 100, rotation: i % 2 === 0 ? 8 : -8, scale: 0.9, opacity: 0 },
+            { 
+              y: i * 40, 
+              rotation: (i%2===0?-2:2), 
+              scale: 1 - ((worksDeck.length - i) * 0.03), 
+              opacity: 1, 
+              ease: "power3.out",  // 改掉"慢起"逻辑，变为先快后慢（一开始立刻冲出大半截，快到位时慢慢贴合）
+              duration: 0.95       // 占用 95% 时间比例
+            },
+            i - 0.95               // 把落位时刻完美钉死在整数秒！1.0, 2.0, 3.0，配合 snap 百分比吸附
+          );
+        }
+      });
+      
+      // 尾部镇场桩：强行锁定总时间轴长度，让百分比算法绝对精准切割每个卡片的节点
+      tlDeck.to({}, { duration: 0.01 }, totalTransitions);
+    }
+
+    // ----------------------------------------------------
+    // 4. GALLERY VELOCITY SKEW (画廊速度感应倾斜) & 横向滚动
+    // ----------------------------------------------------
+    // We already have a horizontal scroll for Gallery using Framer Motion (`xTransform`), 
+    // but GSAP ScrollTrigger manages the velocity skew effect.
+    let proxy = { skew: 0 };
+    let skewSetter = gsap.quickSetter(".gallery-skew-item", "skewX", "deg");
+    let clamp = gsap.utils.clamp(-25, 25); // Max skew 25 degrees
+    ScrollTrigger.create({
+      onUpdate: (self) => {
+        let skew = clamp(self.getVelocity() / -80); 
+        if (Math.abs(skew) > Math.abs(proxy.skew)) {
+          proxy.skew = skew;
+          gsap.to(proxy, {skew: 0, duration: 0.8, ease: "elastic.out(1, 0.4)", overwrite: true, onUpdate: () => skewSetter(proxy.skew)});
+        }
+      }
+    });
+
+    // ----------------------------------------------------
+    // 5. SKILLS 3D ASSEMBLE (3D碎片组装) - 随着滚动进行！
+    // ----------------------------------------------------
+    const skillsItems = gsap.utils.toArray('.skill-bento-piece') as HTMLElement[];
+    gsap.fromTo(skillsItems,
+      // 打碎分布：深度 Z，随机倾斜
+      { z: () => Math.random() * 1200 - 600, opacity: 0, rotationY: () => Math.random() * 180 - 90, rotationX: () => Math.random() * 90 - 45, x: () => Math.random() * 800 - 400, y: () => Math.random() * 800 - 400 },
+      { 
+        z: 0, opacity: 1, rotationY: 0, rotationX: 0, x: 0, y: 0, 
+        stagger: 0.1, ease: "power2.out",
+        scrollTrigger: { 
+          trigger: "#skills", 
+          start: "top 90%",
+          end: "center center", 
+          scrub: 1.5 // 关键！开启 scrub 1.5 让整个组装过程完全跟着你的滚轮进行
+        }
+      }
+    );
+
+  }, { scope: containerRef });
+
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
   const t = DICT[lang as keyof typeof DICT];
@@ -624,104 +757,9 @@ export default function Home() {
     setPanel1Visible(v > 0.02 && v < 0.15);
   });
 
-  /* Works Theater scroll */
-  const worksRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: worksSP } = useScroll({ target: worksRef, offset: ["start start", "end end"] });
-  const worksSpring = useSpring(worksSP, { stiffness: 60, damping: 20, restDelta: 0.001 });
-  const [activeWork, setActiveWork] = useState(0);
-
-  // Trigger the active state slightly earlier (e.g. 0.35 instead of 0.5) to ensure it's fully active when snapping settles, and creating a nice overlapping animation.
-  useMotionValueEvent(worksSP, "change", (v) => {
-    // Dynamic activeWork assignment based on scroll progress
-    const maxIdx = WORKS_META.length - 1;
-    let idx = Math.round(v * maxIdx + 0.15); // Slightly earlier trigger
-    idx = Math.max(0, Math.min(idx, maxIdx));
-    setActiveWork(idx);
-  });
-
-  // Intelligent JS Smooth Snapping to preserve silky interaction
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const onScroll = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (!globalLenis || !worksRef.current) return;
-        const sp = worksSP.get();
-        // Check if user is resting "inside" the transition boundary
-        if (sp > 0.02 && sp < 0.98) {
-          const N = WORKS_META.length;
-          const steps = N - 1;
-          const targets = WORKS_META.map((_, i) => i / steps);
-          
-          let closest = targets[0];
-          for (let i = 1; i < N; i++) {
-            // Trigger jump to the next card if more than ~35% of the transition is visible
-            // This prevents snapping back when you've already pulled the next card > 50% up.
-            const snapBoundary = (i - 0.65) / steps;
-            if (sp >= snapBoundary) {
-              closest = targets[i];
-            }
-          }
-          
-          if (Math.abs(closest - sp) < 0.02) return; // Already exactly at the snap point
-          
-          const rect = worksRef.current.getBoundingClientRect();
-          const offsetTop = rect.top + window.scrollY;
-          const scrollSpace = worksRef.current.clientHeight - window.innerHeight;
-          const targetY = offsetTop + (closest * scrollSpace);
-          
-          globalLenis.scrollTo(targetY, { duration: 1.5, easing: (t) => 1 - Math.pow(1 - t, 4) });
-        }
-      }, 200);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      clearTimeout(timeoutId);
-    };
-  }, [worksSP]);
-  
-  const N = WORKS_META.length;
-  // Make the card transition happen faster over a shorter scroll distance
-  // Transition now spans from 10% to 50% of the entire section duration
-  const steps = N - 1;
-  const cY0 = useTransform(worksSpring, [ -0.9/steps, -0.5/steps ], ["100%", "0%"]);
-  const cS0 = useTransform(worksSpring, [ 0.1/steps, 0.5/steps ], [1, 0.93]);
-  const cO0 = useTransform(worksSpring, [ 0.25/steps, 0.55/steps ], [1, 0]);
-  const cT0 = useTransform(worksSpring, [ -1/steps, -0.85/steps, -0.5/steps, 0/steps ], [0, 0, 0.06, 0.06]);
-
-  const cY1 = useTransform(worksSpring, [ 0.1/steps, 0.5/steps ], ["100%", "0%"]);
-  const cS1 = useTransform(worksSpring, [ 1.1/steps, 1.5/steps ], [1, 0.93]);
-  const cO1 = useTransform(worksSpring, [ 1.25/steps, 1.55/steps ], [1, 0]);
-  const cT1 = useTransform(worksSpring, [ 0/steps, 0.15/steps, 0.5/steps, 1/steps ], [0, 0, 0.06, 0.06]);
-
-  const cY2 = useTransform(worksSpring, [ 1.1/steps, 1.5/steps ], ["100%", "0%"]);
-  const cS2 = useTransform(worksSpring, [ 2.1/steps, 2.5/steps ], [1, 0.93]);
-  const cO2 = useTransform(worksSpring, [ 2.25/steps, 2.55/steps ], [1, 0]);
-  const cT2 = useTransform(worksSpring, [ 1/steps, 1.15/steps, 1.5/steps, 2/steps ], [0, 0, 0.06, 0.06]);
-
-  const cY3 = useTransform(worksSpring, [ 2.1/steps, 2.5/steps ], ["100%", "0%"]);
-  const cS3 = useTransform(worksSpring, [ 3.1/steps, 3.5/steps ], [1, 0.93]);
-  const cO3 = useTransform(worksSpring, [ 3.25/steps, 3.55/steps ], [1, 0]);
-  const cT3 = useTransform(worksSpring, [ 2/steps, 2.15/steps, 2.5/steps, 3/steps ], [0, 0, 0.06, 0.06]);
-
-  const cardY = [cY0, cY1, cY2, cY3];
-  const cardScale = [cS0, cS1, cS2, cS3];
-  const cardOpacity = [cO0, cO1, cO2, cO3];
-  const tintOpacity = [cT0, cT1, cT2, cT3];
-
-  /* Works Overall entry and exit */
-  const worksContainerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress: worksContainerSP } = useScroll({ target: worksContainerRef, offset: ["start end", "end start"] });
-  const worksOverallSpring = useSpring(worksContainerSP, { stiffness: 60, damping: 20 });
-  const worksOverallScale = useTransform(worksOverallSpring, [0, 0.15, 0.85, 1], [0.8, 1, 1, 0.8]);
-  const worksOverallOpacity = useTransform(worksOverallSpring, [0, 0.15, 0.85, 1], [0, 1, 1, 0]);
-  const worksOverallBorder = useTransform(worksOverallSpring, [0, 0.15, 0.85, 1], ["40px", "0px", "0px", "40px"]);
-
   const navItems = [
     { id: 'about',     label: t.nav.about },
-    { id: 'works',     label: t.nav.works },
+    { id: 'works-pin-container', label: t.nav.works }, // Maps perfectly to the actual id now
     { id: 'gallery',   label: t.nav.gallery },
     { id: 'skills',    label: t.nav.skills },
     { id: 'timeline',  label: t.nav.timeline },
@@ -900,43 +938,44 @@ export default function Home() {
       <div id="top" className="absolute top-0" />
 
       {/* ───── Theme Wipe Overlay ───── */}
-      <AnimatePresence>
-        {themeWipe && (() => {
-          const props = themeWipe.completing ? null : getWipeProps(themeWipe);
-          const maskImg = themeWipe.completing ? undefined : props?.mask;
-          if (!maskImg && !themeWipe.completing) return null;
-          return (
-            <motion.div
-              key="theme-wipe"
-              initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="fixed inset-0 pointer-events-none"
-              style={{ zIndex: 988 }}
-            >
-              <div style={{
-                position: 'absolute', inset: 0,
-                backdropFilter: 'invert(1) hue-rotate(180deg)',
-                WebkitBackdropFilter: 'invert(1) hue-rotate(180deg)',
-                ...(maskImg ? { WebkitMaskImage: maskImg, maskImage: maskImg } : {}),
-              }} />
-              {props && !themeWipe.frozen && (
-                <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-                  {/* Shadow layer for dark backgrounds */}
-                  <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="color-mix(in srgb, var(--foreground) 55%, transparent)" strokeWidth="4" />
-                  <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="color-mix(in srgb, var(--foreground) 40%, transparent)" strokeWidth="3.5" strokeDasharray="10 6" />
-                  {/* Line on top */}
-                  <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
-                    stroke="color-mix(in srgb, var(--background) 95%, transparent)" strokeWidth="1.5" />
-                  <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
-                    stroke="color-mix(in srgb, var(--background) 70%, transparent)" strokeWidth="1.5" strokeDasharray="10 6" />
-                </svg>
-              )}
-            </motion.div>
-          );
-        })()}
-      </AnimatePresence>
+      <div className="pointer-events-none" style={{ zIndex: 988 }}>
+        <AnimatePresence>
+          {themeWipe && (() => {
+            const props = themeWipe.completing ? null : getWipeProps(themeWipe);
+            const maskImg = themeWipe.completing ? undefined : props?.mask;
+            if (!maskImg && !themeWipe.completing) return null;
+            return (
+              <motion.div
+                key="theme-wipe"
+                initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="fixed inset-0 pointer-events-none"
+              >
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  backdropFilter: 'invert(1) hue-rotate(180deg)',
+                  WebkitBackdropFilter: 'invert(1) hue-rotate(180deg)',
+                  ...(maskImg ? { WebkitMaskImage: maskImg, maskImage: maskImg } : {}),
+                }} />
+                {props && !themeWipe.frozen && (
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+                    {/* Shadow layer for dark backgrounds */}
+                    <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
+                      stroke="color-mix(in srgb, var(--foreground) 55%, transparent)" strokeWidth="4" />
+                    <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
+                      stroke="color-mix(in srgb, var(--foreground) 40%, transparent)" strokeWidth="3.5" strokeDasharray="10 6" />
+                    {/* Line on top */}
+                    <line x1={props.line1.x1} y1={props.line1.y1} x2={props.line1.x2} y2={props.line1.y2}
+                      stroke="color-mix(in srgb, var(--background) 95%, transparent)" strokeWidth="1.5" />
+                    <line x1={props.line2.x1} y1={props.line2.y1} x2={props.line2.x2} y2={props.line2.y2}
+                      stroke="color-mix(in srgb, var(--background) 70%, transparent)" strokeWidth="1.5" strokeDasharray="10 6" />
+                  </svg>
+                )}
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
+      </div>
       
       {/* ───── NAV ───── */}
       <motion.header
@@ -1063,16 +1102,17 @@ export default function Home() {
       </motion.header>
 
       {/* ───── MOBILE FULL-SCREEN MENU ───── */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
-            animate={{ opacity: 1, clipPath: "inset(0% 0% 0% 0%)" }}
-            exit={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden fixed inset-0 z-[975] bg-background/95 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
-          >
-            <nav className="flex flex-col flex-1 justify-center">
+      <div className="md:hidden z-[975]">
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
+              animate={{ opacity: 1, clipPath: "inset(0% 0% 0% 0%)" }}
+              exit={{ opacity: 0, clipPath: "inset(100% 0% 0% 0%)" }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed inset-0 bg-background/95 backdrop-blur-sm flex flex-col px-8 pt-20 pb-28"
+            >
+              <nav className="flex flex-col flex-1 justify-center">
               {navItems.map((item, i) => (
                 <motion.button
                   key={item.id}
@@ -1111,6 +1151,7 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
 
       {/* ───── CUSTOM CURSOR ───── */}
       <motion.div
@@ -1126,61 +1167,98 @@ export default function Home() {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       />
 
-      {/* ───── BACKGROUND NOISE & FLUID ───── */}
+      {/* ───── BACKGROUND NOISE & AMBIENT AURORA ───── */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] mix-blend-overlay"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
       />
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        
-        
+      
+      {/* ───── DYNAMIC GLASSMORPHISM AURORA BACKGROUND ───── */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden mix-blend-screen opacity-40">
+        <motion.div 
+          className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[140px] opacity-20 will-change-transform"
+          style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
+          animate={{
+            x: [0, 50, -20, 0],
+            y: [0, -30, 40, 0],
+            scale: [1, 1.1, 0.9, 1],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div 
+          className="absolute top-[20%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[160px] opacity-10 will-change-transform"
+          style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
+          animate={{
+            x: [0, -60, 30, 0],
+            y: [0, 50, -50, 0],
+            scale: [1, 1.2, 0.8, 1],
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }}
+        />
+        <motion.div 
+          className="absolute bottom-[-10%] left-[20%] w-[40vw] h-[40vw] rounded-full blur-[120px] opacity-15 will-change-transform"
+          style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
+          animate={{
+            x: [0, 40, -40, 0],
+            y: [0, 30, -30, 0],
+            scale: [1, 0.9, 1.1, 1],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 4 }}
+        />
       </div>
 
-      <Hero
-        lang={lang as any}
-        slothMode={slothMode}
-        heroClickedSet={heroClickedSet}
-        heroExploding={heroExploding}
-        heroVectors={heroVectorsRef.current}
-        onCharClick={handleHeroCharClick}
-        onSlothDismiss={() => {
-          setSlothMode(false);
-          setHeroClickedSet(new Set());
-          setHeroExploding(new Set());
-        }}
-      />
+      <div id="hero-about-wrapper" className="relative w-full">
+        {/* HERO */}
+        {/* Placed absolutely on top of About */}
+        <div className="absolute top-0 left-0 w-full h-[100svh] z-50 pointer-events-none">
+          <div className="w-full h-full pointer-events-auto">
+            <Hero
+              lang={lang as any}
+              slothMode={slothMode}
+              heroClickedSet={heroClickedSet}
+              heroExploding={heroExploding}
+              heroVectors={heroVectorsRef.current}
+              onCharClick={handleHeroCharClick}
+              onSlothDismiss={() => {
+                setSlothMode(false);
+                setHeroClickedSet(new Set());
+                setHeroExploding(new Set());
+              }}
+            />
+          </div>
+        </div>
 
-      {/* ════════════════════════════════════
-          1.5 ABOUT / INTERACTIVE IDENTITY
-      ════════════════════════════════════ */}
-      <section
-        id="about"
-        ref={aboutRef}
-        className="relative z-10 w-full bg-transparent overflow-hidden"
-        onMouseMove={(e) => {
-          const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-          setAboutMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-        }}
-      >
-        {/* Mouse spotlight */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: `radial-gradient(700px circle at ${aboutMouse.x}px ${aboutMouse.y}px, color-mix(in srgb, var(--foreground) 3%, transparent), transparent 65%)` }}
-        />
+        {/* ════════════════════════════════════
+            1.5 ABOUT / INTERACTIVE IDENTITY
+        ════════════════════════════════════ */}
+        <section id="about" ref={aboutRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden">
 
-        {/* Row 1 — Section header with animated line */}
-        <div className="relative w-full border-b border-[var(--color-white)]/10 px-6 md:px-12 py-5 flex items-center justify-between">
+        <div className="w-full h-full relative" 
+          onMouseMove={(e) => {
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            setAboutMouse({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+          }}
+        >
+          {/* High-end ambient inner glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent pointer-events-none" />
+          {/* Mouse spotlight */}
+          <div
+            className="pointer-events-none absolute inset-0 mix-blend-overlay"
+            style={{ background: `radial-gradient(800px circle at ${aboutMouse.x}px ${aboutMouse.y}px, color-mix(in srgb, var(--foreground) 8%, transparent), transparent 50%)` }}
+          />
+
+          <div className="w-[96%] max-w-[1920px] mx-auto mt-8 border border-foreground/10 bg-foreground/[0.02] backdrop-blur-3xl rounded-[2rem] px-6 md:px-12 py-5 flex items-center justify-between shadow-2xl z-20">
           <span className="font-mono text-xs tracking-[0.5em] uppercase text-foreground/80">{t.about.sub}</span>
           <div className="flex items-center gap-4">
             <motion.div
-              className="h-[1px] bg-gradient-to-r from-transparent to-foreground/20 origin-left"
+              className="h-[1px] bg-gradient-to-r from-transparent to-foreground/50 origin-left"
               initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }}
               transition={{ duration: 1.4, ease: "easeOut" }}
               style={{ width: "80px" }}
             />
-            <span className="font-mono text-xs text-foreground/30 tracking-widest">§ 001 — IDENTITY</span>
+            <span className="font-mono text-xs text-foreground/50 tracking-widest">§ 001 — IDENTITY</span>
           </div>
         </div>
 
@@ -1263,7 +1341,7 @@ export default function Home() {
               transition={{ duration: 0.9, delay: 0.45 }}
               className="absolute bottom-6 left-6 right-6 z-10"
             >
-              <p className="font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
+              <p className="about-reveal-text origin-bottom font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
             </motion.div>
           </div>
 
@@ -1335,7 +1413,7 @@ export default function Home() {
             transition={{ duration: 0.9 }}
             className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-foreground/10 flex flex-col justify-center gap-5"
           >
-            <p className="font-grotesk text-sm md:text-[15px] text-foreground/60 leading-[1.9]">{t.about.p1}</p>
+            <p className="about-reveal-text origin-bottom font-grotesk text-sm md:text-[15px] text-foreground/60 leading-[1.9]">{t.about.p1}</p>
           </motion.div>
 
           {/* Stat cards */}
@@ -1424,150 +1502,101 @@ export default function Home() {
             </motion.div>
           ))}
         </div>
+        </div>
       </section>
+      </div> {/* END hero-about-wrapper */}
 
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works" ref={worksContainerRef} className="relative z-10 w-full bg-background [overflow:clip] text-foreground">
+      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full min-h-screen [overflow:clip] bg-background text-foreground">
+        
+        <div className="w-full h-full relative flex flex-col py-16">
+          {/* Section Header */}
+          <div className="w-[96%] max-w-[1920px] mx-auto mb-10 flex items-center justify-between z-20">
+            <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
+              {t.works.title1} {t.works.title2}
+            </h2>
+            <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">{t.works.archive}</span>
+          </div>
 
-        {/* Section Header */}
-        <div className="w-full border-b border-foreground/10 px-6 md:px-12 py-5 flex items-center justify-between">
-          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
-            {t.works.title1} {t.works.title2}
-          </h2>
-          <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">{t.works.archive}</span>
-        </div>
+        {/* ── Project Theater (GSAP Deck Dealing) ── */}
+        <div className="relative w-[96%] max-w-[1600px] h-[75vh] mx-auto perspective-[2000px]">
+        
+          {WORKS_META.map((wm, i) => {
+            const wi = t.works.items[i];
+            const isEven = i % 2 === 0;
 
-        {/* ── Project Theater ── */}
-        <div ref={worksRef} className="relative" style={{ height: `${WORKS_META.length * 100}vh` }}>
-          <motion.div className="sticky top-0 h-screen overflow-hidden bg-background"
-             style={{ scale: worksOverallScale, opacity: worksOverallOpacity, borderRadius: worksOverallBorder }}
-          >
-
-            {/* Accent environment tints */}
-            {WORKS_META.map((wm, i) => (
-              <motion.div key={`tint-${i}`} className="absolute inset-0 pointer-events-none z-0" style={{ backgroundColor: wm.accent, opacity: tintOpacity[i] }} />
-            ))}
-
-            {/* Dynamic Cards */}
-            {WORKS_META.map((wm, i) => {
-              const wi = t.works.items[i];
-              const active = activeWork === i;
-              const isEven = i % 2 === 0;
-
-              return (
-                <motion.div
-                  key={`card-${i}`}
-                  className="absolute inset-0 bg-background will-change-transform"
-                  style={{
-                    zIndex: 10 + i * 10,
-                    y: i === 0 ? 0 : cardY[i],
-                    scale: cardScale[i],
-                    opacity: cardOpacity[i]
-                  }}
-                >
-                  <div className="relative w-full h-full flex flex-col md:flex-row"
-                    onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
-                    
-                    {/* Image Panel */}
-                    <div className={`relative md:w-1/2 h-[38vh] md:h-full overflow-hidden group/img ${isEven ? 'md:order-1' : 'md:order-2'}`}>
-                      {/* Restored ambient glow but with hardware acceleration */}
-                      <motion.div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 rounded-full blur-[80px] pointer-events-none mix-blend-screen will-change-transform"
-                        style={{ backgroundColor: isEven ? 'var(--foreground)' : `${wm.accent}15`, opacity: isEven ? 0.05 : 1, transform: "translateZ(0)" }}
-                        animate={{ scale: active ? [0.8, 1.2, 0.8] : 1, opacity: active ? (isEven ? [0.3, 0.7, 0.3] : [0.3, 0.7, 0.3]) : 0 }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "linear", delay: isEven ? 0 : 1 }}
-                      />
-                      <motion.img src={wm.img} alt={wi.title} className="w-full h-full object-cover transition-all duration-[2s] group-hover/img:scale-110 group-hover/img:brightness-110 will-change-transform"
-                        style={{ objectPosition: wm.objPos || "center" }}
-                        animate={{ scale: active ? 1.05 : 1.0 }}
-                        transition={{ scale: { duration: active ? 7 : 1.2, ease: active ? "linear" : "easeOut" } }} />
-                      {/* Dim overlay for inactive state instead of expensive blur filter */}
-                      <motion.div 
-                        className="absolute inset-0 bg-background pointer-events-none"
-                        animate={{ opacity: active ? 0 : 0.6 }}
-                        transition={{ duration: 1.2, ease: "easeOut" }}
-                      />
-                      <div className={`absolute inset-0 bg-gradient-to-${isEven ? 'r' : 'l'} from-transparent via-transparent to-background pointer-events-none`} />
-                      <div className="absolute inset-0 bg-background/20 transition-opacity duration-1000 group-hover/img:opacity-0 pointer-events-none" />
-                      <span className={`absolute bottom-5 ${isEven ? 'left-6' : 'right-6'} font-mono text-[10px] tracking-widest text-foreground/30 uppercase hidden md:block`}>
-                        0{i + 1} / 0{WORKS_META.length}
-                      </span>
-                    </div>
-
-                    {/* Text Panel */}
-                    <div className={`relative md:w-1/2 h-[62vh] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 overflow-hidden ${isEven ? 'md:order-2' : 'md:order-1'}`}>
-                      <span className="absolute font-syne font-black text-[28vw] md:text-[16vw] text-transparent leading-none pointer-events-none select-none"
-                        style={{ WebkitTextStroke: "1px color-mix(in srgb, var(--foreground) 4%, transparent)", fontFamily: "var(--font-syne)", [isEven ? 'right' : 'left']: "-1vw", bottom: "-3vw" }}>
-                        <RollingNumber value={i + 1} />
-                      </span>
-                      <span className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase mb-5 w-fit px-3 py-1.5 border relative overflow-hidden group/tag"
-                        style={{ color: wm.accent, borderColor: `${wm.accent}50`, backgroundColor: `${wm.accent}15` }}>
-                        <span className="relative z-10">{wi.tag}</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-foreground/20 to-transparent -translate-x-full group-hover/tag:animate-[shimmer_1.5s_infinite]" />
-                      </span>
-                      <a href={wi.link} target="_blank" rel="noopener noreferrer" className="block w-fit">
-                        <h3 className="font-syne font-black text-3xl md:text-5xl lg:text-6xl leading-[1.05] mb-5 hover:text-foreground/80 transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
-                          <BlurFocusText text={wi.title} trigger={active} />
-                        </h3>
-                      </a>
-                      <motion.p className="font-grotesk text-sm md:text-base text-foreground/60 max-w-md leading-relaxed mb-8 relative"
-                        animate={{ opacity: active ? 1 : 0.25, y: active ? 0 : 14 }}
-                        transition={{ duration: 0.7, delay: active ? 0.35 : 0 }}>
-                        {wi.desc}
-                      </motion.p>
-                      <motion.a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 group/cta w-fit relative"
-                        animate={{ opacity: active ? 1 : 0, x: active ? 0 : -18 }}
-                        transition={{ duration: 0.55, delay: active ? 0.55 : 0 }}>
-                        <div className="absolute -inset-4 bg-gradient-to-r from-foreground/0 via-foreground/5 to-foreground/0 opacity-0 group-hover/cta:opacity-100 blur-xl transition-all duration-700 pointer-events-none" />
-                        <span className="font-mono text-xs tracking-[0.3em] uppercase text-foreground/60 group-hover/cta:text-foreground transition-colors duration-300 relative z-10">{t.works.view}</span>
-                        <div className="w-11 h-11 rounded-full border border-foreground/20 flex items-center justify-center transition-all duration-500 group-hover/cta:bg-foreground group-hover/cta:border-foreground group-hover/cta:-rotate-45 group-hover/cta:text-background group-hover/cta:scale-110 group-hover/cta:shadow-[0_0_20px_color-mix(in srgb, var(--foreground) 30%, transparent)] relative z-10">
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                        </div>
-                      </motion.a>
-                      <div className="absolute bottom-0 left-0 right-0 h-[1px]" style={{ background: `linear-gradient(90deg, transparent, ${wm.accent}35, transparent)` }} />
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-
-            {/* Progress indicator */}
-            <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-3 z-30 pointer-events-none items-center">
-              {WORKS_META.map((wm, i) => (
-                <div key={i} className="group relative flex items-center justify-center">
-                  <motion.div 
-                    className="h-[2px] rounded-full transition-all duration-700 relative z-10"
-                    animate={{ width: i === activeWork ? 36 : 12, backgroundColor: i === activeWork ? wm.accent : "color-mix(in srgb, var(--foreground) 20%, transparent)" }}
-                    layout
-                  />
-                  {i === activeWork && (
-                    <motion.div 
-                      layoutId="active-work-glow"
-                      className="absolute w-full h-full blur-md opacity-60"
-                      style={{ backgroundColor: wm.accent }}
-                      transition={{ duration: 0.7 }}
+            return (
+              <div
+                key={`card-${i}`}
+                className="work-deck-card absolute inset-0 bg-background border border-foreground/[0.03] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden"
+                style={{ zIndex: 10 + i }}
+              >
+                <div className="relative w-full h-full flex flex-col md:flex-row group"
+                  onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
+                  
+                  {/* Image Panel */}
+                  <div className={`relative md:w-[60%] h-[40vh] md:h-full overflow-hidden ${isEven ? 'md:order-1' : 'md:order-2'}`}>
+                    {/* Minimalist image presentation without heavy neon/gradient overlays */}
+                    <img src={wm.img} alt={wi.title} className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      style={{ objectPosition: wm.objPos || "center" }}
                     />
-                  )}
-                </div>
-              ))}
-            </div>
+                    {/* Very subtle inner vignette for text legibility if needed, but keeping it clean */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20 pointer-events-none" />
+                  </div>
 
-          </motion.div>
+                  {/* Text Panel */}
+                  <div className={`relative md:w-[40%] h-[60vh] md:h-full flex flex-col justify-center px-10 md:px-16 lg:px-20 overflow-hidden ${isEven ? 'md:order-2' : 'md:order-1'} bg-background/95`}>
+                    
+                    {/* Refined minimalistic indexing */}
+                    <div className="absolute top-10 flex items-center gap-4 text-foreground/40 font-mono text-[10px] tracking-[0.2em]">
+                      <span>0{i + 1}</span>
+                      <span className="w-8 h-[1px] bg-foreground/10" />
+                      <span>0{WORKS_META.length}</span>
+                    </div>
+
+                    <span className="font-mono text-[9px] md:text-[10px] tracking-[0.25em] uppercase mb-6 w-fit px-3 py-1.5 border rounded-full text-foreground/60 border-foreground/10">
+                      {wi.tag}
+                    </span>
+                    
+                    <h3 className="font-syne font-black text-4xl md:text-5xl lg:text-6xl leading-[1.05] mb-6 tracking-tight" style={{ fontFamily: "var(--font-syne)" }}>
+                      {wi.title}
+                    </h3>
+                    
+                    <p className="font-grotesk text-sm md:text-base text-foreground/50 max-w-sm leading-relaxed mb-12">
+                      {wi.desc}
+                    </p>
+                    
+                    {/* Modern thin-line CTA */}
+                    <a href={wi.link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 w-fit group/cta pb-1 border-b border-foreground/20 hover:border-foreground transition-colors duration-300">
+                      <span className="font-mono text-[11px] tracking-[0.2em] uppercase text-foreground/80 group-hover/cta:text-foreground transition-colors">{t.works.view}</span>
+                      <svg className="transform transition-transform duration-300 group-hover/cta:translate-x-1 group-hover/cta:-translate-y-1" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          
+        </div>
         </div>
       </section>
 
       {/* ════════════════════════════════════
           2. HORIZONTAL SCROLL (Manifesto + Gallery)
       ════════════════════════════════════ */}
-      <section id="gallery" ref={horizontalRef} className="relative z-10 h-[500vh] bg-background text-foreground">
-        <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center">
+      <section id="gallery" ref={horizontalRef} className="relative z-10 w-full min-h-screen bg-background text-foreground">
+        <div className="w-full relative" style={{ height: "500vh" }}>
+          <div className="sticky top-[2vh] h-[96vh] w-[96%] left-[2%] max-w-[1920px] mx-auto overflow-hidden flex items-center bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.3)]">
           
           {/* Main Horizontal Track */}
           <motion.div style={{ x: xTransform }} className="flex h-full w-[500vw] will-change-transform">
             
             {/* Panel 1: Huge Manifesto */}
-            <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0 relative overflow-hidden">
+            <div className="w-[100vw] h-full flex items-center justify-center px-6 md:px-24 shrink-0 relative overflow-hidden gallery-skew-item">
 
               {/* Parallax background geometric accent & Ambient Glow */}
               <motion.div 
@@ -1604,7 +1633,7 @@ export default function Home() {
 
             {/* Panels 2-5: Gallery Cards overlapping */}
             {PHOTOS.map((photo, i) => (
-              <div key={i} className="w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative group/photo">
+              <div key={i} className="gallery-skew-item w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative group/photo">
                 {/* Background ghost text moving slightly against scroll */}
                 <motion.div 
                   initial={{ x: 50, opacity: 0 }}
@@ -1621,7 +1650,7 @@ export default function Home() {
                   href={photo.src} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-sm overflow-hidden neon-card cursor-pointer z-10 shadow-2xl transition-all duration-700 hover:shadow-[0_0_50px_color-mix(in srgb, var(--foreground) 5%, transparent)] border border-transparent hover:border-foreground/10"
+                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-[2rem] overflow-hidden cursor-pointer z-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-1000 hover:shadow-[0_30px_90px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30"
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                 >
                   <motion.img 
@@ -1633,7 +1662,7 @@ export default function Home() {
                     whileInView={{ scale: 1.05, filter: 'blur(0px)' }}
                     viewport={{ root: horizontalRef }}
                     transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="w-full h-full object-cover grayscale-[20%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-700 group-hover/photo:scale-100 will-change-transform" 
+                    className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-[1.5s] group-hover/photo:scale-100 will-change-transform" 
                   />
                   
                   {/* Overlay gradients & Data */}
@@ -1670,6 +1699,7 @@ export default function Home() {
             
           </motion.div>
         </div>
+        </div>
       </section>
 
       {/* ── MARQUEE BAND ── */}
@@ -1700,8 +1730,11 @@ export default function Home() {
       {/* ════════════════════════════════════
           3. BENTO SYSTEM (Skills + Timeline fusion)
       ════════════════════════════════════ */}
-      <section id="skills" className="relative z-10 py-32 px-4 md:px-12 bg-transparent flex flex-col items-center">
-        <div className="w-full max-w-7xl mb-10 md:mb-16">
+      <section id="skills" ref={skillsRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden py-16" style={{ perspective: "1500px" }}>
+        <div id="skills-bento-grid" className="w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)] flex flex-col items-center py-24 px-6 md:px-12" style={{ transformStyle: "preserve-3d" }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent pointer-events-none rounded-[3rem]" />
+        
+        <div className="w-full max-w-7xl mb-10 md:mb-16 relative z-10">
           <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl " style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-foreground">{t.skills.title2}</span></h2>
         </div>
 
@@ -1712,7 +1745,7 @@ export default function Home() {
             {SKILLS.map((skill, i) => (
               <div 
                 key={i}
-                className="relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-foreground/10 hover:border-foreground/30"
+                className="skill-bento-piece relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-foreground/10 hover:border-foreground/30"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
                 <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[30%] opacity-70 group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
@@ -1742,6 +1775,7 @@ export default function Home() {
           </div>
 
         </div>
+        </div>
       </section>
 
       {/* 
@@ -1752,17 +1786,21 @@ export default function Home() {
       {/* ════════════════════════════════════
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
-        <section id="guestbook" className="relative min-h-screen bg-background text-foreground">
+      <section id="guestbook" ref={guestbookRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden py-16">
+        <div className="w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)]">
           <GuestbookWall lang={lang} />
-        </section>
+        </div>
+      </section>
 
       {/* ════════════════════════════════════
           4. CONTACT — Immersive Glass Hub
       ════════════════════════════════════ */}
-      <section ref={contactSectionRef} id="contact" className="relative z-10 min-h-[90vh] flex flex-col bg-background overflow-hidden text-foreground">
+      <section ref={contactSectionRef} id="contact" className="relative z-10 w-full min-h-screen bg-background text-foreground py-16 flex items-center justify-center overflow-hidden">
+        
+          <div className="w-[98%] max-w-[1920px] mx-auto min-h-[90vh] rounded-[3.5rem] flex flex-col bg-foreground/[0.02] backdrop-blur-[60px] border border-foreground/[0.05] shadow-[0_-20px_80px_rgba(0,0,0,0.3)] text-foreground relative z-10 mix-blend-normal transform-style-3d">
         
         {/* Soft immersive top separator */}
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--foreground)]/10 to-transparent" />
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--foreground)]/20 to-transparent" />
         
         {/* Environmental Deep Space Lighting at bottom center - Amped up visibility & width */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0 will-change-transform" 
@@ -1874,6 +1912,7 @@ export default function Home() {
           <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">© 2026 TREE HEY. ALL RIGHTS RESERVED.</span>
           <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
         </div>
+        </div>
       </section>
 
       {/* ── Scroll velocity motion blur overlay ── */}
@@ -1918,6 +1957,7 @@ export default function Home() {
     </main>
   );
 }
+
 
 
 
