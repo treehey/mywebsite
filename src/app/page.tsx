@@ -598,9 +598,9 @@ export default function Home() {
           tlDeck.fromTo(card,
             { y: window.innerHeight + 100, rotation: i % 2 === 0 ? 8 : -8, scale: 0.9, opacity: 0 },
             { 
-              y: i * 40, 
-              rotation: (i%2===0?-2:2), 
-              scale: 1 - ((worksDeck.length - i) * 0.03), 
+              y: 0,
+              rotation: 0,
+              scale: 1,
               opacity: 1, 
               ease: "power3.out",  // 改掉"慢起"逻辑，变为先快后慢（一开始立刻冲出大半截，快到位时慢慢贴合）
               duration: 0.95       // 占用 95% 时间比例
@@ -659,17 +659,32 @@ export default function Home() {
 
   // Scroll Spy Observer
   useEffect(() => {
+    const isContactRevealed = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      return window.scrollY >= maxScroll - Math.min(window.innerHeight * 0.35, 320);
+    };
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !isContactRevealed()) {
           setActiveSection(entry.target.id);
         }
       });
     }, { rootMargin: "-30% 0px -50% 0px" });
 
-    const sections = document.querySelectorAll('section[id], div[id="timeline"]');
+    const handleScroll = () => {
+      if (isContactRevealed()) setActiveSection("contact");
+    };
+
+    const sections = document.querySelectorAll('main section[id], main div[id="timeline"]');
     sections.forEach(s => observer.observe(s));
-    return () => observer.disconnect();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -768,6 +783,23 @@ export default function Home() {
   ];
   const activeIdx = navItems.findIndex(n => n.id === activeSection);
 
+  const scrollToNavItem = (id: string) => {
+    if (id === "contact") {
+      const target = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      setActiveSection("contact");
+      if (globalLenis) globalLenis.scrollTo(target, { duration: 1.2 });
+      else window.scrollTo({ top: target, behavior: "smooth" });
+      return;
+    }
+
+    const el = document.getElementById(id);
+    if (!el) return;
+    setActiveSection(id);
+    const target = window.scrollY + el.getBoundingClientRect().top;
+    if (globalLenis) globalLenis.scrollTo(target, { duration: 1.2 });
+    else el.scrollIntoView({ behavior: "smooth" });
+  };
+
   const HERO_CHARS = "TREE HEY".split("");
 
   // ── Hero letter explosion & SLOTH easter egg ────────────────────────────
@@ -823,7 +855,7 @@ export default function Home() {
     let raf: number;
     const tick = () => {
       const vel = globalLenis?.velocity ?? 0;
-      const blur = Math.min(Math.abs(vel) * 0.13, 2.8);
+      const blur = Math.min(Math.max(Math.abs(vel) - 2, 0) * 0.05, 0.85);
       if (blurOverlayRef.current)
         blurOverlayRef.current.style.backdropFilter = `blur(${blur.toFixed(2)}px)`;
       raf = requestAnimationFrame(tick);
@@ -934,8 +966,10 @@ export default function Home() {
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
-    <main ref={containerRef} className="relative w-full bg-transparent ">
-      <div id="top" className="absolute top-0" />
+    <div className="relative w-full">
+      {/* Main Content Wrapper (Covers the Footer) */}
+      <main ref={containerRef} className="relative z-10 w-full bg-background pb-12 md:pb-24 shadow-[0_40px_120px_rgba(0,0,0,0.6)]" style={{ marginBottom: "100vh", borderBottomLeftRadius: "60px", borderBottomRightRadius: "60px" }}>
+        <div id="top" className="absolute top-0" />
 
       {/* ───── Theme Wipe Overlay ───── */}
       <div className="pointer-events-none" style={{ zIndex: 988 }}>
@@ -1011,7 +1045,7 @@ export default function Home() {
               href={`#${item.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                scrollToNavItem(item.id);
               }}
               onMouseEnter={() => setCursorBig(true)}
               onMouseLeave={() => setCursorBig(false)}
@@ -1122,7 +1156,7 @@ export default function Home() {
                   transition={{ delay: i * 0.05 + 0.1, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    setTimeout(() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }), 400);
+                    setTimeout(() => scrollToNavItem(item.id), 400);
                   }}
                   className={`group w-full py-4 flex items-center gap-4 border-b text-left transition-colors ${
                     activeSection === item.id ? 'border-foreground/15' : 'border-foreground/[0.06]'
@@ -1169,9 +1203,9 @@ export default function Home() {
 
       {/* ───── BACKGROUND NOISE & AMBIENT AURORA ───── */}
       <div 
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03] mix-blend-overlay"
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.008] mix-blend-overlay"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.42' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
       />
       
@@ -1348,10 +1382,17 @@ export default function Home() {
           {/* Cell B — Minecraft, top col 2 */}
           <div
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-foreground/10 group cursor-pointer"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
+            }}
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             onClick={() => minecraftMode ? exitMinecraft() : enterMinecraft()}
             title={minecraftMode ? "点击退出 Minecraft 模式" : "点击进入 Minecraft 模式"}
           >
+            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none pointer-events-none mix-blend-overlay"
+                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
             <DarkroomImage src={`${B}/images/about/Minecraft.jfif`} alt="Origin"
               className="w-full h-full object-cover object-center transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
               finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
@@ -1364,8 +1405,15 @@ export default function Home() {
           {/* Cell C — Student Association, top col 3 */}
           <div
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-foreground/10 group cursor-default"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
+            }}
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
+            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay"
+                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
             <DarkroomImage src={`${B}/images/about/student-association.jpg`} alt="Student Association"
               className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
@@ -1378,8 +1426,15 @@ export default function Home() {
           {/* Cell D — mbot robotics, bottom col 2 */}
           <div
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-foreground/10 group cursor-default"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
+            }}
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
+            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay"
+                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
             <DarkroomImage src={`${B}/images/about/mbot.jpg`} alt="Robotics"
               className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
@@ -1392,8 +1447,15 @@ export default function Home() {
           {/* Cell E — STEAM & IoT, bottom col 3 */}
           <div
             className="relative overflow-hidden aspect-[4/3] md:aspect-auto group cursor-default"
+            onMouseMove={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
+              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
+            }}
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
+            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay"
+                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
             <DarkroomImage src={`${B}/images/about/steam&iot.jpg`} alt="STEAM"
               className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
               finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
@@ -1509,11 +1571,11 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full min-h-screen [overflow:clip] bg-background text-foreground">
+      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full h-[100svh] overflow-hidden bg-background text-foreground">
         
-        <div className="w-full h-full relative flex flex-col py-16">
+        <div className="w-full h-full relative flex flex-col pt-24 md:pt-28 pb-8 md:pb-10">
           {/* Section Header */}
-          <div className="w-[96%] max-w-[1920px] mx-auto mb-10 flex items-center justify-between z-20">
+          <div className="w-[96%] max-w-[1920px] mx-auto mb-5 md:mb-7 flex items-center justify-between z-20 shrink-0">
             <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
               {t.works.title1} {t.works.title2}
             </h2>
@@ -1521,7 +1583,7 @@ export default function Home() {
           </div>
 
         {/* ── Project Theater (GSAP Deck Dealing) ── */}
-        <div className="relative w-[96%] max-w-[1600px] h-[75vh] mx-auto perspective-[2000px]">
+        <div className="relative w-[96%] max-w-[1600px] flex-1 min-h-0 mx-auto perspective-[2000px]">
         
           {WORKS_META.map((wm, i) => {
             const wi = t.works.items[i];
@@ -1530,14 +1592,16 @@ export default function Home() {
             return (
               <div
                 key={`card-${i}`}
-                className="work-deck-card absolute inset-0 bg-background border border-foreground/[0.03] rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.2)] overflow-hidden"
+                className="work-deck-card absolute inset-0 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.4)] overflow-hidden"
                 style={{ zIndex: 10 + i }}
               >
-                <div className="relative w-full h-full flex flex-col md:flex-row group"
+                {/* 顶部高光玻璃反射边缘 */}
+                <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent pointer-events-none z-50 mix-blend-overlay" />
+                <div className="relative w-full h-full min-h-0 flex flex-col md:flex-row group"
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                   
                   {/* Image Panel */}
-                  <div className={`relative md:w-[60%] h-[40vh] md:h-full overflow-hidden ${isEven ? 'md:order-1' : 'md:order-2'}`}>
+                  <div className={`relative md:w-[56%] h-[38%] md:h-full min-h-0 overflow-hidden ${isEven ? 'md:order-1' : 'md:order-2'}`}>
                     {/* Minimalist image presentation without heavy neon/gradient overlays */}
                     <img src={wm.img} alt={wi.title} className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)]"
                       style={{ objectPosition: wm.objPos || "center" }}
@@ -1547,7 +1611,7 @@ export default function Home() {
                   </div>
 
                   {/* Text Panel */}
-                  <div className={`relative md:w-[40%] h-[60vh] md:h-full flex flex-col justify-center px-10 md:px-16 lg:px-20 overflow-hidden ${isEven ? 'md:order-2' : 'md:order-1'} bg-background/95`}>
+                  <div className={`relative md:w-[44%] flex-1 md:h-full min-h-0 flex flex-col justify-center px-7 sm:px-10 md:px-10 lg:px-12 xl:px-14 py-14 md:py-12 overflow-hidden ${isEven ? 'md:order-2' : 'md:order-1'} bg-transparent`}>
                     
                     {/* Refined minimalistic indexing */}
                     <div className="absolute top-10 flex items-center gap-4 text-foreground/40 font-mono text-[10px] tracking-[0.2em]">
@@ -1556,15 +1620,15 @@ export default function Home() {
                       <span>0{WORKS_META.length}</span>
                     </div>
 
-                    <span className="font-mono text-[9px] md:text-[10px] tracking-[0.25em] uppercase mb-6 w-fit px-3 py-1.5 border rounded-full text-foreground/60 border-foreground/10">
+                    <span className="font-mono text-[9px] md:text-[10px] tracking-[0.18em] uppercase mb-4 md:mb-5 w-fit max-w-full px-3 py-1.5 border rounded-full text-foreground/60 border-foreground/10 break-words">
                       {wi.tag}
                     </span>
                     
-                    <h3 className="font-syne font-black text-4xl md:text-5xl lg:text-6xl leading-[1.05] mb-6 tracking-tight" style={{ fontFamily: "var(--font-syne)" }}>
+                    <h3 className="font-syne font-black text-[clamp(2.15rem,5.6vw,3.75rem)] md:text-[clamp(2.3rem,3.15vw,3.55rem)] xl:text-[clamp(2.45rem,3vw,3.7rem)] leading-[1.02] mb-5 tracking-normal max-w-full whitespace-normal break-normal [overflow-wrap:normal] [word-break:keep-all] [text-wrap:balance]" style={{ fontFamily: "var(--font-syne)" }}>
                       {wi.title}
                     </h3>
                     
-                    <p className="font-grotesk text-sm md:text-base text-foreground/50 max-w-sm leading-relaxed mb-12">
+                    <p className="font-grotesk text-sm md:text-[15px] text-foreground/50 max-w-[38ch] leading-[1.65] mb-8 md:mb-10 break-words [overflow-wrap:anywhere]">
                       {wi.desc}
                     </p>
                     
@@ -1787,24 +1851,26 @@ export default function Home() {
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
       <section id="guestbook" ref={guestbookRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden py-16">
-        <div className="w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)]">
+        <div className="relative w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.018] backdrop-blur-xl border border-foreground/[0.07] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.18)] overflow-hidden isolate">
           <GuestbookWall lang={lang} />
         </div>
       </section>
+      </main>
 
       {/* ════════════════════════════════════
-          4. CONTACT — Immersive Glass Hub
+          4. CONTACT — Immersive Glass Hub (Curtain Reveal Footer)
       ════════════════════════════════════ */}
-      <section ref={contactSectionRef} id="contact" className="relative z-10 w-full min-h-screen bg-background text-foreground py-16 flex items-center justify-center overflow-hidden">
-        
-          <div className="w-[98%] max-w-[1920px] mx-auto min-h-[90vh] rounded-[3.5rem] flex flex-col bg-foreground/[0.02] backdrop-blur-[60px] border border-foreground/[0.05] shadow-[0_-20px_80px_rgba(0,0,0,0.3)] text-foreground relative z-10 mix-blend-normal transform-style-3d">
+      <footer className="fixed bottom-0 left-0 w-full h-screen z-0 bg-background pointer-events-auto">
+        <section ref={contactSectionRef} id="contact" className="relative w-full h-full flex items-center justify-center overflow-hidden">
+          
+          <div className="w-[98%] max-w-[1920px] mx-auto h-[92vh] rounded-[3.5rem] flex flex-col bg-background/90 backdrop-blur-xl border border-foreground/[0.08] shadow-[0_-18px_70px_rgba(0,0,0,0.25)] text-foreground relative z-10 mix-blend-normal transform-style-3d overflow-hidden">
         
         {/* Soft immersive top separator */}
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--foreground)]/20 to-transparent" />
         
         {/* Environmental Deep Space Lighting at bottom center - Amped up visibility & width */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[120vw] h-[60vh] mix-blend-screen pointer-events-none z-0 will-change-transform" 
-             style={{ background: 'radial-gradient(ellipse at bottom, color-mix(in srgb, var(--foreground) 12%, transparent) 0%, color-mix(in srgb, var(--foreground) 3%, transparent) 40%, transparent 70%)', filter: 'blur(80px)', transform: "translateZ(0)" }} />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[90vw] h-[38vh] mix-blend-screen pointer-events-none z-0 will-change-transform" 
+             style={{ background: 'radial-gradient(ellipse at bottom, color-mix(in srgb, var(--foreground) 5%, transparent) 0%, color-mix(in srgb, var(--foreground) 1.5%, transparent) 45%, transparent 72%)', filter: 'blur(34px)', transform: "translateZ(0)" }} />
 
         {/* Section label row */}
         <div className="w-full px-6 md:px-12 py-5 flex items-center justify-between relative z-10">
@@ -1851,10 +1917,11 @@ export default function Home() {
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
             className="w-full max-w-4xl rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 relative overflow-hidden"
             style={{
-              background: `linear-gradient(135deg, color-mix(in srgb, var(--foreground) 3%, transparent) 0%, color-mix(in srgb, var(--foreground) 1%, transparent) 100%)`,
-              border: `1px solid color-mix(in srgb, var(--foreground) 5%, transparent)`,
-              backdropFilter: "blur(40px) saturate(150%)",
-              boxShadow: `0 30px 60px -10px color-mix(in srgb, var(--foreground) 50%, transparent), inset 0 1px 1px color-mix(in srgb, var(--foreground) 15%, transparent), inset 0 -1px 1px color-mix(in srgb, var(--foreground) 30%, transparent)`,
+              background: `linear-gradient(135deg, color-mix(in srgb, var(--background) 82%, transparent) 0%, color-mix(in srgb, var(--foreground) 4%, transparent) 100%)`,
+              border: `1px solid color-mix(in srgb, var(--foreground) 10%, transparent)`,
+              backdropFilter: "blur(18px) saturate(130%)",
+              WebkitBackdropFilter: "blur(18px) saturate(130%)",
+              boxShadow: `0 24px 54px -18px color-mix(in srgb, var(--foreground) 24%, transparent), inset 0 1px 1px color-mix(in srgb, var(--foreground) 14%, transparent)`,
             }}
           >
             {/* Inner top highlight line for glass thickness */}
@@ -1913,7 +1980,8 @@ export default function Home() {
           <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
         </div>
         </div>
-      </section>
+        </section>
+      </footer>
 
       {/* ── Scroll velocity motion blur overlay ── */}
       <div ref={blurOverlayRef} className="fixed inset-0 z-[3] pointer-events-none"
@@ -1954,7 +2022,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-    </main>
+    </div>
   );
 }
 

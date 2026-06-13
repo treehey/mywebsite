@@ -205,44 +205,41 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
     return () => window.removeEventListener("resize", updateCols);
   }, [entries.length]);
 
-  const wallHeight = Math.ceil(entries.length / cols) * 350 + 220;
+  const wallHeight = Math.max(520, Math.ceil(entries.length / cols) * 320 + 180);
 
   return (
     <section 
       ref={sectionRef}
-      className="relative min-h-screen py-28 px-6 md:px-12 overflow-hidden"
+      className="relative min-h-screen py-20 md:py-24 px-5 md:px-10 overflow-hidden"
     >
-      {/* 大面积环境动态光效（Dynamic Broad Sunlight） */}
+      {/* Soft clipped ambience */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
-        {/* 屏幕泛光核心：光源跟随鼠标，并投射到大环境 */}
         <div 
           className="absolute inset-0 transition-opacity duration-500 ease-out"
           style={{
-            background: `radial-gradient(120vw 120vh at calc(var(--mx, 50vw)) calc(var(--my, 50vh)), rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.04) 30%, transparent 80%)`,
+            background: `radial-gradient(62rem 42rem at var(--mx, 50%) var(--my, 28%), rgba(255,255,255,0.075) 0%, rgba(255,255,255,0.025) 36%, transparent 72%)`,
           }}
         />
-        {/* 动态斜向大面积光幕：不再是光带，而是纯粹的方向性环境光洗刷 */}
         <div 
-          className="absolute left-[-50%] top-[-50%] w-[200%] h-[200%] transition-transform duration-[800ms] ease-out mix-blend-screen pointer-events-none"
+          className="absolute inset-0 transition-transform duration-[800ms] ease-out mix-blend-screen pointer-events-none"
           style={{
-            background: `linear-gradient(var(--light-deg, 135deg), rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 20%, transparent 50%)`,
-            transform: `translate(calc((var(--mx, 50vw) - 50vw) * 0.1), calc((var(--my, 50vh) - 50vh) * 0.1))`,
+            background: `linear-gradient(var(--light-deg, 135deg), rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.015) 24%, transparent 58%)`,
+            transform: "translateZ(0)",
           }}
         />
       </div>
 
-      {/* Background grid */}
+      {/* Background texture */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
         }}
       />
 
-      {/* Ambient glow blobs */}
-      <div className="hidden md:block absolute top-40 left-1/4 w-96 h-96 rounded-full opacity-[0.12] blur-[120px] pointer-events-none" style={{ background: "#FFFFFF" }} />
-      <div className="hidden md:block absolute bottom-40 right-1/4 w-80 h-80 rounded-full opacity-[0.12] blur-[100px] pointer-events-none" style={{ background: "#FFFFFF" }} />
+      <div className="hidden md:block absolute top-32 left-[16%] w-80 h-80 rounded-full opacity-[0.045] blur-[72px] pointer-events-none" style={{ background: "#FFFFFF" }} />
+      <div className="hidden md:block absolute bottom-32 right-[18%] w-72 h-72 rounded-full opacity-[0.035] blur-[72px] pointer-events-none" style={{ background: "#FFFFFF" }} />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Section header */}
@@ -251,17 +248,19 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-10"
+          className="mb-12 md:mb-14"
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-foreground mb-4">
-            GUESTBOOK
-          </p>
+          <div className="mb-5 flex items-center gap-4">
+            <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-foreground/45">GUESTBOOK</p>
+            <span className="h-px w-10 bg-foreground/12" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/30">{String(entries.length).padStart(2, "0")} NOTES</span>
+          </div>
           <div className="flex items-end justify-between gap-6 flex-wrap">
             <div>
-              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-foreground leading-[1] mb-4">
+              <h2 className="font-grotesk font-black text-4xl sm:text-5xl md:text-7xl text-foreground leading-[0.95] mb-4 tracking-tight">
                 {tr.title}
               </h2>
-              <p className="font-grotesk text-foreground/40 text-base max-w-sm">
+              <p className="font-grotesk text-foreground/40 text-base max-w-sm leading-relaxed">
                 {tr.subtitle}
               </p>
             </div>
@@ -272,14 +271,14 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
               onClick={() => { setShowForm(v => !v); setTimeout(() => textareaRef.current?.focus(), 80); }}
               className="flex items-center gap-2 px-5 py-3 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 shrink-0"
               style={{
-                background: showForm ? "rgba(255,255,255,0.1)" : "rgba(5,5,5,0.8)",
-                borderColor: showForm ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)",
+                background: showForm ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.055)",
+                borderColor: showForm ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)",
                 color: showForm ? "#FFFFFF" : "#FFFFFF",
-                backdropFilter: "blur(14px)",
-                boxShadow: showForm ? "0 0 24px rgba(255,255,255,0.15)" : "0 0 24px rgba(255,255,255,0.05)",
+                backdropFilter: "blur(12px) saturate(130%)",
+                boxShadow: showForm ? "0 12px 32px rgba(0,0,0,0.28)" : "0 10px 28px rgba(0,0,0,0.2)",
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: showForm ? "#FFFFFF" : "#FFFFFF" }} />
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: showForm ? "#FFFFFF" : "rgba(255,255,255,0.55)" }} />
               {showForm ? tr.closeBtn : tr.writeBtn}
             </motion.button>
           </div>
@@ -298,10 +297,10 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
               <div
                 className="rounded-[1.5rem] p-6 md:p-8 max-w-xl"
                 style={{
-                  background: "rgba(10,10,10,0.95)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  backdropFilter: "blur(24px)",
-                  boxShadow: "0 0 50px rgba(255,255,255,0.02), 0 24px 64px rgba(0,0,0,0.7)",
+                  background: "rgba(12,12,12,0.78)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  backdropFilter: "blur(18px) saturate(135%)",
+                  boxShadow: "0 24px 64px rgba(0,0,0,0.42), inset 0 1px 1px rgba(255,255,255,0.08)",
                 }}
               >
                 <div className="flex flex-col gap-5">
@@ -449,15 +448,15 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.84, rotate: 0, y: -90, x: cols === 1 ? "-50%" : 0 }}
+      initial={{ opacity: 0, scale: 0.92, rotate: 0, y: -36, x: cols === 1 ? "-50%" : 0 }}
       whileInView={{
         opacity: 1,
-        scale: isFocused ? 1.05 : 1,
+        scale: isFocused ? 1.04 : 1,
         rotate: isFocused ? 0 : rotate,
         y: 0,
         x: cols === 1 ? "-50%" : 0
       }}
-      whileHover={{ scale: 1.06, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
+      whileHover={{ scale: 1.035, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
       whileTap={{ scale: 1.01, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
       onPointerEnter={() => setHasInteracted(true)}
       onMouseMove={handleMouseMove}
@@ -466,7 +465,7 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
         setIsFocused(!isFocused);
       }}
       viewport={{ once: true, margin: "80px" }}
-      transition={{ type: 'spring', stiffness: 480, damping: 22, delay: hasInteracted ? 0 : delay }}
+      transition={{ type: 'spring', stiffness: 360, damping: 28, delay: hasInteracted ? 0 : delay }}
       className="absolute cursor-pointer group"
       style={{
         left: cols === 1 ? `${leftPct}%` : `clamp(10px, ${leftPct}%, calc(100% - ${noteW}px - 10px))`,
@@ -478,56 +477,46 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
     >
       <div
         ref={cardRef}
-        className="relative p-7 rounded-[26px] overflow-hidden shadow-2xl transition-all duration-700 ease-out"
+        className="relative p-6 md:p-7 rounded-[26px] overflow-hidden transition-all duration-700 ease-out"
         style={{
-          // 液态高透玻璃核心 (Liquid High-Transmittance Glassmorphism)
-          background: `linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)`,
-          border: `1px solid rgba(255, 255, 255, 0.05)`,
-          backdropFilter: "blur(36px) saturate(200%)",
+          background: `linear-gradient(145deg, rgba(255,255,255,0.105) 0%, rgba(255,255,255,0.045) 100%)`,
+          border: `1px solid rgba(255, 255, 255, 0.12)`,
+          backdropFilter: "blur(18px) saturate(140%)",
+          WebkitBackdropFilter: "blur(18px) saturate(140%)",
           boxShadow: `
-            0 40px 80px -10px rgba(0,0,0,0.8),
-            inset 0 1px 2px rgba(255,255,255,0.25),
-            inset 0 -1px 2px rgba(0,0,0,0.4)
+            0 24px 52px -26px rgba(0,0,0,0.78),
+            inset 0 1px 1px rgba(255,255,255,0.14),
+            inset 0 -1px 1px rgba(0,0,0,0.18)
           `,
         }}
       >
-        {/* 液态溢出色散（Liquid Accent Bleed） */}
+        {/* Internal soft sheen */}
         <div 
-          className="absolute inset-x-0 -top-10 h-20 opacity-40 group-hover:opacity-100 transition-opacity duration-700 blur-[20px] mix-blend-screen pointer-events-none"
-          style={{ background: `radial-gradient(ellipse at center, ${accentColor} 0%, transparent 70%)` }}
+          className="absolute inset-x-6 top-0 h-px opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+          style={{ background: `linear-gradient(90deg, transparent 0%, ${accentColor}80 45%, transparent 100%)` }}
         />
 
-        {/* 顶部超润霓虹边缘 (Ultra-smooth top neon edge) */}
-        <div 
-          className="absolute top-0 left-0 w-full h-[1.5px] opacity-80 group-hover:opacity-100 transition-all duration-700"
-          style={{
-            background: `linear-gradient(90deg, transparent 0%, ${accentColor} 30%, ${accentColor} 70%, transparent 100%)`,
-            boxShadow: `0 2px 20px 2px ${accentColor}80`,
-          }}
-        />
-
-        {/* 动态球形焦散 + 折射切角 (Liquid Caustics & Refraction mapping to mouse) */}
+        {/* Pointer-following highlight, clipped by the note itself */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 mix-blend-screen" 
              style={{ 
                background: `
-                 radial-gradient(500px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.25) 0%, transparent 40%),
-                 radial-gradient(300px circle at var(--card-x, 50%) var(--card-y, 50%), ${accentColor}40 0%, transparent 50%),
-                 linear-gradient(var(--card-deg, var(--light-deg, 135deg)), rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.08) 20%, transparent 50%)
+                 radial-gradient(360px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.16) 0%, transparent 42%),
+                 linear-gradient(var(--card-deg, var(--light-deg, 135deg)), rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 22%, transparent 52%)
                ` 
              }} />
 
-        {/* Subtle noise -> Refined to digital grain */}
+        {/* Subtle paper grain */}
         <div
-          className="absolute inset-0 opacity-[0.015] pointer-events-none z-0 mix-blend-overlay"
-          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')" }}
+          className="absolute inset-0 opacity-[0.008] pointer-events-none z-0 mix-blend-overlay"
+          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 240 240%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.45%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')" }}
         />
 
         {/* Highlight inner border on hover */}
-        <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 transition-colors duration-500 rounded-2xl pointer-events-none z-10" />
+        <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 transition-colors duration-500 rounded-[26px] pointer-events-none z-10" />
 
         {/* Content */}
         <p
-          className={`relative z-10 font-grotesk text-foreground/85 group-hover:text-foreground transition-colors duration-500 leading-loose tracking-wide mb-6 break-words ${textSize}`}
+          className={`relative z-10 font-grotesk text-foreground/80 group-hover:text-foreground transition-colors duration-500 leading-[1.85] tracking-wide mb-6 break-words ${textSize}`}
         >
           {entry.message}
         </p>
