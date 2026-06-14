@@ -213,4 +213,59 @@ html.minecraft-mode header button {
   left: 0;
 }
 
+/* Premium Awwwards Upgrades */
+.morph-bg-transition {
+  transition: background-color 1.2s cubic-bezier(0.16, 1, 0.3, 1), color 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.perspective-3d {
+  perspective: 2000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.lens-flare-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.lens-flare-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.0) 30%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.0) 70%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  transition: none;
+  pointer-events: none;
+}
+.lens-flare-sweep:hover::after {
+  left: 150%;
+  transition: left 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Scroll indicator custom track */
+.scroll-indicator-track {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.scroll-indicator-bar {
+  background: linear-gradient(90deg, var(--foreground) 0%, rgba(255, 255, 255, 0.3) 100%);
+}
+
 

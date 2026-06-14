@@ -11,6 +11,135 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+/* ════════════════════════════════════════════════════════
+   ELEGANT HTML5 PARTICLE CANVAS
+   ════════════════════════════════════════════════════════ */
+function ParticleCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const particles: Array<{
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+    }> = [];
+
+    const numParticles = Math.min(80, Math.floor((width * height) / 15000));
+
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35,
+        radius: Math.random() * 1.5 + 0.8,
+      });
+    }
+
+    let mouse = { x: -1000, y: -1000 };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("resize", handleResize);
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      const isLight = document.documentElement.classList.contains("light");
+      const color = isLight ? "rgba(17, 17, 17, " : "rgba(242, 242, 242, ";
+
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        if (mouse.x > 0) {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            const force = (150 - dist) / 1500;
+            p.x += (dx / dist) * force * 4;
+            p.y += (dy / dist) * force * 4;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `${color}0.12)`;
+        ctx.fill();
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const p1 = particles[i];
+          const p2 = particles[j];
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 100) {
+            const alpha = (100 - dist) / 100 * 0.06;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `${color}${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none z-[-1]"
+    />
+  );
+}
+
 export default function Hero({ 
   lang, 
   slothMode, 
@@ -126,8 +255,9 @@ export default function Hero({
         className="w-full h-[100svh] overflow-hidden flex flex-col justify-end pb-12 md:pb-24 px-6 md:px-12 selection:bg-white/30 pointer-events-auto"
       >
         <div ref={backgroundRef} className="absolute inset-0 bg-background z-[-2]"></div>
+        <ParticleCanvas />
 
-        <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-screen blur-[2px]" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
+        <div className="absolute inset-0 pointer-events-none opacity-75 mix-blend-screen blur-[0.5px]" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
           <DanmakuSystem lang={lang} />
         </div>
 
@@ -218,9 +348,10 @@ export default function Hero({
                         <motion.span
                           onClick={() => isLetter && onCharClick && onCharClick(wIdx, i)}
                           animate={isExploding ? { x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 1.5 } : { x: 0, y: 0, rotateZ: 0, opacity: isClicked ? 0.3 : 1, rotateX: 0, scale: 1 }}
+                          whileHover={isExploding ? {} : { y: -22, scale: 1.15, rotate: (i % 2 === 0 ? -6 : 6), transition: { type: "spring", stiffness: 350, damping: 10 } }}
                           transition={{ type: "spring", stiffness: 200, damping: 15 }}
                           style={{ display: "inline-block", transformOrigin: "center center" }}
-                          className={`text-foreground ${isLetter ? "cursor-pointer hover:opacity-70 transition-opacity" : ""}`}
+                          className={`text-foreground ${isLetter ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
                         >
                           {ch}
                         </motion.span>

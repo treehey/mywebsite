@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase, type GuestEntry } from "@/lib/supabase";
+import { TactileDesk } from "@/components/guestbook/TactileDesk";
 
 const TL_GW: Record<string, Record<string, string>> = {
   EN: {
@@ -88,7 +89,13 @@ function formatDate(iso: string) {
   } catch { return ""; }
 }
 
-export function GuestbookWall({ lang = "简" }: { lang?: string }) {
+export function GuestbookWall({ 
+  lang = "简",
+  setCursorBig = () => {}
+}: { 
+  lang?: string;
+  setCursorBig?: (v: boolean) => void;
+}) {
   const tr = TL_GW[lang] ?? TL_GW["简"];
   const [entries, setEntries] = useState<GuestEntry[]>([]);
   const [showForm, setShowForm]     = useState(false);
@@ -192,20 +199,6 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
     setTimeout(() => { setShowForm(false); setStatus("idle"); }, 1500);
   };
 
-  const [cols, setCols] = useState(3);
-  useEffect(() => {
-    const updateCols = () => {
-      const w = window.innerWidth;
-      if (w < 640) setCols(1);
-      else if (w < 1024) setCols(Math.max(1, Math.min(2, entries.length)));
-      else setCols(entries.length === 0 ? 3 : entries.length <= 2 ? entries.length : Math.max(2, Math.min(5, Math.ceil(Math.sqrt(entries.length * 1.4)))));
-    };
-    updateCols();
-    window.addEventListener("resize", updateCols);
-    return () => window.removeEventListener("resize", updateCols);
-  }, [entries.length]);
-
-  const wallHeight = Math.max(520, Math.ceil(entries.length / cols) * 320 + 180);
 
   return (
     <section 
@@ -369,12 +362,8 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
           )}
         </AnimatePresence>
 
-        {/* Sticky note freeform wall */}
-        <div className="relative w-full" style={{ minHeight: `${wallHeight}px` }}>
-          {entries.map((entry, i) => (
-            <StickyNote key={entry.id} entry={entry} index={i} total={entries.length} cols={cols} tr={tr} />
-          ))}
-        </div>
+        {/* Tactile Workspace Desk */}
+        <TactileDesk entries={entries} tr={tr} setCursorBig={setCursorBig} />
 
         {/* Empty state */}
         {entries.length === 0 && (
@@ -387,154 +376,6 @@ export function GuestbookWall({ lang = "简" }: { lang?: string }) {
   );
 }
 
-/* ── Individual sticky note ── */
-function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; index: number; total: number; cols: number; tr: Record<string, string> }) {
-  const id = entry.id;
 
-  // Use the color saved in the database, fallback to a derived one just in case
-  const accentColor = entry.color || ACCENT_COLORS[id % ACCENT_COLORS.length];
-
-  // Grid zone base position, with heavy multi-prime jitter for organic chaos
-  const col = index % cols;
-  const row = Math.floor(index / cols);
-  const cellW = 100 / cols; // percent
-
-  // Jitter inside the cell using different primes per axis
-  const jitterX = cols === 1 
-    ? ((id * 317 + 43) % 10) - 5 // -5 to +5 pct for single column center
-    : ((id * 317 + col * 89 + 43) % Math.round(cellW * 6)) / 10; // 0 to ~60% of cellW
-  const jitterY = cols === 1 
-    ? ((id * 251 + row * 73 + 17) % 60) - 30 // ±30px vertical chaos on mobile
-    : ((id * 251 + row * 73 + 17) % 100) - 50;  // ±50px vertical chaos
-
-  // Stagger odd cols downward for a more organic staircase feel
-  const colStagger = cols === 1 ? 0 : (col % 2) * 70 + (col % 3) * 30;
-
-  const leftPct = cols === 1 ? 50 + jitterX : cellW * col + cellW * 0.05 + jitterX;
-  const topPx   = row * 350 + 40 + jitterY + colStagger;
-
-  // Rotation: more variance with secondary harmonic
-  const rotBase = ((id * 137 + 31) % 120) - 60;
-  const rotHarm = ((id * 79 + 13) % 40) - 20;
-  const rotate  = Number(((rotBase + rotHarm * 0.3) / 7).toFixed(1)); // ±12deg
-
-  const delay  = (index % 12) * 0.06;
-  const initialZIndex = (total - index) + (id % 30);
-
-  const isFew   = total <= 3;
-  const isMedium = total > 3 && total <= 8;
-  const noteW   = isFew ? 340 : isMedium ? 290 : 230;
-  const textSize = isFew ? "text-base" : "text-sm";
-
-  const [isFocused, setIsFocused] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // Calculate angle from center of the card to the mouse
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const deg = Math.atan2(cx - x, y - cy) * (180 / Math.PI);
-    
-    cardRef.current.style.setProperty("--card-x", `${x}px`);
-    cardRef.current.style.setProperty("--card-y", `${y}px`);
-    cardRef.current.style.setProperty("--card-deg", `${deg}deg`);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9, rotate: rotate * 2, y: 50, z: -100, x: cols === 1 ? "-50%" : 0 }}
-      whileInView={{
-        opacity: 1,
-        scale: isFocused ? 1.05 : 1,
-        rotate: isFocused ? 0 : rotate,
-        y: 0,
-        z: 0,
-        x: cols === 1 ? "-50%" : 0
-      }}
-      whileHover={{ scale: 1.05, rotate: 0, z: 50, x: cols === 1 ? "-50%" : 0 }}
-      whileTap={{ scale: 0.98, rotate: 0, z: 0, x: cols === 1 ? "-50%" : 0 }}
-      onPointerEnter={() => setHasInteracted(true)}
-      onMouseMove={handleMouseMove}
-      onClick={() => {
-        setHasInteracted(true);
-        setIsFocused(!isFocused);
-      }}
-      viewport={{ once: true, margin: "80px" }}
-      transition={{ type: 'spring', stiffness: 360, damping: 28, delay: hasInteracted ? 0 : delay }}
-      className="absolute cursor-pointer group"
-      style={{
-        left: cols === 1 ? `${leftPct}%` : `clamp(10px, ${leftPct}%, calc(100% - ${noteW}px - 10px))`,
-        top: `${topPx}px`,
-        width: "90vw",
-        maxWidth: `${noteW}px`,
-        zIndex: isFocused ? 1000 : initialZIndex,
-      }}
-    >
-      <div
-        ref={cardRef}
-        className="relative p-6 md:p-8 rounded-[3.5rem] overflow-hidden transition-all duration-700 ease-out group-hover:shadow-[0_0_80px_rgba(255,255,255,0.05)]"
-        style={{
-          background: `radial-gradient(130% 130% at 50% 0%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)`,
-          border: `1px solid rgba(255, 255, 255, 0.08)`,
-          backdropFilter: "blur(16px) saturate(180%)",
-          WebkitBackdropFilter: "blur(16px) saturate(180%)",
-          boxShadow: `
-            0 30px 60px -20px rgba(0,0,0,0.8),
-            inset 0 2px 3px rgba(255,255,255,0.1),
-            inset 0 -1px 2px rgba(0,0,0,0.4)
-          `,
-        }}
-      >
-        {/* Internal soft sheen */}
-        <div 
-          className="absolute inset-x-6 top-0 h-px opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-          style={{ background: `linear-gradient(90deg, transparent 0%, ${accentColor}80 45%, transparent 100%)` }}
-        />
-
-        {/* Pointer-following highlight, clipped by the note itself */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 mix-blend-screen" 
-             style={{ 
-               background: `
-                 radial-gradient(360px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.16) 0%, transparent 42%),
-                 linear-gradient(var(--card-deg, var(--light-deg, 135deg)), rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 22%, transparent 52%)
-               ` 
-             }} />
-
-        {/* Subtle paper grain */}
-        <div
-          className="absolute inset-0 opacity-[0.008] pointer-events-none z-0 mix-blend-overlay"
-          style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 240 240%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.45%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23n)%22/%3E%3C/svg%3E')" }}
-        />
-
-        {/* Highlight inner border on hover */}
-        <div className="absolute inset-0 border border-white/0 group-hover:border-white/10 transition-colors duration-500 rounded-[26px] pointer-events-none z-10" />
-
-        {/* Content */}
-        <p
-          className={`relative z-10 font-grotesk text-foreground/80 group-hover:text-foreground transition-colors duration-500 leading-[1.85] tracking-wide mb-6 break-words ${textSize}`}
-        >
-          {entry.message}
-        </p>
-
-        <div className="relative z-10 flex items-center justify-between pt-4 border-t border-white/10 mt-auto">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-[11px] tracking-[0.2em] text-foreground/40 group-hover:text-foreground/70 transition-colors duration-500 uppercase">
-              {entry.nickname ?? tr.anon}
-            </span>
-          </div>
-          <span className="font-mono text-[10px] tracking-wider text-foreground/30 group-hover:text-foreground/50 transition-colors duration-500">
-            {formatDate(entry.created_at)}
-          </span>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
 
 

@@ -122,7 +122,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
 
   return (
     <>
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[0] opacity-[0.15] select-none" aria-hidden="true">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[0] opacity-[0.55] select-none" aria-hidden="true">
         {tracks.map(track => (
           <DanmakuItem key={track.id} track={track} />
         ))}
@@ -248,8 +248,8 @@ function DanmakuItem({ track }: { track: DanmakuTrack }) {
         className="font-grotesk font-bold tracking-widest transition-opacity duration-700 hover:opacity-100 uppercase"
         style={{ 
           fontSize: `${track.fontSize}px`,
-          color: isOutline ? "transparent" : (track.laneIdx % 2 === 0 ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.7)"),
-          WebkitTextStroke: isOutline ? "1px rgba(255,255,255,0.8)" : "none",
+          color: isOutline ? "transparent" : (track.laneIdx % 2 === 0 ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.75)"),
+          WebkitTextStroke: isOutline ? "1.5px rgba(255,255,255,0.9)" : "none",
         }}
       >
         {track.text}

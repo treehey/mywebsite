@@ -8,6 +8,7 @@ import Hero from "@/components/home/Hero";
 import { globalLenis } from "@/components/SmoothScroll";
 import dynamic from "next/dynamic";
 const GuestbookWall = dynamic(() => import("@/components/GuestbookWall").then(m => ({ default: m.GuestbookWall })), { ssr: false });
+import { InteractiveString } from "@/components/InteractiveString";
 import {
   motion,
   useScroll,
@@ -16,6 +17,7 @@ import {
   useInView,
   useMotionValue,
   useMotionValueEvent,
+  useMotionTemplate,
   AnimatePresence,
   type Variants,
 } from "framer-motion";
@@ -119,6 +121,181 @@ function DarkroomImage({ src, alt, className, finalFilter, delay = 0 }: {
         }}
       />
     </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   3D PERSPECTIVE TILT CARD (Awwwards Style)
+   ════════════════════════════════════════════════════════ */
+function TiltCard({ 
+  children, 
+  className, 
+  onClick, 
+  title, 
+  ...props 
+}: { 
+  children: React.ReactNode; 
+  className?: string; 
+  onClick?: () => void; 
+  title?: string; 
+  [key: string]: any;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [10, -10]), { stiffness: 150, damping: 20 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-10, 10]), { stiffness: 150, damping: 20 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left - width / 2;
+    const mouseY = e.clientY - rect.top - height / 2;
+    x.set(mouseX / width);
+    y.set(mouseY / height);
+
+    cardRef.current.style.setProperty('--x', `${e.clientX - rect.left}px`);
+    cardRef.current.style.setProperty('--y', `${e.clientY - rect.top}px`);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  const transform = useMotionTemplate`rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      title={title}
+      style={{ transform, transformStyle: "preserve-3d" as const, transformOrigin: "center center" }}
+      className={`relative rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-2xl transition-all duration-300 hover:border-foreground/20 group ${className || ''}`}
+      {...props}
+    >
+      <div 
+        className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none mix-blend-overlay"
+        style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.25), transparent 40%)' }}
+      />
+      {children}
+    </motion.div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   3D PERSPECTIVE GALLERY CARD
+   ════════════════════════════════════════════════════════ */
+interface GalleryCardProps {
+  photo: { src: string; title: string; num: string };
+  i: number;
+  progress: any;
+  horizontalRef: any;
+  setCursorBig: (v: boolean) => void;
+  lang: string;
+  B: string;
+  t: any;
+}
+
+function GalleryCard({ photo, i, progress, horizontalRef, setCursorBig, lang, B, t }: GalleryCardProps) {
+  const targetProgress = (i + 1) / 4;
+  const diff = useTransform(progress, (v: number) => v - targetProgress);
+  
+  const rotateY = useSpring(useTransform(diff, [-0.25, 0, 0.25], [20, 0, -20]), { stiffness: 100, damping: 20 });
+  const scale = useSpring(useTransform(diff, [-0.25, 0, 0.25], [0.88, 1.05, 0.88]), { stiffness: 100, damping: 20 });
+  const z = useSpring(useTransform(diff, [-0.25, 0, 0.25], [-150, 0, -150]), { stiffness: 100, damping: 20 });
+  const opacity = useSpring(useTransform(diff, [-0.3, -0.2, 0, 0.2, 0.3], [0.4, 0.8, 1, 0.8, 0.4]), { stiffness: 100, damping: 20 });
+
+  return (
+    <motion.div 
+      style={{ rotateY, scale, z, opacity, transformStyle: "preserve-3d" as const }}
+      className="gallery-skew-item w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative group/photo"
+    >
+      <motion.div 
+        initial={{ x: 50, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 1 }}
+        viewport={{ root: horizontalRef, margin: "0px", amount: "some" }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] text-foreground opacity-[0.03] select-none whitespace-nowrap z-0 pointer-events-none" 
+        style={{ fontFamily: "var(--font-syne)" }}
+      >
+        {photo.num}
+      </motion.div>
+      
+      <div className="relative w-full max-w-5xl preserve-3d" style={{ transformStyle: "preserve-3d" }}>
+        <a 
+          href={photo.src} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="relative block w-full aspect-[4/5] md:aspect-[21/9] rounded-[2rem] overflow-hidden cursor-pointer z-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-1000 hover:shadow-[0_30px_90px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30 lens-flare-sweep"
+          onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+        >
+          <motion.div
+            initial={{ clipPath: "inset(0 100% 0 0)" }}
+            whileInView={{ clipPath: "inset(0 0 0 0)" }}
+            viewport={{ root: horizontalRef, margin: "0px" }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full h-full relative"
+          >
+            <motion.img 
+              src={photo.src} 
+              alt={photo.title} 
+              loading="lazy" 
+              decoding="async" 
+              initial={{ scale: 1.2, x: 50 }}
+              whileInView={{ scale: 1.05, x: 0 }}
+              viewport={{ root: horizontalRef }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-[1.5s] group-hover/photo:scale-100 will-change-transform" 
+            />
+          </motion.div>
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
+          
+          <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none" style={{ transform: "translateZ(40px)" }}>
+            <div className="overflow-hidden">
+              <motion.h3 
+                initial={{ y: "100%", opacity: 0 }} 
+                whileInView={{ y: 0, opacity: 1 }} 
+                viewport={{ root: horizontalRef, margin: "0px" }}
+                transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
+                className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 text-[#fafafa]/80 group-hover/photo:text-[#fafafa] transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                {t.gallery.photos[i]}
+              </motion.h3>
+            </div>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ root: horizontalRef }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex items-center gap-4"
+            >
+              <span className="font-mono text-xs md:text-sm text-[#fafafa]/70 group-hover/photo:text-[#fafafa] tracking-widest uppercase border border-[#fafafa]/10 px-3 py-1 bg-[#fafafa]/5 transition-colors duration-500">{photo.num}</span>
+              <span className="font-mono text-sm text-[#fafafa]/40 group-hover/photo:text-[#fafafa]/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
+            </motion.div>
+          </div>
+          
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none opacity-50" />
+        </a>
+
+        {/* Reflection */}
+        <motion.div 
+          className="absolute -bottom-[10%] left-0 w-full h-[20%] opacity-20 pointer-events-none scale-y-[-1] blur-xl mix-blend-screen z-0"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 0.2 }}
+          viewport={{ root: horizontalRef }}
+          transition={{ duration: 1.5 }}
+        >
+          <img src={photo.src} alt="" className="w-full h-full object-cover rounded-[2rem]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background to-background/50" />
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }
 
@@ -277,6 +454,34 @@ const SKILLS = [
   { name: "Photography",  accent: "#8B5CF6", bg: `${B}/images/zhuhai.jpg` }, // Violet
 ];
 
+const SKILLS_METRICS = [
+  [
+    { label: "Systems Architecture", val: 90 },
+    { label: "Linux & Terminal", val: 85 },
+    { label: "Hardware Logic", val: 80 }
+  ],
+  [
+    { label: "React & Next.js", val: 92 },
+    { label: "Vanilla CSS & Animation", val: 95 },
+    { label: "UI/UX Engineering", val: 88 }
+  ],
+  [
+    { label: "Data Automation", val: 88 },
+    { label: "Scripting & Algos", val: 90 },
+    { label: "ML & AI APIs", val: 82 }
+  ],
+  [
+    { label: "Excel Processing", val: 95 },
+    { label: "PPT / Presentation", val: 90 },
+    { label: "Word Automation", val: 85 }
+  ],
+  [
+    { label: "Composition & Frame", val: 90 },
+    { label: "Lighting Theory", val: 85 },
+    { label: "Color Grading", val: 88 }
+  ]
+];
+
 const TIMELINE = [
     { year: "2012", img: `${B}/images/about/Minecraft.jfif` },
     { year: "2021", img: `${B}/images/about/python.jpeg` },
@@ -287,134 +492,90 @@ const TIMELINE = [
     { year: "2024", img: `${B}/images/about/nju.jpg` },
   ];
 
-function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const lineRef    = useRef<HTMLDivElement>(null);
-  // Track ahead of center to complete the curve earlier!
-  const { scrollYProgress } = useScroll({ target: lineRef, offset: ['start 60%', 'end 95%'] });
-
-  /* Signal particle y-position (imperative, no re-renders) */
-  const particleY = useMotionValue(0);
-  /* Per-item reveal */
-  const [visible, setVisible] = useState<boolean[]>(TIMELINE.map(() => false));
-
-  useMotionValueEvent(scrollYProgress, 'change', (v) => {
-    /* Move particle */
-    const height = lineRef.current?.offsetHeight ?? 0;
-    const p = Math.max(0, Math.min(1, (v - 0.04) / 0.92));
-    particleY.set(p * height);
-    /* Reveal items as signal passes each threshold */
-    setVisible(prev => {
-      const next = [...prev];
-      let changed = false;
-      TIMELINE.forEach((_, i) => {
-        const thr = 0.04 + (i / TIMELINE.length) * 0.88;
-        if (v >= thr && !prev[i]) { next[i] = true; changed = true; }
-      });
-      return changed ? next : prev;
-    });
-  });
+function HorizontalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig: (v: boolean) => void, TIMELINE: any[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 100, damping: 25 });
+  const xTransform = useTransform(smoothProgress, [0, 1], ["0%", "-60%"]);
 
   return (
-    <section ref={sectionRef} id="timeline" className="awwwards-card relative z-10 w-full min-h-[90vh] bg-background text-foreground overflow-hidden py-16">
-      <div className="awwwards-card-inner py-24 md:py-32 w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)] overflow-hidden relative" style={{ transform: "translateZ(0)" }}>
-      {/* High-end ambient inner glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent pointer-events-none rounded-[3rem]" />
+    <section ref={containerRef} id="timeline" className="relative z-10 w-full" style={{ height: "300vh" }}>
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center bg-background">
+        
+        {/* Environmental Glow */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
+          <div className="absolute top-[30%] left-[20%] w-[40vw] h-[40vw] rounded-full blur-[120px] bg-gradient-to-r from-foreground/10 to-transparent" />
+        </div>
 
-      {/* Section Header */}
-      <div className="w-[96%] max-w-7xl mx-auto border border-foreground/10 bg-foreground/[0.02] backdrop-blur-3xl rounded-[2rem] px-6 md:px-12 py-5 flex items-center justify-between mb-20 shadow-2xl relative z-10">
-        <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
-          {t.timeline.title}
-        </h2>
-        <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">§ 00{TIMELINE.length} ENTRIES</span>
-      </div>
+        {/* Section Header */}
+        <div className="w-[96%] max-w-[1920px] mx-auto mb-10 flex items-center justify-between shrink-0 z-10 px-6 md:px-12">
+          <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
+            {t.timeline.title}
+          </h2>
+          <span className="font-mono text-xs text-foreground/30 tracking-widest hidden md:block">§ 00{TIMELINE.length} CHRONICLES</span>
+        </div>
 
-      {/* Background large year ghost */}
-      <div className="absolute top-1/2 right-[-5vw] -translate-y-1/2 font-syne font-black text-[35vw] text-foreground pointer-events-none select-none leading-none" style={{ fontFamily: "var(--font-syne)", opacity: 0.03 }}>
-        LOG
-      </div>
-
-      <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
-          {/* Straight Precision Line Drawing */}
-          <div ref={lineRef} className="absolute left-[calc(1.5rem+15px)] md:left-[calc(3rem+15px)] lg:left-[calc(6rem+15px)] top-[6.5rem] bottom-16 w-[2px] pointer-events-none z-0">
-            <div className="absolute inset-0 bg-foreground/5 h-full w-full rounded-full" />
-            <motion.div 
-              className="absolute top-0 left-0 w-full rounded-full bg-foreground shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_80%,transparent)] origin-top will-change-transform"
-              style={{ scaleY: scrollYProgress, height: "100%" }} 
-            />
-          </div>
-
-        <div className="flex flex-col gap-0 border-t border-foreground/[0.03]">
-          {TIMELINE.map((node, i) => {
-            const item = t.timeline.items[i];
-            const isActive = visible[i];
-            return (
-              <div
-                key={i}
-                className="flex items-start gap-6 md:gap-14 group border-b border-foreground/[0.03] py-8 md:py-14 relative transition-colors duration-700"
-                onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-              >
-                {/* Precision Node */}
-                <div className="relative flex-shrink-0 w-8 flex flex-col items-center pt-[10px] md:pt-[14px] z-10">
-                  <div className={`w-3 h-3 rounded-full border-[2px] transition-all duration-700 ease-out ${isActive ? 'border-foreground bg-foreground shadow-[0_0_12px_var(--foreground)] scale-110' : 'border-foreground/20 bg-background scale-100'}`} />
-                </div>
-
-                {/* Year */}
-                <div className="flex-shrink-0 w-16 md:w-24 pt-1">
-                  <span className={`font-mono text-lg md:text-2xl transition-colors duration-700 ${isActive ? 'text-foreground' : 'text-foreground/30'}`}>
-                    {node.year}
-                  </span>
-                </div>
-
-                {/* Content */}
-                <motion.div 
-                  initial={{ opacity: 0, x: -40, filter: "blur(10px)" }}
-                  animate={isActive ? { opacity: 1, x: 0, filter: "blur(0px)" } : { opacity: 0, x: -40, filter: "blur(10px)" }}
-                  transition={{ duration: 0.8, ease: "easeOut" }}
-                  className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0"
+        {/* Horizontal Track container */}
+        <div className="relative w-full overflow-hidden flex-1 min-h-0 flex items-center z-10">
+          <motion.div style={{ x: xTransform }} className="flex gap-8 md:gap-16 px-12 md:px-24 h-[65vh] w-[250vw] items-center will-change-transform">
+            
+            {TIMELINE.map((node, i) => {
+              const item = t.timeline.items[i];
+              return (
+                <div 
+                  key={i} 
+                  className="w-[30vw] min-w-[280px] h-full flex flex-col justify-between p-8 rounded-[2rem] bg-foreground/[0.02] backdrop-blur-xl border border-foreground/[0.05] hover:border-foreground/20 hover:bg-foreground/[0.03] shadow-xl hover:shadow-2xl transition-all duration-500 shrink-0 group preserve-3d"
+                  onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                 >
-                  <div className="flex-1">
-                    <h3 
-                      className={`font-syne font-black text-2xl md:text-4xl leading-none mb-3 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive ? 'text-foreground/90 translate-x-2' : 'text-foreground/30'}`}
-                      style={{ fontFamily: "var(--font-syne)" }}
-                    >
+                  <div className="flex justify-between items-start" style={{ transform: "translateZ(20px)" }}>
+                    <span className="font-mono text-4xl font-bold tracking-tighter text-foreground/80 group-hover:text-foreground transition-colors duration-500">
+                      {node.year}
+                    </span>
+                    <span className="font-mono text-[9px] tracking-[0.3em] uppercase text-foreground/30 border border-foreground/10 px-2.5 py-1 rounded-full bg-foreground/5">
+                      LOG_{String(i+1).padStart(2, '0')}
+                    </span>
+                  </div>
+
+                  {/* Thumbnail Image */}
+                  <div className="w-full aspect-[16/10] rounded-2xl overflow-hidden border border-foreground/5 my-6 relative shadow-md" style={{ transform: "translateZ(30px)" }}>
+                    <img 
+                      src={node.img} 
+                      alt={item.label} 
+                      loading="lazy" 
+                      decoding="async" 
+                      className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
+                  </div>
+
+                  {/* Text details */}
+                  <div className="space-y-2" style={{ transform: "translateZ(25px)" }}>
+                    <h3 className="font-syne font-black text-xl md:text-2xl leading-tight text-foreground/80 group-hover:text-foreground transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
                       {item.label}
                     </h3>
-                    <p className="font-mono text-sm text-foreground/40 group-hover:text-foreground/60 tracking-wider transition-colors duration-500 max-w-sm">
+                    <p className="font-mono text-xs text-foreground/45 leading-relaxed tracking-wide group-hover:text-foreground/60 transition-colors duration-500">
                       {item.detail}
                     </p>
                   </div>
-
-                  {/* Thumbnail Container */}
-                  <div className="w-28 h-18 md:w-48 md:h-32 rounded flex-shrink-0 overflow-hidden border border-foreground/5 group-hover:border-foreground/20 transition-all duration-700 md:ml-auto relative shadow-lg group-hover:shadow-2xl">
-                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700 pointer-events-none" />
-                    <motion.div 
-                      style={{ y: useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]) }}
-                      className="absolute top-[-15%] left-0 w-full h-[130%]"
-                    >
-                      <img 
-                        src={node.img} 
-                        alt={item.label} 
-                        loading="lazy" 
-                        decoding="async" 
-                        className="w-full h-full object-cover grayscale-[40%] opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] scale-100 group-hover:scale-110" 
-                      />
-                    </motion.div>
-                  </div>
-                </motion.div>
-
-                {/* Milestone badge */}
-                <div 
-                  className="hidden lg:flex items-center gap-2 flex-shrink-0 font-mono text-[10px] tracking-[0.3em] uppercase border border-foreground/10 bg-foreground/5 px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0 text-foreground/50 group-hover:text-foreground/80"
-                >
-                  <span className="w-1 h-1 rounded-full bg-foreground/60 animate-pulse" />
-                  MILESTONE_{String(i + 1).padStart(2, '0')}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+
+          </motion.div>
         </div>
-      </div>
+
+        {/* Floating progress line indicator */}
+        <div className="w-[96%] max-w-[1920px] mx-auto mt-10 shrink-0 z-10 px-6 md:px-12 flex items-center gap-6">
+          <span className="font-mono text-[10px] text-foreground/30">2012</span>
+          <div className="flex-1 h-[2px] scroll-indicator-track rounded-full overflow-hidden relative">
+            <motion.div 
+              style={{ scaleX: scrollYProgress, transformOrigin: "left" }} 
+              className="absolute inset-0 scroll-indicator-bar"
+            />
+          </div>
+          <span className="font-mono text-[10px] text-foreground/30">2026</span>
+        </div>
+
       </div>
     </section>
   );
@@ -502,6 +663,7 @@ export default function Home() {
   const horizontalRef = useRef<HTMLDivElement>(null);
   
   const [cursorBig, setCursorBig] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [lang, setLang] = useState("简");
   const [langOpen, setLangOpen] = useState(false);
@@ -572,6 +734,11 @@ export default function Home() {
     // Pin the works section temporarily to throw the cards up
     const worksDeck = gsap.utils.toArray('.work-deck-card') as HTMLElement[];
     if (worksDeck.length > 1) {
+      const isLight = document.documentElement.classList.contains("light");
+      const worksAccents = isLight 
+        ? ["#fff5f7", "#f2f6ff", "#f5f2ff", "#f2fbf6"] 
+        : ["#130308", "#020612", "#040310", "#010a06"];
+
       const totalTransitions = worksDeck.length - 1;
       const tlDeck = gsap.timeline({
         scrollTrigger: {
@@ -590,8 +757,18 @@ export default function Home() {
         }
       });
       
+      // Initial background color setup
+      gsap.set("#works-pin-container", { backgroundColor: worksAccents[0] });
+
       worksDeck.forEach((card, i) => {
         if (i !== 0) {
+          // Morph container background in sync
+          tlDeck.to("#works-pin-container", {
+            backgroundColor: worksAccents[i],
+            duration: 0.95,
+            ease: "power3.inOut"
+          }, i - 0.95);
+
           // 3D Cover Flow / iOS Stack style (Performance optimized)
           tlDeck.fromTo(card,
             { z: -1500, rotationY: 20, scale: 0.7, opacity: 0 },
@@ -696,6 +873,11 @@ export default function Home() {
   const mouseY = useMotionValue(-200);
   const cx = useSpring(mouseX, { stiffness: 400, damping: 30 });
   const cy = useSpring(mouseY, { stiffness: 400, damping: 30 });
+
+  const worksImgX = useTransform(mouseX, [0, typeof window !== 'undefined' ? window.innerWidth : 1920], [-15, 15]);
+  const worksImgY = useTransform(mouseY, [0, typeof window !== 'undefined' ? window.innerHeight : 1080], [-15, 15]);
+  const smoothWorksImgX = useSpring(worksImgX, { stiffness: 150, damping: 25 });
+  const smoothWorksImgY = useSpring(worksImgY, { stiffness: 150, damping: 25 });
 
   /* Mouse delta for parallax */
   const [mDelta, setMDelta] = useState({ x: 0, y: 0 });
@@ -1323,126 +1505,108 @@ export default function Home() {
           style={{ gridAutoRows: "minmax(260px,30vh)" }}>
 
           {/* Cell A — NJU, spans 2x2 */}
-          <div
-            className="relative md:col-span-2 md:row-span-2 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group shadow-2xl"
-            onMouseMove={(e) => {
+          <TiltCard
+            className="md:col-span-2 md:row-span-2 shadow-2xl"
+            onMouseMove={(e: React.MouseEvent<HTMLDivElement>) => {
               const r = e.currentTarget.getBoundingClientRect();
               setAboutImgMouse({ x: ((e.clientX - r.left) / r.width - 0.5) * 22, y: ((e.clientY - r.top) / r.height - 0.5) * 22 });
             }}
             onMouseLeave={() => { setAboutImgMouse({ x: 0, y: 0 }); setCursorBig(false); }}
             onMouseEnter={() => setCursorBig(true)}
           >
-            <motion.div
-              className="absolute inset-[-4%]"
-              animate={{ x: aboutImgMouse.x, y: aboutImgMouse.y }}
-              transition={{ type: "spring", stiffness: 70, damping: 18 }}
-            >
-              <DarkroomImage src={`${B}/images/about/nju.jpg`} alt="NJU"
-                className="w-full h-full object-cover"
-                finalFilter="brightness(1) contrast(1) grayscale(0.15) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
-                delay={0.1}
-              />
-              <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
-                style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
-            </motion.div>
-            {/* Badge */}
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
-            {/* Text overlay at bottom */}
-            <motion.div
-              initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}
-              transition={{ duration: 0.9, delay: 0.45 }}
-              className="absolute bottom-6 left-6 right-6 z-10"
-            >
-              <p className="about-reveal-text origin-bottom font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
-            </motion.div>
-          </div>
+            <div style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" as const }} className="w-full h-full relative">
+              <motion.div
+                className="absolute inset-[-4%]"
+                animate={{ x: aboutImgMouse.x, y: aboutImgMouse.y }}
+                transition={{ type: "spring", stiffness: 70, damping: 18 }}
+              >
+                <DarkroomImage src={`${B}/images/about/nju.jpg`} alt="NJU"
+                  className="w-full h-full object-cover"
+                  finalFilter="brightness(1) contrast(1) grayscale(0.15) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+                  delay={0.1}
+                />
+                <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
+                  style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
+              </motion.div>
+              {/* Badge */}
+              <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
+              {/* Text overlay at bottom */}
+              <motion.div
+                initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}
+                transition={{ duration: 0.9, delay: 0.45 }}
+                className="absolute bottom-6 left-6 right-6 z-10"
+              >
+                <p className="about-reveal-text origin-bottom font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
+              </motion.div>
+            </div>
+          </TiltCard>
 
           {/* Cell B — Minecraft */}
-          <div
-            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-pointer shadow-2xl"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
-            }}
+          <TiltCard
+            className="md:col-span-1 md:row-span-1 shadow-2xl"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
             onClick={() => minecraftMode ? exitMinecraft() : enterMinecraft()}
             title={minecraftMode ? "点击退出 Minecraft 模式" : "点击进入 Minecraft 模式"}
           >
-            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none pointer-events-none mix-blend-overlay"
-                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
-            <DarkroomImage src={`${B}/images/about/Minecraft.jfif`} alt="Origin"
-              className="w-full h-full object-cover object-center transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
-              finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
-              delay={0.15}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
-          </div>
+            <div style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" as const }} className="w-full h-full relative">
+              <DarkroomImage src={`${B}/images/about/Minecraft.jfif`} alt="Origin"
+                className="w-full h-full object-cover object-center transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+                finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+                delay={0.15}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
+            </div>
+          </TiltCard>
 
           {/* Cell C — Student Association */}
-          <div
-            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-default shadow-2xl"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
-            }}
+          <TiltCard
+            className="md:col-span-1 md:row-span-1 shadow-2xl"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay"
-                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
-            <DarkroomImage src={`${B}/images/about/student-association.jpg`} alt="Student Association"
-              className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
-              finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
-              delay={0.22}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
-          </div>
+            <div style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" as const }} className="w-full h-full relative">
+              <DarkroomImage src={`${B}/images/about/student-association.jpg`} alt="Student Association"
+                className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+                finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+                delay={0.22}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
+            </div>
+          </TiltCard>
 
           {/* Cell D — mbot robotics */}
-          <div
-            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-default shadow-2xl"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
-            }}
+          <TiltCard
+            className="md:col-span-1 md:row-span-1 shadow-2xl"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay"
-                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
-            <DarkroomImage src={`${B}/images/about/mbot.jpg`} alt="Robotics"
-              className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
-              finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
-              delay={0.1}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
-          </div>
+            <div style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" as const }} className="w-full h-full relative">
+              <DarkroomImage src={`${B}/images/about/mbot.jpg`} alt="Robotics"
+                className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+                finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+                delay={0.1}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
+            </div>
+          </TiltCard>
 
           {/* Cell E — STEAM & IoT */}
-          <div
-            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-default shadow-2xl"
-            onMouseMove={(e) => {
-              const r = e.currentTarget.getBoundingClientRect();
-              e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
-              e.currentTarget.style.setProperty('--y', `${e.clientY - r.top}px`);
-            }}
+          <TiltCard
+            className="md:col-span-1 md:row-span-1 shadow-2xl"
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
           >
-            <div className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay"
-                 style={{ background: 'radial-gradient(400px circle at var(--x) var(--y), rgba(255,255,255,0.4), transparent 40%)' }} />
-            <DarkroomImage src={`${B}/images/about/steam&iot.jpg`} alt="STEAM"
-              className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
-              finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
-              delay={0.18}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-            <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
-          </div>
+            <div style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" as const }} className="w-full h-full relative">
+              <DarkroomImage src={`${B}/images/about/steam&iot.jpg`} alt="STEAM"
+                className="w-full h-full object-cover transition-transform duration-700 scale-100 group-hover:scale-[1.08]"
+                finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
+                delay={0.18}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
+            </div>
+          </TiltCard>
         </div>
 
         {/* ── Info band: p1 text | stat cards | tags ── */}
@@ -1550,7 +1714,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full h-[100svh] overflow-hidden bg-background text-foreground">
+      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full h-[100svh] overflow-hidden bg-background text-foreground morph-bg-transition">
         
         <div className="w-full h-full relative flex flex-col pt-24 md:pt-28 pb-8 md:pb-10">
           {/* Section Header */}
@@ -1580,14 +1744,28 @@ export default function Home() {
                   onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}>
                   
                   {/* Image Panel */}
-                  <div className={`relative md:w-[56%] h-[38%] md:h-full min-h-0 overflow-hidden ${isEven ? 'md:order-1' : 'md:order-2'}`}>
-                    {/* Minimalist image presentation without heavy neon/gradient overlays */}
-                    <img src={wm.img} alt={wi.title} className="w-full h-full object-cover scale-100 group-hover:scale-105 transition-transform duration-[1.5s] ease-[cubic-bezier(0.16,1,0.3,1)]"
-                      style={{ objectPosition: wm.objPos || "center" }}
+                  <motion.div 
+                    initial={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" }}
+                    whileInView={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                    className={`relative md:w-[56%] h-[38%] md:h-full min-h-0 overflow-hidden ${isEven ? 'md:order-1' : 'md:order-2'}`}
+                  >
+                    <motion.img 
+                      src={wm.img} 
+                      alt={wi.title} 
+                      className="w-[110%] h-[110%] max-w-none object-cover"
+                      style={{ 
+                        objectPosition: wm.objPos || "center",
+                        x: smoothWorksImgX,
+                        y: smoothWorksImgY,
+                        position: "absolute",
+                        top: "-5%",
+                        left: "-5%",
+                      }}
                     />
-                    {/* Very subtle inner vignette for text legibility if needed, but keeping it clean */}
                     <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/20 pointer-events-none" />
-                  </div>
+                  </motion.div>
 
                   {/* Text Panel */}
                   <div className={`relative md:w-[44%] flex-1 md:h-full min-h-0 flex flex-col justify-center px-7 sm:px-10 md:px-10 lg:px-12 xl:px-14 py-14 md:py-12 overflow-hidden ${isEven ? 'md:order-2' : 'md:order-1'} bg-transparent`}>
@@ -1676,90 +1854,17 @@ export default function Home() {
 
             {/* Panels 2-5: Gallery Cards overlapping */}
             {PHOTOS.map((photo, i) => (
-              <div key={i} className="gallery-skew-item w-[100vw] h-full flex items-center justify-center p-6 md:p-24 shrink-0 relative group/photo">
-                {/* Background ghost text moving slightly against scroll */}
-                <motion.div 
-                  initial={{ x: 50, opacity: 0 }}
-                  whileInView={{ x: 0, opacity: 1 }}
-                  viewport={{ root: horizontalRef, margin: "0px", amount: "some" }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-syne font-black text-[40vw] md:text-[30vw] text-foreground opacity-[0.03] select-none whitespace-nowrap z-0 pointer-events-none" 
-                  style={{ fontFamily: "var(--font-syne)" }}
-                >
-                  {photo.num}
-                </motion.div>
-                
-                <div className="relative w-full max-w-5xl">
-                  <a 
-                    href={photo.src} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="relative block w-full aspect-[4/5] md:aspect-[21/9] rounded-[2rem] overflow-hidden cursor-pointer z-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-1000 hover:shadow-[0_30px_90px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30"
-                    onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-                  >
-                    <motion.div
-                      initial={{ clipPath: "inset(0 100% 0 0)" }}
-                      whileInView={{ clipPath: "inset(0 0 0 0)" }}
-                      viewport={{ root: horizontalRef, margin: "0px" }}
-                      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                      className="w-full h-full relative"
-                    >
-                      <motion.img 
-                        src={photo.src} 
-                        alt={photo.title} 
-                        loading="lazy" 
-                        decoding="async" 
-                        initial={{ scale: 1.2, x: 50 }}
-                        whileInView={{ scale: 1.05, x: 0 }}
-                        viewport={{ root: horizontalRef }}
-                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                        className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-[1.5s] group-hover/photo:scale-100 will-change-transform" 
-                      />
-                    </motion.div>
-                    
-                    {/* Overlay gradients & Data */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
-                    
-                    <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none">
-                      <div className="overflow-hidden">
-                        <motion.h3 
-                          initial={{ y: "100%", opacity: 0 }} 
-                          whileInView={{ y: 0, opacity: 1 }} 
-                          viewport={{ root: horizontalRef, margin: "0px" }}
-                          transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
-                          className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 text-[#fafafa]/80 group-hover/photo:text-[#fafafa] transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
-                          {t.gallery.photos[i]}
-                        </motion.h3>
-                      </div>
-                      <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ root: horizontalRef }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="flex items-center gap-4"
-                      >
-                        <span className="font-mono text-xs md:text-sm text-[#fafafa]/70 group-hover/photo:text-[#fafafa] tracking-widest uppercase border border-[#fafafa]/10 px-3 py-1 bg-[#fafafa]/5 transition-colors duration-500">{photo.num}</span>
-                        <span className="font-mono text-sm text-[#fafafa]/40 group-hover/photo:text-[#fafafa]/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
-                      </motion.div>
-                    </div>
-                    
-                    {/* Subtle Scanline strictly on image */}
-                    <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none opacity-50" />
-                  </a>
-
-                  {/* Reflection */}
-                  <motion.div 
-                    className="absolute -bottom-[10%] left-0 w-full h-[20%] opacity-20 pointer-events-none scale-y-[-1] blur-xl mix-blend-screen z-0"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 0.2 }}
-                    viewport={{ root: horizontalRef }}
-                    transition={{ duration: 1.5 }}
-                  >
-                    <img src={photo.src} alt="" className="w-full h-full object-cover rounded-[2rem]" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background to-background/50" />
-                  </motion.div>
-                </div>
-              </div>
+              <GalleryCard 
+                key={i} 
+                photo={photo} 
+                i={i} 
+                progress={smoothHorizontalProgress} 
+                horizontalRef={horizontalRef} 
+                setCursorBig={setCursorBig} 
+                lang={lang} 
+                B={B} 
+                t={t} 
+              />
             ))}
             
           </motion.div>
@@ -1824,14 +1929,34 @@ export default function Home() {
                     MODULE_{String(i + 1).padStart(2, '0')}
                   </span>
                   
-                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-24 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "var(--foreground)" }}>
+                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-28 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "var(--foreground)" }}>
                     {t.skills.items[i].split('·')[0]?.trim()}
                   </h3>
                   
-                  <div className="overflow-hidden h-auto md:h-0 group-hover/card:h-[40px] md:group-hover/card:h-[60px] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]">
-                    <p className="font-mono text-sm md:text-base mt-2 md:mt-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200 whitespace-normal text-foreground/50" style={{ fontFamily: "var(--font-mono)" }}>
+                  <div className="overflow-hidden h-auto md:h-0 group-hover/card:h-[120px] md:group-hover/card:h-[140px] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]">
+                    <p className="font-mono text-[11px] mt-2 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-100 whitespace-normal text-foreground/50" style={{ fontFamily: "var(--font-mono)" }}>
                       {t.skills.items[i].split('·')[1]?.trim() || t.skills.items[i]}
                     </p>
+                    
+                    <div className="mt-4 flex flex-col gap-2.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200">
+                      {SKILLS_METRICS[i] && SKILLS_METRICS[i].map((m, mi) => (
+                        <div key={mi} className="flex flex-col gap-1">
+                          <div className="flex justify-between font-mono text-[10px] text-foreground/60 leading-none">
+                            <span>{m.label}</span>
+                            <span>{m.val}%</span>
+                          </div>
+                          <div className="w-full h-[3px] bg-foreground/10 rounded-full overflow-hidden">
+                            <motion.div 
+                              className="h-full bg-foreground/75"
+                              initial={{ width: 0 }}
+                              whileInView={{ width: `${m.val}%` }}
+                              viewport={{ once: false }}
+                              transition={{ duration: 1.2, delay: 0.1 + mi * 0.1, ease: "easeOut" }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1845,14 +1970,14 @@ export default function Home() {
       {/* 
           TIMELINE (Horizontal Parallax Scroll)
        */}
-      <VerticalTimeline t={t} setCursorBig={setCursorBig} TIMELINE={TIMELINE} />
+      <HorizontalTimeline t={t} setCursorBig={setCursorBig} TIMELINE={TIMELINE} />
 
       {/* ════════════════════════════════════
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
       <section id="guestbook" ref={guestbookRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden py-16">
         <div className="relative w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.018] backdrop-blur-xl border border-foreground/[0.07] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.18)] overflow-hidden isolate">
-          <GuestbookWall lang={lang} />
+          <GuestbookWall lang={lang} setCursorBig={setCursorBig} />
         </div>
       </section>
       </main>
@@ -1947,13 +2072,44 @@ export default function Home() {
               <div className="flex flex-col gap-6 min-w-0">
                 <span className="font-mono text-[10px] text-foreground/30 tracking-[0.3em] uppercase block">{t.contact.channel}</span>
                 <MagneticButton
-                  href="mailto:123kevinlio@gmail.com"
-                  className="group flex flex-nowrap items-center gap-3 sm:gap-4 text-sm sm:text-lg lg:text-xl text-foreground/90 hover:text-foreground transition-all duration-300 w-full whitespace-nowrap"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigator.clipboard.writeText("123kevinlio@gmail.com");
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2500);
+                  }}
+                  className="group flex flex-nowrap items-center gap-3 sm:gap-4 text-sm sm:text-lg lg:text-xl text-foreground/90 hover:text-foreground transition-all duration-300 w-full whitespace-nowrap cursor-pointer"
                   style={{ fontFamily: "var(--font-mono)", flexWrap: "nowrap" }}
                 >
-                  <span className="border-b border-foreground/20 group-hover:border-foreground/60 pb-1 transition-colors duration-500 truncate inline-block flex-1 min-w-0">123KEVINLIO@GMAIL.COM</span>
-                  <div className="relative shrink-0 w-8 h-8 rounded-full border border-foreground/10 flex items-center justify-center bg-foreground/5 group-hover:scale-110 group-hover:bg-foreground transition-all duration-500">
-                    <svg className="w-4 h-4 text-foreground group-hover:text-background transition-colors duration-500 rotate-45 group-hover:rotate-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  <AnimatePresence mode="wait">
+                    {copied ? (
+                      <motion.span
+                        key="copied"
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -5 }}
+                        className="text-emerald-400 font-mono text-[13px] sm:text-sm tracking-wider inline-block flex-1 min-w-0"
+                      >
+                        ✉ <ScrambleText text="COPIED TO CLIPBOARD" trigger={copied} fast />
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="email"
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        className="border-b border-foreground/20 group-hover:border-foreground/60 pb-1 transition-colors duration-500 truncate inline-block flex-1 min-w-0"
+                      >
+                        123KEVINLIO@GMAIL.COM
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  <div className={`relative shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-500 group-hover:scale-110 ${copied ? 'border-emerald-400/40 bg-emerald-400/10' : 'border-foreground/10 bg-foreground/5 group-hover:bg-foreground'}`}>
+                    {copied ? (
+                      <span className="text-emerald-400 font-bold text-xs">✓</span>
+                    ) : (
+                      <svg className="w-4 h-4 text-foreground group-hover:text-background transition-colors duration-500 rotate-45 group-hover:rotate-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    )}
                   </div>
                 </MagneticButton>
               </div>
@@ -1985,6 +2141,8 @@ export default function Home() {
               </div>
 
             </div>
+            {/* Interactive SVG String simulator */}
+            <InteractiveString />
           </motion.div>
         </div>
 
