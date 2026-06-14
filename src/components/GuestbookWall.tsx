@@ -448,16 +448,17 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.92, rotate: 0, y: -36, x: cols === 1 ? "-50%" : 0 }}
+      initial={{ opacity: 0, scale: 0.9, rotate: rotate * 2, y: 50, z: -100, x: cols === 1 ? "-50%" : 0 }}
       whileInView={{
         opacity: 1,
-        scale: isFocused ? 1.04 : 1,
+        scale: isFocused ? 1.05 : 1,
         rotate: isFocused ? 0 : rotate,
         y: 0,
+        z: 0,
         x: cols === 1 ? "-50%" : 0
       }}
-      whileHover={{ scale: 1.035, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
-      whileTap={{ scale: 1.01, rotate: 0, x: cols === 1 ? "-50%" : 0 }}
+      whileHover={{ scale: 1.05, rotate: 0, z: 50, x: cols === 1 ? "-50%" : 0 }}
+      whileTap={{ scale: 0.98, rotate: 0, z: 0, x: cols === 1 ? "-50%" : 0 }}
       onPointerEnter={() => setHasInteracted(true)}
       onMouseMove={handleMouseMove}
       onClick={() => {
@@ -477,16 +478,16 @@ function StickyNote({ entry, index, total, cols, tr }: { entry: GuestEntry; inde
     >
       <div
         ref={cardRef}
-        className="relative p-6 md:p-7 rounded-[26px] overflow-hidden transition-all duration-700 ease-out"
+        className="relative p-6 md:p-8 rounded-[3.5rem] overflow-hidden transition-all duration-700 ease-out group-hover:shadow-[0_0_80px_rgba(255,255,255,0.05)]"
         style={{
-          background: `linear-gradient(145deg, rgba(255,255,255,0.105) 0%, rgba(255,255,255,0.045) 100%)`,
-          border: `1px solid rgba(255, 255, 255, 0.12)`,
-          backdropFilter: "blur(18px) saturate(140%)",
-          WebkitBackdropFilter: "blur(18px) saturate(140%)",
+          background: `radial-gradient(130% 130% at 50% 0%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 100%)`,
+          border: `1px solid rgba(255, 255, 255, 0.08)`,
+          backdropFilter: "blur(16px) saturate(180%)",
+          WebkitBackdropFilter: "blur(16px) saturate(180%)",
           boxShadow: `
-            0 24px 52px -26px rgba(0,0,0,0.78),
-            inset 0 1px 1px rgba(255,255,255,0.14),
-            inset 0 -1px 1px rgba(0,0,0,0.18)
+            0 30px 60px -20px rgba(0,0,0,0.8),
+            inset 0 2px 3px rgba(255,255,255,0.1),
+            inset 0 -1px 2px rgba(0,0,0,0.4)
           `,
         }}
       >

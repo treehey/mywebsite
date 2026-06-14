@@ -28,16 +28,16 @@
 }
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
+  --background: #0a0a0c;
+  --foreground: #f2f2f2;
 }
 
 html.light {
-  --background: #f4f4f5;
-  --foreground: #0a0a0a;
+  --background: #f7f7f8;
+  --foreground: #111111;
   /* Override Tailwind v4's implicit white/black behavior so utilities flip automatically */
-  --color-white: #0a0a0a;
-  --color-black: #fafafa;
+  --color-white: #111111;
+  --color-black: #f7f7f8;
 }
 
 body {
@@ -75,7 +75,7 @@ body {
   vertical-align: top;
 }
 
-/* Ambient Grain / Noise overlay */
+/* Ambient Grain / Noise overlay (Optimized for performance) */
 .bg-noise {
   position: fixed;
   inset: 0;
@@ -83,9 +83,25 @@ body {
   height: 100vh;
   z-index: 50;
   pointer-events: none;
-  background-image: url("data:image/svg+xml;utf8,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.75\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  background-repeat: repeat;
   opacity: 0.04;
-  mix-blend-mode: overlay;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Deep Space Ambient Aurora (Performance optimized - No blur filter) */
+.ambient-aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: 
+    radial-gradient(ellipse 60% 60% at 20% 30%, rgba(90, 58, 157, 0.12) 0%, transparent 100%),
+    radial-gradient(ellipse 60% 60% at 80% 80%, rgba(42, 75, 140, 0.1) 0%, transparent 100%);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Glassmorphism panel */

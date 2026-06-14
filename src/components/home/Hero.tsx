@@ -44,7 +44,7 @@ export default function Hero({
       scrollTrigger: {
         trigger: wrapper || containerRef.current,
         start: "top top",
-        end: wrapper ? "+=1500" : "bottom bottom", 
+        end: wrapper ? "+=300" : "bottom bottom", 
         scrub: true,
       }
     });
@@ -68,32 +68,33 @@ export default function Hero({
       tl.to(el, {
         x: moveX,
         y: moveY,
-        rotationZ: (Math.random() - 0.5) * 90,
-        rotationX: (Math.random() - 0.5) * 90,
-        rotationY: (Math.random() - 0.5) * 90,
+        z: 800 + Math.random() * 400,
+        rotationZ: (Math.random() - 0.5) * 120,
+        rotationX: (Math.random() - 0.5) * 120,
+        rotationY: (Math.random() - 0.5) * 120,
+        filter: "blur(12px)",
         duration: 0.9,
         ease: "power2.in"
       }, 0.1);
     });
 
-    // Extreme zoom into the gap between the words to "pass through"
+    // Center hole penetration - widen the words and scatter the letters immensely
     tl.to(textContainerRef.current, {
-      scale: 150, // Massive scale to simulate camera flying directly through the gap
+      scale: 25, // Reduced from 150 to 25 to prevent GPU texture crash
       opacity: 0, // Fade out the text just as it hits the camera
       force3D: true,
       duration: 0.9,
       transformOrigin: "50% 50%",
-      ease: "expo.in"
-    }, 0.1);
+      ease: "power2.in" 
+    }, 0.0);
 
     // Fade out the dark background completely to reveal the About section underneath
-    // Moved to the very end of the zoom so the user bursts into the About section 
-    // exactly as the pin is released, preventing the "stuck" feeling.
+    // Start fading late (at 0.75) so the user only sees About AFTER the text is huge and passing them
     tl.to(backgroundRef.current, {
       opacity: 0,
-      duration: 0.2,
-      ease: "power2.in"
-    }, 0.8);
+      duration: 0.25,
+      ease: "none"
+    }, 0.75);
 
   }, { scope: containerRef });
 
@@ -126,7 +127,7 @@ export default function Hero({
       >
         <div ref={backgroundRef} className="absolute inset-0 bg-background z-[-2]"></div>
 
-        <div className="absolute inset-0 pointer-events-none" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
+        <div className="absolute inset-0 pointer-events-none opacity-40 mix-blend-screen blur-[2px]" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
           <DanmakuSystem lang={lang} />
         </div>
 

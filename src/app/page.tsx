@@ -315,11 +315,9 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
     });
   });
 
-  // (No longer using Framer Motion exit parallax for this section)
-
   return (
     <section ref={sectionRef} id="timeline" className="awwwards-card relative z-10 w-full min-h-[90vh] bg-background text-foreground overflow-hidden py-16">
-      <div className="awwwards-card-inner py-24 md:py-32 w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)] overflow-hidden relative">
+      <div className="awwwards-card-inner py-24 md:py-32 w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)] overflow-hidden relative" style={{ transform: "translateZ(0)" }}>
       {/* High-end ambient inner glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent pointer-events-none rounded-[3rem]" />
 
@@ -337,11 +335,11 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
       </div>
 
       <div className="relative px-6 md:px-12 lg:px-24 pt-16 pb-8">
-                  {/* Straight Precision Line Drawing */}
-          <div ref={lineRef} className="absolute left-[calc(1.5rem+14.5px)] md:left-[calc(3rem+14.5px)] lg:left-[calc(6rem+14.5px)] top-[6.5rem] bottom-16 w-[2px] pointer-events-none z-0">
-            <div className="absolute inset-0 bg-foreground/10 h-full w-full" />
+          {/* Straight Precision Line Drawing */}
+          <div ref={lineRef} className="absolute left-[calc(1.5rem+15px)] md:left-[calc(3rem+15px)] lg:left-[calc(6rem+15px)] top-[6.5rem] bottom-16 w-[2px] pointer-events-none z-0">
+            <div className="absolute inset-0 bg-foreground/5 h-full w-full rounded-full" />
             <motion.div 
-              className="absolute top-0 left-0 w-full bg-foreground shadow-[0_0_10px_color-mix(in_srgb,var(--foreground)_60%,transparent)] origin-top"
+              className="absolute top-0 left-0 w-full rounded-full bg-foreground shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_80%,transparent)] origin-top will-change-transform"
               style={{ scaleY: scrollYProgress, height: "100%" }} 
             />
           </div>
@@ -351,35 +349,33 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
             const item = t.timeline.items[i];
             const isActive = visible[i];
             return (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isActive ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="flex items-start gap-6 md:gap-14 group border-b border-foreground/[0.03] py-8 md:py-14 relative transition-colors duration-700"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                {/* Organic Breathing Node */}
-                <div className="relative flex-shrink-0 flex flex-col items-center pt-2 md:pt-3 z-10 pl-[8.5px]">
-                  <motion.div 
-                    animate={isActive ? { scale: [1, 1.5, 1.2], opacity: [0.5, 1, 1] } : { scale: 1, opacity: 0.2 }}
-                    transition={isActive ? { duration: 1.5, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" } : { duration: 0.3 }}
-                    className={`w-3 h-3 rounded-full bg-foreground shadow-[0_0_15px_color-mix(in_srgb,var(--foreground)_60%,transparent)]`} 
-                  />
+                {/* Precision Node */}
+                <div className="relative flex-shrink-0 w-8 flex flex-col items-center pt-[10px] md:pt-[14px] z-10">
+                  <div className={`w-3 h-3 rounded-full border-[2px] transition-all duration-700 ease-out ${isActive ? 'border-foreground bg-foreground shadow-[0_0_12px_var(--foreground)] scale-110' : 'border-foreground/20 bg-background scale-100'}`} />
                 </div>
 
                 {/* Year */}
                 <div className="flex-shrink-0 w-16 md:w-24 pt-1">
-                  <span className="font-mono text-lg md:text-2xl text-foreground/50 group-hover:text-foreground transition-colors duration-500">
+                  <span className={`font-mono text-lg md:text-2xl transition-colors duration-700 ${isActive ? 'text-foreground' : 'text-foreground/30'}`}>
                     {node.year}
                   </span>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0">
+                <motion.div 
+                  initial={{ opacity: 0, x: -40, filter: "blur(10px)" }}
+                  animate={isActive ? { opacity: 1, x: 0, filter: "blur(0px)" } : { opacity: 0, x: -40, filter: "blur(10px)" }}
+                  transition={{ duration: 0.8, ease: "easeOut" }}
+                  className="flex-1 flex flex-col md:flex-row items-start md:items-center gap-6 md:gap-0"
+                >
                   <div className="flex-1">
                     <h3 
-                      className="font-syne font-black text-2xl md:text-4xl leading-none mb-3 text-foreground/80 group-hover:text-foreground group-hover:translate-x-3 transition-all duration-500"
+                      className={`font-syne font-black text-2xl md:text-4xl leading-none mb-3 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isActive ? 'text-foreground/90 translate-x-2' : 'text-foreground/30'}`}
                       style={{ fontFamily: "var(--font-syne)" }}
                     >
                       {item.label}
@@ -391,16 +387,21 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
 
                   {/* Thumbnail Container */}
                   <div className="w-28 h-18 md:w-48 md:h-32 rounded flex-shrink-0 overflow-hidden border border-foreground/5 group-hover:border-foreground/20 transition-all duration-700 md:ml-auto relative shadow-lg group-hover:shadow-2xl">
-                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700" />
-                    <img 
-                      src={node.img} 
-                      alt={item.label} 
-                      loading="lazy" 
-                      decoding="async" 
-                      className="w-full h-full object-cover grayscale-[40%] opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
-                    />
+                    <div className="absolute inset-0 bg-blue-900/10 mix-blend-overlay z-10 group-hover:opacity-0 transition-opacity duration-700 pointer-events-none" />
+                    <motion.div 
+                      style={{ y: useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]) }}
+                      className="absolute top-[-15%] left-0 w-full h-[130%]"
+                    >
+                      <img 
+                        src={node.img} 
+                        alt={item.label} 
+                        loading="lazy" 
+                        decoding="async" 
+                        className="w-full h-full object-cover grayscale-[40%] opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] scale-100 group-hover:scale-110" 
+                      />
+                    </motion.div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Milestone badge */}
                 <div 
@@ -409,7 +410,7 @@ function VerticalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBig:
                   <span className="w-1 h-1 rounded-full bg-foreground/60 animate-pulse" />
                   MILESTONE_{String(i + 1).padStart(2, '0')}
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -533,10 +534,12 @@ export default function Home() {
   const aboutH2X = useTransform(aboutProgress, [0, 1], [-60, 60]);
 
   // Contact headline scrub reveal
-  const { scrollYProgress: contactProgress } = useScroll({ target: contactSectionRef, offset: ['start 90%', 'center 50%'] });
-  const contactHeadX       = useTransform(contactProgress, [0, 1], [300, 0]); // 原来只有100太短了，放大到300
-  const contactHeadY       = useTransform(contactProgress, [0, 1], [150, 0]); // 加上一点Y轴的上浮配合
+  const { scrollYProgress: contactProgress } = useScroll({ target: containerRef, offset: ['end end', 'end start'] });
+  const contactHeadX       = useTransform(contactProgress, [0, 1], [300, 0]);
+  const contactHeadY       = useTransform(contactProgress, [0, 1], [150, 0]);
   const contactHeadOpacity = useTransform(contactProgress, [0, 0.3], [0, 1]);
+  const contactClip        = useTransform(contactProgress, [0, 1], ["circle(0% at 50% 100%)", "circle(150% at 50% 100%)"]);
+  const contactFontWeight  = useTransform(contactProgress, [0, 1], [100, 900]);
 
   useGSAP(() => {
     // ----------------------------------------------------
@@ -546,24 +549,19 @@ export default function Home() {
     ScrollTrigger.create({
       trigger: "#hero-about-wrapper",
       start: "top top",
-      end: "+=1500", 
+      end: "+=300", 
       pin: true,
-      // pinSpacing: true allows the subsequent content to be pushed down
+      // pinSpacing: true allows the About content to be pushed down until the scroll is over
     });
 
-    // ----------------------------------------------------
-    // 2. ABOUT LIQUID REVEAL (液体磁吸与文字解构) - TRIGGERED LATE!
-    // ----------------------------------------------------
-    // Since About is pinned alongside Hero, its physical location doesn't change for 1500px.
-    // Use the wrapper as the trigger, and start exactly at 1200px (when the black veil fades)!
     gsap.fromTo(".about-reveal-text", 
-      { y: 120, opacity: 0, rotateZ: 5, transformPerspective: 800, rotationX: -60 },
+      { y: 80, opacity: 0, filter: "blur(10px)" },
       { 
-        y: 0, opacity: 1, rotateZ: 0, rotationX: 0, 
-        duration: 1.8, stagger: 0.1, ease: "power4.out",
+        y: 0, opacity: 1, filter: "blur(0px)",
+        duration: 1.2, stagger: 0.15, ease: "power3.out",
         scrollTrigger: { 
           trigger: "#hero-about-wrapper", 
-          start: "top -1200px",  // Triggers exactly 300px before the pin drops!
+          start: "top -50px",
         }
       }
     );
@@ -594,18 +592,18 @@ export default function Home() {
       
       worksDeck.forEach((card, i) => {
         if (i !== 0) {
-          // 精准锁帧：让下一张卡在 0.05 秒稍微停顿后立马爽快飞出 (power3.out)，解决“滑半天没反应”
+          // 3D Cover Flow / iOS Stack style (Performance optimized)
           tlDeck.fromTo(card,
-            { y: window.innerHeight + 100, rotation: i % 2 === 0 ? 8 : -8, scale: 0.9, opacity: 0 },
+            { z: -1500, rotationY: 20, scale: 0.7, opacity: 0 },
             { 
-              y: 0,
-              rotation: 0,
+              z: 0,
+              rotationY: 0,
               scale: 1,
               opacity: 1, 
-              ease: "power3.out",  // 改掉"慢起"逻辑，变为先快后慢（一开始立刻冲出大半截，快到位时慢慢贴合）
-              duration: 0.95       // 占用 95% 时间比例
+              ease: "power3.inOut",  
+              duration: 0.95       
             },
-            i - 0.95               // 把落位时刻完美钉死在整数秒！1.0, 2.0, 3.0，配合 snap 百分比吸附
+            i - 0.95               
           );
         }
       });
@@ -637,16 +635,16 @@ export default function Home() {
     // ----------------------------------------------------
     const skillsItems = gsap.utils.toArray('.skill-bento-piece') as HTMLElement[];
     gsap.fromTo(skillsItems,
-      // 打碎分布：深度 Z，随机倾斜
-      { z: () => Math.random() * 1200 - 600, opacity: 0, rotationY: () => Math.random() * 180 - 90, rotationX: () => Math.random() * 90 - 45, x: () => Math.random() * 800 - 400, y: () => Math.random() * 800 - 400 },
+      // Elegant floating entry (Performance optimized)
+      { y: 150, z: -100, opacity: 0, rotationX: 15 },
       { 
-        z: 0, opacity: 1, rotationY: 0, rotationX: 0, x: 0, y: 0, 
-        stagger: 0.1, ease: "power2.out",
+        y: 0, z: 0, opacity: 1, rotationX: 0,
+        stagger: 0.15, ease: "power3.out",
         scrollTrigger: { 
           trigger: "#skills", 
-          start: "top 90%",
+          start: "top 80%",
           end: "center center", 
-          scrub: 1.5 // 关键！开启 scrub 1.5 让整个组装过程完全跟着你的滚轮进行
+          scrub: 1.5
         }
       }
     );
@@ -969,6 +967,8 @@ export default function Home() {
     <div className="relative w-full">
       {/* Main Content Wrapper (Covers the Footer) */}
       <main ref={containerRef} className="relative z-10 w-full bg-background pb-12 md:pb-24 shadow-[0_40px_120px_rgba(0,0,0,0.6)]" style={{ marginBottom: "100vh", borderBottomLeftRadius: "60px", borderBottomRightRadius: "60px" }}>
+        {/* Ambient Aurora specific to Main content to sit above its opaque bg */}
+        <div className="ambient-aurora z-0" />
         <div id="top" className="absolute top-0" />
 
       {/* ───── Theme Wipe Overlay ───── */}
@@ -1201,7 +1201,7 @@ export default function Home() {
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       />
 
-      {/* ───── BACKGROUND NOISE & AMBIENT AURORA ───── */}
+      {/* ───── BACKGROUND NOISE ───── */}
       <div 
         className="pointer-events-none fixed inset-0 z-0 opacity-[0.008] mix-blend-overlay"
         style={{
@@ -1209,43 +1209,9 @@ export default function Home() {
         }}
       />
       
-      {/* ───── DYNAMIC GLASSMORPHISM AURORA BACKGROUND ───── */}
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden mix-blend-screen opacity-40">
-        <motion.div 
-          className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[140px] opacity-20 will-change-transform"
-          style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
-          animate={{
-            x: [0, 50, -20, 0],
-            y: [0, -30, 40, 0],
-            scale: [1, 1.1, 0.9, 1],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        />
-        <motion.div 
-          className="absolute top-[20%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[160px] opacity-10 will-change-transform"
-          style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
-          animate={{
-            x: [0, -60, 30, 0],
-            y: [0, 50, -50, 0],
-            scale: [1, 1.2, 0.8, 1],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 2 }}
-        />
-        <motion.div 
-          className="absolute bottom-[-10%] left-[20%] w-[40vw] h-[40vw] rounded-full blur-[120px] opacity-15 will-change-transform"
-          style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
-          animate={{
-            x: [0, 40, -40, 0],
-            y: [0, 30, -30, 0],
-            scale: [1, 0.9, 1.1, 1],
-          }}
-          transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 4 }}
-        />
-      </div>
-
-      <div id="hero-about-wrapper" className="relative w-full">
+      <div id="hero-about-wrapper" className="relative w-full bg-background">
         {/* HERO */}
-        {/* Placed absolutely on top of About */}
+        {/* Placed absolutely to fill the wrapper */}
         <div className="absolute top-0 left-0 w-full h-[100svh] z-50 pointer-events-none">
           <div className="w-full h-full pointer-events-auto">
             <Hero
@@ -1264,10 +1230,25 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ════════════════════════════════════
-            1.5 ABOUT / INTERACTIVE IDENTITY
-        ════════════════════════════════════ */}
-        <section id="about" ref={aboutRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden">
+      {/* ════════════════════════════════════
+          1.5 ABOUT / INTERACTIVE IDENTITY
+      ════════════════════════════════════ */}
+      <section id="about" ref={aboutRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden">
+        {/* ───── STATIC GLASSMORPHISM AURORA MOVED HERE TO BE CLIPPED BY THE WIPE ───── */}
+        <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden mix-blend-screen opacity-30">
+          <div 
+            className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full blur-[140px] opacity-20"
+            style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
+          />
+          <div 
+            className="absolute top-[20%] right-[-10%] w-[60vw] h-[60vw] rounded-full blur-[160px] opacity-10"
+            style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
+          />
+          <div 
+            className="absolute bottom-[-10%] left-[20%] w-[40vw] h-[40vw] rounded-full blur-[140px] opacity-15"
+            style={{ backgroundColor: "var(--foreground)", transform: "translateZ(0)" }}
+          />
+        </div>
 
         <div className="w-full h-full relative" 
           onMouseMove={(e) => {
@@ -1338,14 +1319,12 @@ export default function Home() {
         </div>
 
         {/* ── BENTO PHOTO GRID ── */}
-        {/* Desktop: 3-col × 2-row asymmetric  [ NJU(tall) | MC | Assoc ]
-                                               [           | mbot | steam ] */}
-        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] border-t border-[var(--color-white)]/10 overflow-hidden text-foreground"
-          style={{ gridTemplateRows: "minmax(260px,35vh) minmax(260px,35vh)" }}>
+        <div className="relative w-full max-w-[1920px] mx-auto p-4 md:p-8 grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 text-foreground"
+          style={{ gridAutoRows: "minmax(260px,30vh)" }}>
 
-          {/* Cell A — NJU, spans 2 rows */}
+          {/* Cell A — NJU, spans 2x2 */}
           <div
-            className="relative md:row-span-2 overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 md:border-r border-foreground/10 group"
+            className="relative md:col-span-2 md:row-span-2 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group shadow-2xl"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               setAboutImgMouse({ x: ((e.clientX - r.left) / r.width - 0.5) * 22, y: ((e.clientY - r.top) / r.height - 0.5) * 22 });
@@ -1379,9 +1358,9 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* Cell B — Minecraft, top col 2 */}
+          {/* Cell B — Minecraft */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-r border-foreground/10 group cursor-pointer"
+            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-pointer shadow-2xl"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
@@ -1402,9 +1381,9 @@ export default function Home() {
             <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
           </div>
 
-          {/* Cell C — Student Association, top col 3 */}
+          {/* Cell C — Student Association */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b border-foreground/10 group cursor-default"
+            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-default shadow-2xl"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
@@ -1423,9 +1402,9 @@ export default function Home() {
             <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
           </div>
 
-          {/* Cell D — mbot robotics, bottom col 2 */}
+          {/* Cell D — mbot robotics */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto border-b md:border-b-0 border-r border-foreground/10 group cursor-default"
+            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-default shadow-2xl"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
@@ -1444,9 +1423,9 @@ export default function Home() {
             <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
           </div>
 
-          {/* Cell E — STEAM & IoT, bottom col 3 */}
+          {/* Cell E — STEAM & IoT */}
           <div
-            className="relative overflow-hidden aspect-[4/3] md:aspect-auto group cursor-default"
+            className="relative md:col-span-1 md:row-span-1 rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] group cursor-default shadow-2xl"
             onMouseMove={(e) => {
               const r = e.currentTarget.getBoundingClientRect();
               e.currentTarget.style.setProperty('--x', `${e.clientX - r.left}px`);
@@ -1467,19 +1446,19 @@ export default function Home() {
         </div>
 
         {/* ── Info band: p1 text | stat cards | tags ── */}
-        <div className="relative w-full grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] border-t border-foreground/10">
+        <div className="relative w-full max-w-[1920px] mx-auto px-4 md:px-8 pb-8 grid grid-cols-1 md:grid-cols-[2fr_1fr_1.5fr] gap-4 md:gap-6">
 
           {/* p1 paragraph */}
           <motion.div
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             transition={{ duration: 0.9 }}
-            className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-foreground/10 flex flex-col justify-center gap-5"
+            className="p-8 md:p-12 rounded-[2rem] bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-2xl flex flex-col justify-center gap-5"
           >
             <p className="about-reveal-text origin-bottom font-grotesk text-sm md:text-[15px] text-foreground/60 leading-[1.9]">{t.about.p1}</p>
           </motion.div>
 
           {/* Stat cards */}
-          <div className="border-b md:border-b-0 md:border-r border-foreground/10 p-6 md:p-8 flex flex-col justify-between gap-4">
+          <div className="rounded-[2rem] bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-2xl p-6 md:p-8 flex flex-col justify-between gap-4">
             {[
               { label: "BASE",   val: "Macau → Nanjing", sub: "澳门 · 南京大学", accent: "bg-foreground", grad: "from-foreground/10 to-transparent" },
               { label: "FOCUS",  val: "Full-Stack",  sub: "Architecture + UX", accent: "bg-foreground/70", grad: "from-foreground/5 to-transparent" },
@@ -1507,7 +1486,7 @@ export default function Home() {
           </div>
 
           {/* Tags with animated progress bars */}
-          <div className="p-6 md:p-8 flex flex-col justify-center gap-5">
+          <div className="rounded-[2rem] bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-2xl p-6 md:p-8 flex flex-col justify-center gap-5">
             <p className="font-mono text-[10px] text-foreground/40 uppercase tracking-[0.4em]">Modules</p>
             <div className="flex flex-col gap-5">
               {t.about.tags.map((tag, i) => {
@@ -1654,7 +1633,7 @@ export default function Home() {
       ════════════════════════════════════ */}
       <section id="gallery" ref={horizontalRef} className="relative z-10 w-full min-h-screen bg-background text-foreground">
         <div className="w-full relative" style={{ height: "500vh" }}>
-          <div className="sticky top-[2vh] h-[96vh] w-[96%] left-[2%] max-w-[1920px] mx-auto overflow-hidden flex items-center bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.3)]">
+          <div className="sticky top-[2vh] h-[96vh] w-[96%] left-[2%] max-w-[1920px] mx-auto overflow-hidden flex items-center bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.3)]" style={{ transform: "translateZ(0)" }}>
           
           {/* Main Horizontal Track */}
           <motion.div style={{ x: xTransform }} className="flex h-full w-[500vw] will-change-transform">
@@ -1710,54 +1689,76 @@ export default function Home() {
                   {photo.num}
                 </motion.div>
                 
-                <a 
-                  href={photo.src} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="relative block w-full max-w-5xl aspect-[4/5] md:aspect-[21/9] rounded-[2rem] overflow-hidden cursor-pointer z-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-1000 hover:shadow-[0_30px_90px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30"
-                  onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-                >
-                  <motion.img 
-                    src={photo.src} 
-                    alt={photo.title} 
-                    loading="lazy" 
-                    decoding="async" 
-                    initial={{ scale: 1.1, filter: 'blur(10px)' }}
-                    whileInView={{ scale: 1.05, filter: 'blur(0px)' }}
-                    viewport={{ root: horizontalRef }}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
-                    className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-[1.5s] group-hover/photo:scale-100 will-change-transform" 
-                  />
-                  
-                  {/* Overlay gradients & Data */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
-                  
-                  <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none">
-                    <div className="overflow-hidden">
-                      <motion.h3 
-                        initial={{ y: "100%", opacity: 0 }} 
-                        whileInView={{ y: 0, opacity: 1 }} 
-                        viewport={{ root: horizontalRef, margin: "0px" }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
-                        className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 text-[#fafafa]/80 group-hover/photo:text-[#fafafa] transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
-                        {t.gallery.photos[i]}
-                      </motion.h3>
-                    </div>
-                    <motion.div 
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ root: horizontalRef }}
-                      transition={{ duration: 0.8, delay: 0.4 }}
-                      className="flex items-center gap-4"
+                <div className="relative w-full max-w-5xl">
+                  <a 
+                    href={photo.src} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="relative block w-full aspect-[4/5] md:aspect-[21/9] rounded-[2rem] overflow-hidden cursor-pointer z-10 shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-1000 hover:shadow-[0_30px_90px_rgba(0,0,0,0.6)] border border-white/10 hover:border-white/30"
+                    onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
+                  >
+                    <motion.div
+                      initial={{ clipPath: "inset(0 100% 0 0)" }}
+                      whileInView={{ clipPath: "inset(0 0 0 0)" }}
+                      viewport={{ root: horizontalRef, margin: "0px" }}
+                      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                      className="w-full h-full relative"
                     >
-                      <span className="font-mono text-xs md:text-sm text-[#fafafa]/70 group-hover/photo:text-[#fafafa] tracking-widest uppercase border border-[#fafafa]/10 px-3 py-1 bg-[#fafafa]/5 transition-colors duration-500">{photo.num}</span>
-                      <span className="font-mono text-sm text-[#fafafa]/40 group-hover/photo:text-[#fafafa]/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
+                      <motion.img 
+                        src={photo.src} 
+                        alt={photo.title} 
+                        loading="lazy" 
+                        decoding="async" 
+                        initial={{ scale: 1.2, x: 50 }}
+                        whileInView={{ scale: 1.05, x: 0 }}
+                        viewport={{ root: horizontalRef }}
+                        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                        className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover/photo:opacity-100 group-hover/photo:grayscale-0 transition-all duration-[1.5s] group-hover/photo:scale-100 will-change-transform" 
+                      />
                     </motion.div>
-                  </div>
-                  
-                  {/* Subtle Scanline strictly on image */}
-                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none opacity-50" />
-                </a>
+                    
+                    {/* Overlay gradients & Data */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
+                    
+                    <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none">
+                      <div className="overflow-hidden">
+                        <motion.h3 
+                          initial={{ y: "100%", opacity: 0 }} 
+                          whileInView={{ y: 0, opacity: 1 }} 
+                          viewport={{ root: horizontalRef, margin: "0px" }}
+                          transition={{ duration: 0.8, delay: 0.2, ease: [0.33, 1, 0.68, 1] }}
+                          className="font-syne font-black text-3xl sm:text-4xl md:text-7xl leading-none mb-4 text-[#fafafa]/80 group-hover/photo:text-[#fafafa] transition-colors duration-500" style={{ fontFamily: "var(--font-syne)" }}>
+                          {t.gallery.photos[i]}
+                        </motion.h3>
+                      </div>
+                      <motion.div 
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ root: horizontalRef }}
+                        transition={{ duration: 0.8, delay: 0.4 }}
+                        className="flex items-center gap-4"
+                      >
+                        <span className="font-mono text-xs md:text-sm text-[#fafafa]/70 group-hover/photo:text-[#fafafa] tracking-widest uppercase border border-[#fafafa]/10 px-3 py-1 bg-[#fafafa]/5 transition-colors duration-500">{photo.num}</span>
+                        <span className="font-mono text-sm text-[#fafafa]/40 group-hover/photo:text-[#fafafa]/80 tracking-widest uppercase transition-colors duration-500">{photo.title}</span>
+                      </motion.div>
+                    </div>
+                    
+                    {/* Subtle Scanline strictly on image */}
+                    <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,255,255,0.05)_2px,rgba(255,255,255,0.05)_4px)] pointer-events-none opacity-50" />
+                  </a>
+
+                  {/* Reflection */}
+                  <motion.div 
+                    className="absolute -bottom-[10%] left-0 w-full h-[20%] opacity-20 pointer-events-none scale-y-[-1] blur-xl mix-blend-screen z-0"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 0.2 }}
+                    viewport={{ root: horizontalRef }}
+                    transition={{ duration: 1.5 }}
+                  >
+                    <img src={photo.src} alt="" className="w-full h-full object-cover rounded-[2rem]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background to-background/50" />
+                  </motion.div>
+                </div>
               </div>
             ))}
             
@@ -1794,29 +1795,28 @@ export default function Home() {
       {/* ════════════════════════════════════
           3. BENTO SYSTEM (Skills + Timeline fusion)
       ════════════════════════════════════ */}
-      <section id="skills" ref={skillsRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden py-16" style={{ perspective: "1500px" }}>
-        <div id="skills-bento-grid" className="w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.02] backdrop-blur-[40px] border border-foreground/[0.05] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.2)] flex flex-col items-center py-24 px-6 md:px-12" style={{ transformStyle: "preserve-3d" }}>
-        <div className="absolute inset-0 bg-gradient-to-br from-foreground/[0.03] to-transparent pointer-events-none rounded-[3rem]" />
+      <section id="skills" ref={skillsRef} className="relative z-10 w-full min-h-screen text-foreground overflow-hidden py-16" style={{ perspective: "1500px" }}>
+        <div id="skills-bento-grid" className="w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] rounded-[3rem] shadow-2xl flex flex-col items-center py-24 px-6 md:px-12">
         
         <div className="w-full max-w-7xl mb-10 md:mb-16 relative z-10">
           <h2 className="font-syne font-black text-4xl sm:text-5xl md:text-8xl " style={{ fontFamily: "var(--font-syne)" }}>{t.skills.title1}<br/><span className="text-foreground">{t.skills.title2}</span></h2>
         </div>
 
-<div className="w-full max-w-7xl flex flex-col gap-16">
+<div className="w-full max-w-7xl flex flex-col gap-16 relative z-10">
           
-          {/* Awwwards Style Expandable Accordion */}
+          {/* Awwwards Style Expandable Accordion (Performance Optimized) */}
           <div className="w-full h-[70vh] min-h-[500px] flex flex-col md:flex-row gap-2 md:gap-4 group/accordion">
             {SKILLS.map((skill, i) => (
               <div 
                 key={i}
-                className="skill-bento-piece relative flex-1 md:flex-[1] md:hover:flex-[4] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-2xl overflow-hidden group/card cursor-pointer border border-foreground/10 hover:border-foreground/30"
+                className="skill-bento-piece relative flex-1 md:flex-[1] md:hover:flex-[4] transition-[flex-grow,border-color] duration-700 ease-[cubic-bezier(0.76,0,0.24,1)] rounded-[2rem] overflow-hidden group/card cursor-pointer border border-foreground/10 hover:border-foreground/30 shadow-2xl"
                 onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
               >
-                <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[30%] opacity-70 group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-110 transition-all duration-1000" alt={skill.name} />
+                <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[30%] opacity-70 group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-105 transition-all duration-1000 will-change-transform" alt={skill.name} style={{ transform: "translateZ(0)" }} />
                 
                 {/* Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-90 group-hover/card:opacity-80 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-background/40 group-hover/card:bg-transparent transition-colors duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent opacity-90 group-hover/card:opacity-70 transition-opacity duration-700 pointer-events-none" />
+                <div className="absolute inset-0 bg-background/20 group-hover/card:bg-transparent transition-colors duration-700 pointer-events-none" />
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 p-6 md:p-8 flex flex-col w-full h-full justify-end">
@@ -1860,8 +1860,15 @@ export default function Home() {
       {/* ════════════════════════════════════
           4. CONTACT — Immersive Glass Hub (Curtain Reveal Footer)
       ════════════════════════════════════ */}
-      <footer className="fixed bottom-0 left-0 w-full h-screen z-0 bg-background pointer-events-auto">
-        <section ref={contactSectionRef} id="contact" className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      <footer className="fixed bottom-0 left-0 w-full h-screen z-0 pointer-events-auto">
+        <motion.section 
+          ref={contactSectionRef} 
+          id="contact" 
+          className="relative w-full h-full flex items-center justify-center overflow-hidden bg-background"
+          style={{ clipPath: contactClip }}
+        >
+          {/* Ambient Aurora for the Footer */}
+          <div className="ambient-aurora z-0" />
           
           <div className="w-[98%] max-w-[1920px] mx-auto h-[92vh] rounded-[3.5rem] flex flex-col bg-background/90 backdrop-blur-xl border border-foreground/[0.08] shadow-[0_-18px_70px_rgba(0,0,0,0.25)] text-foreground relative z-10 mix-blend-normal transform-style-3d overflow-hidden">
         
@@ -1883,8 +1890,15 @@ export default function Home() {
           
           <motion.h2
             onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
-            className="font-syne font-black leading-[0.9] text-center mb-24 cursor-default group relative overflow-hidden"
-            style={{ fontFamily: "var(--font-syne)", fontSize: "clamp(3.5rem, 12vw, 11rem)", x: contactHeadX, y: contactHeadY, opacity: contactHeadOpacity }}
+            className="font-syne leading-[0.9] text-center mb-24 cursor-default group relative overflow-hidden"
+            style={{ 
+              fontFamily: "var(--font-syne)", 
+              fontSize: "clamp(3.5rem, 12vw, 11rem)", 
+              x: contactHeadX, 
+              y: contactHeadY, 
+              opacity: contactHeadOpacity,
+              fontWeight: contactFontWeight
+            }}
           >
             <span className="text-foreground block tracking-tighter transition-colors duration-700 group-hover:text-foreground relative z-10">{t.contact.t1}</span>
             <span className="relative block tracking-tighter z-10">
@@ -1980,7 +1994,7 @@ export default function Home() {
           <span className="font-mono text-[9px] text-foreground/20 tracking-[0.2em] uppercase">CRAFTED WITH NEXT.JS & FRAMER MOTION.</span>
         </div>
         </div>
-        </section>
+        </motion.section>
       </footer>
 
       {/* ── Scroll velocity motion blur overlay ── */}
