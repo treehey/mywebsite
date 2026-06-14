@@ -682,6 +682,13 @@ export default function Home() {
   const contactSectionRef = useRef<HTMLElement>(null);
   const [aboutMouse, setAboutMouse] = useState({ x: 0, y: 0 });
 
+  // ── Hero letter explosion & SLOTH easter egg ────────────────────────────
+  const [heroClickedSet, setHeroClickedSet] = useState<Set<string>>(new Set());
+  const [heroExploding, setHeroExploding] = useState<Set<string>>(new Set());
+  const [slothMode, setSlothMode] = useState(false);
+  const heroVectorsRef = useRef<Record<string, { x: number; y: number; rotate: number }>>({});
+  const slothPendingRef = useRef(false);
+
   /* ── Scroll-driven transforms ── */
   // Hero scroll-out
   
@@ -713,7 +720,8 @@ export default function Home() {
       start: "top top",
       end: "+=300", 
       pin: true,
-      // pinSpacing: true allows the About content to be pushed down until the scroll is over
+      invalidateOnRefresh: true,
+      refreshPriority: 1, // Ensures pin is created before children calculate their start/end
     });
 
     gsap.fromTo(".about-reveal-text", 
@@ -826,7 +834,7 @@ export default function Home() {
       }
     );
 
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [] });
 
   const [aboutImgMouse, setAboutImgMouse] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState("");
@@ -982,12 +990,7 @@ export default function Home() {
 
   const HERO_CHARS = "TREE HEY".split("");
 
-  // ── Hero letter explosion & SLOTH easter egg ────────────────────────────
-  const [heroClickedSet, setHeroClickedSet] = useState<Set<string>>(new Set());
-  const [heroExploding, setHeroExploding] = useState<Set<string>>(new Set());
-  const [slothMode, setSlothMode] = useState(false);
-  const heroVectorsRef = useRef<Record<string, { x: number; y: number; rotate: number }>>({});
-  const slothPendingRef = useRef(false);
+
 
   /* ── Minecraft mode ── */
   const [minecraftMode, setMinecraftMode] = useState(false);
@@ -1021,8 +1024,26 @@ export default function Home() {
       buf = (buf + e.key.toLowerCase()).slice(-5);
       if (buf === 'sloth') {
         buf = '';
-        setSlothMode(true);
-        globalLenis?.scrollTo(0, { duration: 1.5 });
+        if (window.scrollY > 10) {
+          if (globalLenis) {
+            globalLenis.scrollTo(0, {
+              duration: 1.2,
+              onComplete: () => {
+                setSlothMode(true);
+                setTimeout(() => ScrollTrigger.refresh(), 100);
+              }
+            });
+          } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            setTimeout(() => {
+              setSlothMode(true);
+              setTimeout(() => ScrollTrigger.refresh(), 100);
+            }, 800);
+          }
+        } else {
+          setSlothMode(true);
+          setTimeout(() => ScrollTrigger.refresh(), 100);
+        }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -1073,7 +1094,11 @@ export default function Home() {
       // All 7 chars clicked — scatter ALL then transform to SLOTH
       slothPendingRef.current = true;
       setHeroExploding(new Set(['0-0','0-1','0-2','0-3','1-0','1-1','1-2']));
-      setTimeout(() => { setSlothMode(true); slothPendingRef.current = false; }, 700);
+      setTimeout(() => { 
+        setSlothMode(true); 
+        slothPendingRef.current = false; 
+        setTimeout(() => ScrollTrigger.refresh(), 100);
+      }, 700);
     } else {
       setHeroExploding(prev => new Set([...prev, key]));
       setTimeout(() => {
@@ -1407,6 +1432,7 @@ export default function Home() {
                 setSlothMode(false);
                 setHeroClickedSet(new Set());
                 setHeroExploding(new Set());
+                setTimeout(() => ScrollTrigger.refresh(), 100);
               }}
             />
           </div>

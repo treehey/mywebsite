@@ -99,25 +99,8 @@ function ParticleCanvas() {
         ctx.fill();
       });
 
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const p1 = particles[i];
-          const p2 = particles[j];
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 100) {
-            const alpha = (100 - dist) / 100 * 0.06;
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `${color}${alpha})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
+
 
       animationFrameId = requestAnimationFrame(draw);
     };
@@ -166,17 +149,59 @@ export default function Hero({
   const uiElementsRef = useRef<(HTMLDivElement | null)[]>([]);
   const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
+  // Sloth Mode Refs
+  const slothBgRef = useRef<HTMLDivElement>(null);
+  const slothMascotRef = useRef<HTMLDivElement>(null);
+  const slothTitleRef = useRef<HTMLDivElement>(null);
+
   useGSAP(() => {
-    // Timeline that controls the entire Hero animation
-    const wrapper = document.querySelector("#hero-about-wrapper");
+    const activeUI = uiElementsRef.current.filter(Boolean);
+    const activeLetters = letterRefs.current.filter(Boolean);
+
+    // 1. Clear any previous inline styles to avoid stale state from React-GSAP fighting
+    gsap.set([
+      textContainerRef.current,
+      slothTitleRef.current,
+      slothMascotRef.current,
+      slothBgRef.current,
+      backgroundRef.current,
+      ...activeUI
+    ], { clearProps: "all" });
+
+    if (activeLetters.length > 0) {
+      gsap.set(activeLetters, { clearProps: "all" });
+    }
+
+    // 2. Establish starting states based on mode (zero race condition with React rendering)
+    if (slothMode) {
+      gsap.set(textContainerRef.current, { opacity: 0, scale: 0.85, visibility: "hidden" });
+      gsap.set(slothTitleRef.current, { opacity: 1, scale: 1, visibility: "visible" });
+      gsap.set(slothMascotRef.current, { opacity: 1, scale: 1, y: 0, visibility: "visible" });
+      gsap.set(slothBgRef.current, { opacity: 1, visibility: "visible" });
+    } else {
+      gsap.set(textContainerRef.current, { opacity: 1, scale: 1, visibility: "visible" });
+      gsap.set(slothTitleRef.current, { opacity: 0, scale: 0.85, visibility: "hidden" });
+      gsap.set(slothMascotRef.current, { opacity: 0, scale: 0.8, y: -100, visibility: "hidden" });
+      gsap.set(slothBgRef.current, { opacity: 0, visibility: "hidden" });
+    }
+
+    // Timeline that controls the entire Hero animation triggered using absolute scroll positions
+    // This bypasses any pinnedContainer offset calculation bugs during dynamic layout changes.
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: wrapper || containerRef.current,
-        start: "top top",
-        end: wrapper ? "+=300" : "bottom bottom", 
+        trigger: "#hero-about-wrapper",
+        start: 0,
+        end: 300, 
         scrub: true,
       }
     });
+
+    // Fade out the dark background completely to reveal the About section underneath
+    tl.to(backgroundRef.current, {
+      opacity: 0,
+      duration: 0.25,
+      ease: "none"
+    }, 0.75);
 
     // Animate out the UI elements gradually, synced to stick around MUCH longer
     tl.to(uiElementsRef.current, {
@@ -184,48 +209,98 @@ export default function Hero({
       y: -40,
       duration: 0.4,
       ease: "power2.inOut"
-    }, 0.2); // Pushed the delay to 0.2 so they only fade when the zoom really kicks in
+    }, 0.2);
 
-    // Center hole penetration - widen the words and scatter the letters immensely
-    letterRefs.current.forEach((el, i) => {
-      if (!el) return;
-      // First word "TREE" moves left and up, "HEY" moves right and down
-      const isLeft = i < 4;
-      const moveX = isLeft ? -800 - Math.random() * 400 : 800 + Math.random() * 400;
-      const moveY = (Math.random() - 0.5) * 500;
-      
-      tl.to(el, {
-        x: moveX,
-        y: moveY,
-        z: 800 + Math.random() * 400,
-        rotationZ: (Math.random() - 0.5) * 120,
-        rotationX: (Math.random() - 0.5) * 120,
-        rotationY: (Math.random() - 0.5) * 120,
-        filter: "blur(12px)",
-        duration: 0.9,
-        ease: "power2.in"
-      }, 0.1);
-    });
+    if (slothMode) {
+      // Sloth Title zoom-out transition on scroll
+      if (slothTitleRef.current) {
+        tl.fromTo(slothTitleRef.current,
+          { scale: 1, opacity: 1 },
+          {
+            scale: 25,
+            opacity: 0,
+            force3D: true,
+            duration: 0.9,
+            transformOrigin: "50% 50%",
+            ease: "power2.in"
+          },
+          0.0
+        );
+      }
 
-    // Center hole penetration - widen the words and scatter the letters immensely
-    tl.to(textContainerRef.current, {
-      scale: 25, // Reduced from 150 to 25 to prevent GPU texture crash
-      opacity: 0, // Fade out the text just as it hits the camera
-      force3D: true,
-      duration: 0.9,
-      transformOrigin: "50% 50%",
-      ease: "power2.in" 
-    }, 0.0);
+      // Sloth Mascot transition on scroll
+      if (slothMascotRef.current) {
+        tl.fromTo(slothMascotRef.current,
+          { opacity: 1, scale: 1, y: 0 },
+          {
+            opacity: 0,
+            scale: 0.8,
+            y: -100,
+            duration: 0.6,
+            ease: "power2.in"
+          },
+          0.1
+        );
+      }
 
-    // Fade out the dark background completely to reveal the About section underneath
-    // Start fading late (at 0.75) so the user only sees About AFTER the text is huge and passing them
-    tl.to(backgroundRef.current, {
-      opacity: 0,
-      duration: 0.25,
-      ease: "none"
-    }, 0.75);
+      // Sloth Backdrop transition on scroll
+      if (slothBgRef.current) {
+        tl.fromTo(slothBgRef.current,
+          { opacity: 1 },
+          {
+            opacity: 0,
+            duration: 0.25,
+            ease: "none"
+          },
+          0.75
+        );
+      }
+    } else {
+      // Center hole penetration - widen the words and scatter the letters immensely
+      letterRefs.current.forEach((el, i) => {
+        if (!el) return;
+        const isLeft = i < 4;
+        const moveX = isLeft ? -800 - Math.random() * 400 : 800 + Math.random() * 400;
+        const moveY = (Math.random() - 0.5) * 500;
+        
+        tl.fromTo(el,
+          { x: 0, y: 0, z: 0, rotationZ: 0, rotationX: 0, rotationY: 0, filter: "blur(0px)" },
+          {
+            x: moveX,
+            y: moveY,
+            z: 800 + Math.random() * 400,
+            rotationZ: (Math.random() - 0.5) * 120,
+            rotationX: (Math.random() - 0.5) * 120,
+            rotationY: (Math.random() - 0.5) * 120,
+            filter: "blur(12px)",
+            duration: 0.9,
+            ease: "power2.in"
+          },
+          0.1
+        );
+      });
 
-  }, { scope: containerRef });
+      // Center hole penetration
+      if (textContainerRef.current) {
+        tl.fromTo(textContainerRef.current,
+          { scale: 1, opacity: 1 },
+          {
+            scale: 25,
+            opacity: 0,
+            force3D: true,
+            duration: 0.9,
+            transformOrigin: "50% 50%",
+            ease: "power2.in" 
+          },
+          0.0
+        );
+      }
+    }
+
+    // Force a full refresh to ensure ScrollTrigger measures correctly
+    ScrollTrigger.refresh();
+
+  }, { scope: containerRef, dependencies: [slothMode] });
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -261,107 +336,131 @@ export default function Hero({
           <DanmakuSystem lang={lang} />
         </div>
 
-      <AnimatePresence>
-        {slothMode && (
-          <motion.div
-            key="sloth-cinematic-bg"
-            className="fixed inset-0 z-40 bg-background/90 backdrop-blur-3xl flex items-center justify-center overflow-hidden pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,color-mix(in srgb, var(--color-white) 3%, transparent)_0%,transparent_70%)] dark:bg-[radial-gradient(circle_at_center,color-mix(in srgb, var(--color-white) 3%, transparent)_0%,transparent_70%)]" />
+      {/* Sloth Cinematic Backdrop (GSAP Wrapper) */}
+      <div
+        ref={slothBgRef}
+        className="absolute inset-0 z-40 pointer-events-none"
+      >
+        <AnimatePresence>
+          {slothMode && (
             <motion.div
-              className="absolute font-syne font-black text-[45vw] tracking-tighter leading-none opacity-5 whitespace-nowrap text-foreground will-change-transform"
-              style={{ x: slothX1, y: slothY1 }}
+              className="absolute inset-0 bg-[#030305] flex items-center justify-center overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
             >
-              SLOTH
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+              <motion.div
+                className="absolute font-syne font-black text-[45vw] tracking-tighter leading-none opacity-5 whitespace-nowrap text-foreground will-change-transform"
+                style={{ x: slothX1, y: slothY1 }}
+              >
+                SLOTH
+              </motion.div>
+              <motion.div
+                className="absolute font-syne font-black text-[35vw] tracking-tighter leading-none opacity-[0.02] whitespace-nowrap text-foreground scale-y-[-1] mt-[30vw] will-change-transform"
+                style={{ x: slothX2, y: slothY2 }}
+              >
+                SLOTH
+              </motion.div>
             </motion.div>
-            <motion.div
-              className="absolute font-syne font-black text-[35vw] tracking-tighter leading-none opacity-[0.02] whitespace-nowrap text-foreground scale-y-[-1] mt-[30vw] will-change-transform"
-              style={{ x: slothX2, y: slothY2 }}
-            >
-              SLOTH
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-12 mb-12 relative z-50">
         
         <motion.div 
           style={{ x: springX, y: springY }}
-          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-50"
+          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-50 relative"
         >
-          {slothMode ? (
-            <motion.div 
-              className="flex pointer-events-none"
-              initial={{ scale: 1.1, opacity: 0, filter: "blur(15px)" }}
-              animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {"SLOTH".split("").map((ch, i) => {
-                const v = heroVectors[`sloth-${i}`] ?? { x: 0, y: -200, rotate: 0 };
-                return (
-                  <motion.div
-                    key={`sloth-${i}`}
-                    className="relative inline-block overflow-visible will-change-transform"
-                    initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
-                    animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                    transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.3 + i * 0.08 }}
-                  >
-                    <span className="relative z-10 text-[#fafafa] drop-shadow-[0_0_40px_rgba(255,255,255,0.6)]">
-                      {ch}
-                    </span>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          ) : (
-            <div 
-              ref={textContainerRef}
-              style={{ perspective: "1000px" }} 
-              className="flex flex-col transform-origin-fly-through"
+          {/* SLOTH Easter Egg Title Overlay (GSAP Wrapper) */}
+          <div 
+            ref={slothTitleRef}
+            className="pointer-events-none absolute left-0 top-0 w-full h-full z-10"
+          >
+            <AnimatePresence>
+              {slothMode && (
+                <motion.div
+                  className="flex w-full h-full"
+                  initial={{ scale: 1.1, opacity: 0, filter: "blur(15px)" }}
+                  animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+                  exit={{ scale: 0.9, opacity: 0, filter: "blur(15px)" }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {"SLOTH".split("").map((ch, i) => {
+                    const v = heroVectors[`sloth-${i}`] ?? { x: 0, y: -200, rotate: 0 };
+                    return (
+                      <motion.div
+                        key={`sloth-${i}`}
+                        className="relative inline-block overflow-visible will-change-transform"
+                        initial={{ x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 0.4 }}
+                        animate={{ x: 0, y: 0, rotate: 0, opacity: 1, scale: 1 }}
+                        transition={{ type: "spring", stiffness: 120, damping: 14, delay: 0.3 + i * 0.08 }}
+                      >
+                        <span className="relative z-10 text-[#fafafa] drop-shadow-[0_0_40px_rgba(255,255,255,0.6)]">
+                          {ch}
+                        </span>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* TREE HEY. Original Title (Always Mounted to Preserve GSAP Refs) */}
+          <div 
+            ref={textContainerRef}
+            style={{ perspective: "1000px" }} 
+            className="flex flex-col transform-origin-fly-through"
+          >
+            <div
+              className={`flex flex-col transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                slothMode 
+                  ? "opacity-0 pointer-events-none scale-[0.85] blur-xl" 
+                  : "opacity-100 scale-100 blur-none"
+              }`}
             >
               {["TREE", "HEY."].map((word, wIdx) => {
                 const startIdx = wIdx === 0 ? 0 : 4;
                 return (
-                <div 
-                  key={word} 
-                  className={`relative overflow-visible flex items-center ${wIdx === 0 ? "pt-4 -mt-4" : ""}`}
-                >
-                  {word.split("").map((ch, i) => {
-                    const isLetter = /[A-Z.]/.test(ch);
-                    const key = `${wIdx}-${i}`;
-                    const isExploding = heroExploding.has(key);
-                    const isClicked = heroClickedSet.has(key);
-                    const v = heroVectors[key] ?? { x: (Math.random() - 0.5) * 400, y: -200, rotate: 45 };
+                  <div 
+                    key={word} 
+                    className={`relative overflow-visible flex items-center ${wIdx === 0 ? "pt-4 -mt-4" : ""}`}
+                  >
+                    {word.split("").map((ch, i) => {
+                      const isLetter = /[A-Z.]/.test(ch);
+                      const key = `${wIdx}-${i}`;
+                      const isExploding = heroExploding.has(key);
+                      const isClicked = heroClickedSet.has(key);
+                      const v = heroVectors[key] ?? { x: (Math.random() - 0.5) * 400, y: -200, rotate: 45 };
 
-                    return (
-                      <div
-                        key={i}
-                        className="inline-block"
-                        ref={(el) => { if(el) letterRefs.current[startIdx + i] = el; }}
-                        style={{ transformOrigin: "center center" }}
-                      >
-                        <motion.span
-                          onClick={() => isLetter && onCharClick && onCharClick(wIdx, i)}
-                          animate={isExploding ? { x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 1.5 } : { x: 0, y: 0, rotateZ: 0, opacity: isClicked ? 0.3 : 1, rotateX: 0, scale: 1 }}
-                          whileHover={isExploding ? {} : { y: -22, scale: 1.15, rotate: (i % 2 === 0 ? -6 : 6), transition: { type: "spring", stiffness: 350, damping: 10 } }}
-                          transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                          style={{ display: "inline-block", transformOrigin: "center center" }}
-                          className={`text-foreground ${isLetter ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
+                      return (
+                        <div
+                          key={i}
+                          className="inline-block"
+                          ref={(el) => { if(el) letterRefs.current[startIdx + i] = el; }}
+                          style={{ transformOrigin: "center center" }}
                         >
-                          {ch}
-                        </motion.span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )})}
+                          <motion.span
+                            onClick={() => isLetter && onCharClick && onCharClick(wIdx, i)}
+                            animate={isExploding ? { x: v.x, y: v.y, rotate: v.rotate, opacity: 0, scale: 1.5 } : { x: 0, y: 0, rotateZ: 0, opacity: isClicked ? 0.3 : 1, rotateX: 0, scale: 1 }}
+                            whileHover={isExploding ? {} : { y: -22, scale: 1.15, rotate: (i % 2 === 0 ? -6 : 6), transition: { type: "spring", stiffness: 350, damping: 10 } }}
+                            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                            style={{ display: "inline-block", transformOrigin: "center center" }}
+                            className={`text-foreground ${isLetter ? "cursor-pointer hover:opacity-80 transition-opacity" : ""}`}
+                          >
+                            {ch}
+                          </motion.span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
-          )}
+          </div>
         </motion.div>
 
         <div ref={(el) => { if(el) uiElementsRef.current[1] = el; }}>
@@ -379,19 +478,19 @@ export default function Hero({
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="space-y-4 font-geist text-[#a8a8a8]"
               >
-                <div className="flex flex-col md:items-end uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium space-y-1 mt-12">
-                  <span className="block border-b border-[#333] pb-1">Hidden System: 0xSLOTH</span>
-                  <span className="block">Status: OVERRIDDEN</span>
+                <div className="flex flex-col md:items-end uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium space-y-1 mt-12 opacity-70">
+                  <span className="block border-b border-white/20 pb-1">Sloth Dimension</span>
+                  <span className="block">Time Dilated</span>
                 </div>
-                <p className="text-sm md:text-base leading-relaxed text-[#c0c0c0] font-light italic">
-                  "You found the secret frequency."
+                <p className="text-sm md:text-base leading-relaxed text-white/60 font-light">
+                  "Take a breath. The world can wait."
                 </p>
                 <button 
-                  className="mt-6 border border-[#fafafa] bg-transparent text-[#fafafa] hover:bg-[#fafafa] hover:text-black transition-colors duration-300 px-6 py-4 uppercase tracking-widest text-[10px] font-mono group relative overflow-hidden"
+                  className="mt-6 border border-white/20 bg-transparent text-white hover:bg-white hover:text-black transition-all duration-500 px-8 py-4 uppercase tracking-[0.3em] text-[10px] font-medium group relative overflow-hidden rounded-full"
                   onClick={onSlothDismiss}
                 >
-                  <span className="relative z-10">RESTORE SYSTEM</span>
-                  <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
+                  <span className="relative z-10">RETURN</span>
+                  <div className="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-500 ease-out" />
                 </button>
               </motion.div>
             </AnimatePresence>
@@ -423,36 +522,41 @@ export default function Hero({
         </div>
       </div>
 
-      <AnimatePresence>
-        {slothMode && (
-          <motion.div
-            key="sloth-mascot"
-            className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] select-none cursor-pointer group"
-            initial={{ scale: 0.8, y: -50, opacity: 0, filter: "blur(20px)" }}
-            animate={{ scale: 1, y: 0, opacity: 1, filter: "blur(0px)" }}
-            exit={{ scale: 0.9, y: 50, opacity: 0, filter: "blur(20px)" }}
-            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-            onClick={onSlothDismiss}
-          >
-            <motion.img
-              src={process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/sloth_color.png` : "/sloth_color.png"}
-              alt="sloth mascot"
-              className="w-48 md:w-64 lg:w-80 brightness-110 contrast-125 drop-shadow-[0_0_80px_rgba(255,255,255,0.25)] group-hover:drop-shadow-[0_0_120px_rgba(255,255,255,0.6)] group-hover:brightness-125 transition-all duration-700 hover:scale-[1.03]"
-              animate={{ 
-                y: [-12, 12, -12],
-                rotate: [-2, 2, -2]
-              }}
-              transition={{ 
-                y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
-                rotate: { repeat: Infinity, duration: 8, ease: "easeInOut" }
-              }}
-            />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs md:text-sm text-white/0 group-hover:text-white/80 tracking-[0.4em] uppercase transition-colors duration-500 whitespace-nowrap pointer-events-none drop-shadow-lg font-bold">
-              [ Disconnect ]
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Sloth Mascot (GSAP Wrapper) */}
+      <div
+        ref={slothMascotRef}
+        className="absolute top-[18%] md:top-[22%] left-1/2 -translate-x-1/2 -translate-y-1/2 z-45 pointer-events-none"
+      >
+        <AnimatePresence>
+          {slothMode && (
+            <motion.div
+              className="select-none cursor-pointer group pointer-events-auto"
+              initial={{ scale: 0.8, y: -50, opacity: 0, filter: "blur(20px)" }}
+              animate={{ scale: 1, y: 0, opacity: 1, filter: "blur(0px)" }}
+              exit={{ scale: 0.9, y: 50, opacity: 0, filter: "blur(20px)" }}
+              transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+              onClick={onSlothDismiss}
+            >
+              <motion.img
+                src={process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/sloth_color.png` : "/sloth_color.png"}
+                alt="sloth mascot"
+                className="w-36 md:w-56 lg:w-72 brightness-110 contrast-125 drop-shadow-[0_0_80px_rgba(255,255,255,0.25)] group-hover:drop-shadow-[0_0_120px_rgba(255,255,255,0.6)] group-hover:brightness-125 transition-all duration-700 hover:scale-[1.03]"
+                animate={{ 
+                  y: [-12, 12, -12],
+                  rotate: [-2, 2, -2]
+                }}
+                transition={{ 
+                  y: { repeat: Infinity, duration: 6, ease: "easeInOut" },
+                  rotate: { repeat: Infinity, duration: 8, ease: "easeInOut" }
+                }}
+              />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-xs md:text-sm text-white/0 group-hover:text-white/80 tracking-[0.4em] uppercase transition-colors duration-500 whitespace-nowrap pointer-events-none drop-shadow-lg font-bold">
+                [ Disconnect ]
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div ref={(el) => { if (el) uiElementsRef.current[2] = el; }} className="absolute bottom-8 left-1/2 -translate-x-1/2">
         <motion.div 
