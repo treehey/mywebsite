@@ -12,11 +12,11 @@ const ACCENT_COLORS = [
 ];
 
 const LIGHT_COLORS = [
-  "rgba(254, 249, 195, 0.85)", // Soft Yellow
-  "rgba(254, 205, 211, 0.85)", // Soft Rose
-  "rgba(219, 234, 254, 0.85)", // Soft Blue
-  "rgba(209, 250, 229, 0.85)", // Soft Green
-  "rgba(243, 232, 255, 0.85)", // Soft Purple
+  "rgba(250, 247, 240, 0.88)", // Warm Alabaster Stone
+  "rgba(245, 242, 238, 0.88)", // Soft Sand/Linen
+  "rgba(240, 243, 245, 0.88)", // Misty Slate/Concrete
+  "rgba(242, 245, 242, 0.88)", // Sage Clay/Earth
+  "rgba(245, 244, 248, 0.88)", // Pebble/Parchment Gray
 ];
 
 const DARK_COLORS = [
@@ -28,11 +28,11 @@ const DARK_COLORS = [
 ];
 
 const BORDER_COLORS_LIGHT = [
-  "rgba(234, 179, 8, 0.2)",
-  "rgba(225, 29, 72, 0.2)",
-  "rgba(37, 99, 235, 0.2)",
-  "rgba(5, 150, 105, 0.2)",
-  "rgba(124, 58, 237, 0.2)",
+  "rgba(36, 35, 32, 0.07)",
+  "rgba(36, 35, 32, 0.07)",
+  "rgba(36, 35, 32, 0.07)",
+  "rgba(36, 35, 32, 0.07)",
+  "rgba(36, 35, 32, 0.07)",
 ];
 
 const BORDER_COLORS_DARK = [
@@ -363,7 +363,9 @@ export function TactileDesk({ entries, tr, setCursorBig }: TactileDeskProps) {
           note.element.style.zIndex = String(nextZ);
           // Visual feedback style: scale up and shadow glow applied directly in DOM
           note.element.style.scale = "1.08";
-          note.element.style.boxShadow = "0 40px 90px -10px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.15)";
+          note.element.style.boxShadow = isLight 
+            ? "0 40px 90px -10px rgba(34, 32, 28, 0.08), inset 0 2px 3px rgba(255, 255, 255, 0.7)"
+            : "0 40px 90px -10px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.15)";
         }
       }
       return nextZ;
@@ -386,7 +388,9 @@ export function TactileDesk({ entries, tr, setCursorBig }: TactileDeskProps) {
       if (note && note.element) {
         // Reset scale and shadow directly in DOM
         note.element.style.scale = "1.0";
-        note.element.style.boxShadow = "0 15px 35px -10px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.08)";
+        note.element.style.boxShadow = isLight
+          ? "0 15px 35px -10px rgba(34, 32, 28, 0.04), inset 0 2px 2px rgba(255,255,255,0.6)"
+          : "0 15px 35px -10px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.08)";
 
         // Compute throwing inertia based on pointer gesture history
         const history = dragHistoryRef.current;
@@ -415,7 +419,9 @@ export function TactileDesk({ entries, tr, setCursorBig }: TactileDeskProps) {
       ref={containerRef}
       className="relative w-full h-[650px] md:h-[800px] bg-foreground/[0.015] border border-foreground/5 rounded-[2.5rem] overflow-hidden"
       style={{
-        backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0)",
+        backgroundImage: isLight
+          ? "radial-gradient(circle at 1px 1px, rgba(34, 32, 28, 0.03) 1px, transparent 0)"
+          : "radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.03) 1px, transparent 0)",
         backgroundSize: "24px 24px"
       }}
     >
@@ -434,6 +440,7 @@ export function TactileDesk({ entries, tr, setCursorBig }: TactileDeskProps) {
           onMoveDrag={onMoveDrag}
           onEndDrag={onEndDrag}
           registerNote={registerNote}
+          isLight={isLight}
         />
       ))}
       
@@ -455,6 +462,7 @@ interface TactileNoteProps {
   onMoveDrag: (mouse: { x: number; y: number }) => void;
   onEndDrag: () => void;
   registerNote: (id: number, el: HTMLDivElement | null) => void;
+  isLight: boolean;
 }
 
 function TactileNote({ 
@@ -465,12 +473,22 @@ function TactileNote({
   onStartDrag,
   onMoveDrag,
   onEndDrag,
-  registerNote 
+  registerNote,
+  isLight
 }: TactileNoteProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const accentColor = entry.color || ACCENT_COLORS[entry.id % ACCENT_COLORS.length];
   const isDraggingRef = useRef(false);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
+
+  const colorIdx = entry.id % LIGHT_COLORS.length;
+  const bgColor = isLight ? LIGHT_COLORS[colorIdx] : DARK_COLORS[colorIdx];
+  const borderColor = isLight ? BORDER_COLORS_LIGHT[colorIdx] : BORDER_COLORS_DARK[colorIdx];
+  const shadowColor = isLight ? "rgba(34, 32, 28, 0.04)" : "rgba(0, 0, 0, 0.4)";
+  const sepColor = isLight ? "rgba(34, 32, 28, 0.05)" : "rgba(255, 255, 255, 0.05)";
+  const glowRadial = isLight ? "rgba(34, 32, 28, 0.04)" : "rgba(255, 255, 255, 0.12)";
+  const glowLinear = isLight ? "rgba(34, 32, 28, 0.02)" : "rgba(255, 255, 255, 0.08)";
+  const mixBlend = isLight ? "multiply" : "screen";
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -543,28 +561,36 @@ function TactileNote({
         top: 0,
         touchAction: "none",
         scale: 1.0,
-        boxShadow: "0 15px 35px -10px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.08)",
+        boxShadow: `0 15px 35px -10px ${shadowColor}, inset 0 2px 2px ${isLight ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.08)"}`,
         transition: "scale 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
       }}
       className="cursor-grab active:cursor-grabbing w-[260px] select-none group rounded-[2.5rem]"
     >
       <div
         ref={cardRef}
-        className="relative p-6 rounded-[2.5rem] overflow-hidden transition-all duration-700 ease-out border border-white/[0.06] bg-gradient-to-b from-white/[0.04] to-white/[0.01] backdrop-blur-md"
+        className="relative p-6 rounded-[2.5rem] overflow-hidden transition-all duration-700 ease-out backdrop-blur-md"
         style={{
-          boxShadow: "inset 0 1px 1px rgba(255,255,255,0.05), inset 0 -1px 2px rgba(0,0,0,0.3)",
+          backgroundColor: bgColor,
+          borderColor: borderColor,
+          borderWidth: "1px",
+          borderStyle: "solid",
+          boxShadow: isLight
+            ? "inset 0 1px 1px rgba(255,255,255,0.65), inset 0 -1px 2px rgba(0,0,0,0.04)"
+            : "inset 0 1px 1px rgba(255,255,255,0.05), inset 0 -1px 2px rgba(0,0,0,0.3)",
         }}
       >
-        <div 
-          className="absolute inset-x-6 top-0 h-[1.5px] opacity-60 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-          style={{ background: `linear-gradient(90deg, transparent 0%, ${accentColor}80 45%, transparent 100%)` }}
-        />
+        {/* Gallery-style tiny item number */}
+        <div className="absolute top-4 right-6 font-mono text-[9px] tracking-wider text-foreground/20 pointer-events-none select-none">
+          N°{String(entry.id).padStart(3, '0')}
+        </div>
 
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0 mix-blend-screen" 
+
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" 
              style={{ 
+               mixBlendMode: mixBlend as any,
                background: `
-                 radial-gradient(280px circle at var(--card-x, 50%) var(--card-y, 50%), rgba(255,255,255,0.12) 0%, transparent 42%),
-                 linear-gradient(var(--card-deg, 135deg), rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 22%, transparent 52%)
+                 radial-gradient(280px circle at var(--card-x, 50%) var(--card-y, 50%), ${glowRadial} 0%, transparent 42%),
+                 linear-gradient(var(--card-deg, 135deg), ${glowLinear} 0%, rgba(255,255,255,0) 22%, transparent 52%)
                ` 
              }} />
 
@@ -577,7 +603,8 @@ function TactileNote({
           {entry.message}
         </p>
 
-        <div className="relative z-10 flex items-center justify-between pt-3.5 border-t border-white/5 mt-auto">
+        <div className="relative z-10 flex items-center justify-between pt-3.5 mt-auto"
+             style={{ borderTop: `1px solid ${sepColor}` }}>
           <span className="font-mono text-[10px] tracking-widest text-foreground/45 group-hover:text-foreground/75 transition-colors duration-500 uppercase truncate max-w-[130px]">
             {entry.nickname ?? tr.anon}
           </span>

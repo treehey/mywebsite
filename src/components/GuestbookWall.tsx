@@ -105,6 +105,17 @@ export function GuestbookWall({
   const [status, setStatus]         = useState<"idle" | "sending" | "done" | "err">("idle");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const [isLight, setIsLight] = useState(false);
+
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsLight(document.documentElement.classList.contains("light"));
+    };
+    updateTheme();
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     // 监听鼠标创建全局动态打光角度与位置
@@ -262,16 +273,22 @@ export function GuestbookWall({
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => { setShowForm(v => !v); setTimeout(() => textareaRef.current?.focus(), 80); }}
-              className="flex items-center gap-2 px-5 py-3 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 shrink-0"
+              className="flex items-center gap-2 px-5 py-3 rounded-full font-mono text-xs uppercase tracking-widest border transition-all duration-300 shrink-0 cursor-pointer"
               style={{
-                background: showForm ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.055)",
-                borderColor: showForm ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)",
-                color: showForm ? "#FFFFFF" : "#FFFFFF",
+                background: isLight
+                  ? (showForm ? "rgba(34, 32, 28, 0.08)" : "rgba(34, 32, 28, 0.04)")
+                  : (showForm ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.055)"),
+                borderColor: isLight
+                  ? (showForm ? "rgba(34, 32, 28, 0.22)" : "rgba(34, 32, 28, 0.08)")
+                  : (showForm ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)"),
+                color: isLight ? "var(--foreground)" : "#FFFFFF",
                 backdropFilter: "blur(12px) saturate(130%)",
-                boxShadow: showForm ? "0 12px 32px rgba(0,0,0,0.28)" : "0 10px 28px rgba(0,0,0,0.2)",
+                boxShadow: isLight
+                  ? (showForm ? "0 12px 32px rgba(34,32,28,0.05)" : "0 10px 28px rgba(34,32,28,0.02)")
+                  : (showForm ? "0 12px 32px rgba(0,0,0,0.28)" : "0 10px 28px rgba(0,0,0,0.2)"),
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: showForm ? "#FFFFFF" : "rgba(255,255,255,0.55)" }} />
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: isLight ? (showForm ? "var(--foreground)" : "rgba(34, 32, 28, 0.45)") : (showForm ? "#FFFFFF" : "rgba(255,255,255,0.55)") }} />
               {showForm ? tr.closeBtn : tr.writeBtn}
             </motion.button>
           </div>
@@ -290,10 +307,12 @@ export function GuestbookWall({
               <div
                 className="rounded-[1.5rem] p-6 md:p-8 max-w-xl"
                 style={{
-                  background: "rgba(12,12,12,0.78)",
-                  border: "1px solid rgba(255,255,255,0.12)",
+                  background: isLight ? "rgba(255, 255, 255, 0.78)" : "rgba(12,12,12,0.78)",
+                  border: isLight ? "1px solid rgba(34, 32, 28, 0.12)" : "1px solid rgba(255,255,255,0.12)",
                   backdropFilter: "blur(18px) saturate(135%)",
-                  boxShadow: "0 24px 64px rgba(0,0,0,0.42), inset 0 1px 1px rgba(255,255,255,0.08)",
+                  boxShadow: isLight
+                    ? "0 24px 64px rgba(34,32,28,0.06), inset 0 1px 1px rgba(255,255,255,0.6)"
+                    : "0 24px 64px rgba(0,0,0,0.42), inset 0 1px 1px rgba(255,255,255,0.08)",
                 }}
               >
                 <div className="flex flex-col gap-5">
@@ -345,11 +364,15 @@ export function GuestbookWall({
                     <button
                       onClick={handleSubmit}
                       disabled={!messageText.trim() || status === "sending"}
-                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-300 disabled:opacity-40 active:scale-95 shrink-0"
+                      className="flex items-center gap-2 px-5 py-2.5 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-300 disabled:opacity-40 active:scale-95 shrink-0 cursor-pointer"
                       style={{
-                        background: status === "done" ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.1)",
-                        border: `1px solid ${status === "done" ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.4)"}`,
-                        color: status === "done" ? "#FFFFFF" : "#FFFFFF",
+                        background: isLight
+                          ? (status === "done" ? "rgba(34, 32, 28, 0.15)" : "rgba(34, 32, 28, 0.08)")
+                          : (status === "done" ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.1)"),
+                        border: `1px solid ${isLight
+                          ? (status === "done" ? "rgba(34, 32, 28, 0.4)" : "rgba(34, 32, 28, 0.2)")
+                          : (status === "done" ? "rgba(255, 255, 255, 0.5)" : "rgba(255, 255, 255, 0.4)")}`,
+                        color: isLight ? "var(--foreground)" : "#FFFFFF",
                       }}
                     >
                       {status === "sending" && <span className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />}

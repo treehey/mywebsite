@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 AGENT.md
+
+# local visual QA artifacts
+/screenshots/
+scripts/take-screenshot.js
+scripts/capture-about.js

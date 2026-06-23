@@ -3,6 +3,9 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card-vignette: var(--card-vignette);
+  --color-skills-vignette-from: var(--skills-vignette-from);
+  --color-skills-vignette-via: var(--skills-vignette-via);
 }
 
 @layer base {
@@ -30,6 +33,8 @@
 :root {
   --background: #09090b;
   --foreground: #f5f5f7;
+  --color-white: #ffffff;
+  --color-black: #000000;
   --card-bg: rgba(24, 24, 27, 0.65);
   --card-border: rgba(255, 255, 255, 0.08);
   --card-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
@@ -48,32 +53,37 @@
   --aurora-color-1: rgba(90, 58, 157, 0.12);
   --aurora-color-2: rgba(42, 75, 140, 0.1);
   --aurora-blend: normal;
+  --card-vignette: rgba(0, 0, 0, 0.8);
+  --skills-vignette-from: rgba(0, 0, 0, 0.9);
+  --skills-vignette-via: rgba(0, 0, 0, 0.4);
 }
 
 html.light {
-  --background: #f5f5f7;
-  --foreground: #1d1d1f;
-  /* Override Tailwind v4's implicit white/black behavior so utilities flip automatically */
-  --color-white: #1d1d1f;
-  --color-black: #f5f5f7;
+  --background: #F2F1EC;
+  --foreground: #242320;
+  --color-white: #ffffff;
+  --color-black: #000000;
   --card-bg: rgba(255, 255, 255, 0.75);
-  --card-border: rgba(0, 0, 0, 0.06);
-  --card-shadow: 0 12px 45px rgba(0, 0, 0, 0.045);
-  --noise-opacity: 0.06;
-  --works-bg-0: #faf1f3;
-  --works-bg-1: #edf2fa;
-  --works-bg-2: #f2eefa;
-  --works-bg-3: #eefaf3;
-  --danmaku-color: rgba(29, 29, 31, 0.22);
-  --danmaku-color-muted: rgba(29, 29, 31, 0.12);
-  --danmaku-stroke: rgba(29, 29, 31, 0.18);
+  --card-border: rgba(36, 35, 32, 0.05);
+  --card-shadow: 0 24px 60px rgba(36, 35, 32, 0.03);
+  --noise-opacity: 0.05;
+  --works-bg-0: #EAE8E1;
+  --works-bg-1: #E2E6E9;
+  --works-bg-2: #E7E3DF;
+  --works-bg-3: #E3E8E3;
+  --danmaku-color: rgba(36, 35, 32, 0.22);
+  --danmaku-color-muted: rgba(36, 35, 32, 0.12);
+  --danmaku-stroke: rgba(36, 35, 32, 0.18);
   --glow-blend: multiply;
   --glow-opacity: 0.12;
   --glow-color-1: rgba(99, 102, 241, 0.25);
   --glow-color-2: rgba(225, 29, 72, 0.18);
-  --aurora-color-1: rgba(244, 63, 94, 0.16);
-  --aurora-color-2: rgba(99, 102, 241, 0.16);
+  --aurora-color-1: rgba(70, 100, 120, 0.08);
+  --aurora-color-2: rgba(180, 125, 75, 0.07);
   --aurora-blend: multiply;
+  --card-vignette: rgba(36, 35, 32, 0.35);
+  --skills-vignette-from: rgba(36, 35, 32, 0.75);
+  --skills-vignette-via: rgba(36, 35, 32, 0.2);
 }
 
 body {
@@ -127,6 +137,18 @@ body {
   transform: translateZ(0);
 }
 
+@keyframes aurora-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(3vw, -4vh) scale(1.08);
+  }
+  66% {
+    transform: translate(-2vw, 3vh) scale(0.92);
+  }
+}
+
 /* Deep Space Ambient Aurora (Performance optimized - No blur filter) */
 .ambient-aurora {
   position: fixed;
@@ -138,6 +160,7 @@ body {
   mix-blend-mode: var(--aurora-blend);
   will-change: transform;
   transform: translateZ(0);
+  animation: aurora-float 28s ease-in-out infinite alternate;
 }
 
 /* Glassmorphism panel */

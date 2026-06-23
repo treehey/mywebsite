@@ -255,7 +255,7 @@ function GalleryCard({ photo, i, progress, horizontalRef, setCursorBig, lang, B,
             />
           </motion.div>
           
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent transition-opacity duration-700 group-hover/photo:opacity-70 pointer-events-none" />
           
           <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 flex flex-col pointer-events-none" style={{ transform: "translateZ(40px)" }}>
             <div className="overflow-hidden">
@@ -500,7 +500,7 @@ function HorizontalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBi
 
   return (
     <section ref={containerRef} id="timeline" className="relative z-10 w-full" style={{ height: "300vh" }}>
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center bg-background">
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-center bg-transparent">
         
         {/* Environmental Glow */}
         <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
@@ -545,7 +545,7 @@ function HorizontalTimeline({ t, setCursorBig, TIMELINE }: { t: any, setCursorBi
                       decoding="async" 
                       className="w-full h-full object-cover grayscale-[30%] opacity-80 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]" 
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent pointer-events-none" />
                   </div>
 
                   {/* Text details */}
@@ -1417,7 +1417,7 @@ export default function Home() {
         }}
       />
       
-      <div id="hero-about-wrapper" className="relative w-full bg-background">
+      <div id="hero-about-wrapper" className="relative w-full bg-transparent">
         {/* HERO */}
         {/* Placed absolutely to fill the wrapper */}
         <div className="absolute top-0 left-0 w-full h-[100svh] z-50 pointer-events-none">
@@ -1443,7 +1443,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.5 ABOUT / INTERACTIVE IDENTITY
       ════════════════════════════════════ */}
-      <section id="about" ref={aboutRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden">
+      <section id="about" ref={aboutRef} className="relative z-10 w-full min-h-screen bg-transparent text-foreground overflow-hidden">
         {/* ───── STATIC GLASSMORPHISM AURORA MOVED HERE TO BE CLIPPED BY THE WIPE ───── */}
         <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden mix-blend-screen opacity-30">
           <div 
@@ -1522,7 +1522,7 @@ export default function Home() {
             viewport={{ once: true, margin: "0px" }}
             transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className={`font-syne font-black leading-[0.85] text-transparent uppercase cursor-default select-none whitespace-nowrap origin-bottom-right will-change-transform ${lang==="EN"?"text-[16vw] md:text-[13vw] lg:text-[13vw] tracking-tighter":"text-[22vw] md:text-[18vw] lg:text-[18vw] tracking-[0.2em] pl-4"}`}
-            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px color-mix(in srgb, var(--color-white) 40%, transparent)", x: aboutH2X, transform: "translateZ(0)" }}
+            style={{ fontFamily: "var(--font-syne)", WebkitTextStroke: "1.5px color-mix(in srgb, var(--foreground) 40%, transparent)", x: aboutH2X, transform: "translateZ(0)" }}
           >
             {t.about.title2}
           </motion.h2>
@@ -1555,17 +1555,17 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 pointer-events-none opacity-[0.035]"
                   style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px)", backgroundSize: "100% 3px" }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent pointer-events-none" />
               </motion.div>
               {/* Badge */}
-              <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
+              <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 font-mono text-[10px] text-white/60 bg-black/30 border border-white/10 px-3 py-1 uppercase tracking-[0.3em] whitespace-nowrap">PRESENT // NJU</div>
               {/* Text overlay at bottom */}
               <motion.div
                 initial={{ y: 24, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} viewport={{ once: true }}
                 transition={{ duration: 0.9, delay: 0.45 }}
                 className="absolute bottom-6 left-6 right-6 z-10"
               >
-                <p className="about-reveal-text origin-bottom font-grotesk text-sm text-foreground/75 leading-[1.75]">{t.about.p2}</p>
+                <p className="about-reveal-text origin-bottom font-grotesk text-sm text-neutral-200/90 leading-[1.75]">{t.about.p2}</p>
               </motion.div>
             </div>
           </TiltCard>
@@ -1583,8 +1583,8 @@ export default function Home() {
                 finalFilter="brightness(1) contrast(1) grayscale(0.65) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
                 delay={0.15}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-card-vignette to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-white/50 bg-black/30 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Origin · 2012</div>
             </div>
           </TiltCard>
 
@@ -1599,8 +1599,8 @@ export default function Home() {
                 finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
                 delay={0.22}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-card-vignette to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-white/80 bg-black/30 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Association</div>
             </div>
           </TiltCard>
 
@@ -1615,8 +1615,8 @@ export default function Home() {
                 finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
                 delay={0.1}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-card-vignette to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-white/50 bg-black/30 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">Robotics</div>
             </div>
           </TiltCard>
 
@@ -1631,8 +1631,8 @@ export default function Home() {
                 finalFilter="brightness(1) contrast(1) grayscale(0.40) sepia(0) saturate(1) hue-rotate(0deg) blur(0px)"
                 delay={0.18}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-foreground/50 bg-foreground/5 border border-foreground/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
+              <div className="absolute inset-0 bg-gradient-to-t from-card-vignette to-transparent pointer-events-none" />
+              <div className="absolute bottom-4 left-4 z-10 font-mono text-[10px] text-white/50 bg-black/30 border border-white/10 px-2 py-1 uppercase tracking-widest pointer-events-none">STEAM · IoT</div>
             </div>
           </TiltCard>
         </div>
@@ -1852,7 +1852,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           2. HORIZONTAL SCROLL (Manifesto + Gallery)
       ════════════════════════════════════ */}
-      <section id="gallery" ref={horizontalRef} className="relative z-10 w-full min-h-screen bg-background text-foreground">
+      <section id="gallery" ref={horizontalRef} className="relative z-10 w-full min-h-screen bg-transparent text-foreground">
         <div className="w-full relative" style={{ height: "500vh" }}>
           <div className="sticky top-[2vh] h-[96vh] w-[96%] left-[2%] max-w-[1920px] mx-auto overflow-hidden flex items-center bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.3)]" style={{ transform: "translateZ(0)" }}>
           
@@ -1963,34 +1963,34 @@ export default function Home() {
                 <img src={skill.bg} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover grayscale-[30%] opacity-70 group-hover/card:grayscale-0 group-hover/card:opacity-100 group-hover/card:scale-105 transition-all duration-1000 will-change-transform" alt={skill.name} style={{ transform: "translateZ(0)" }} />
                 
                 {/* Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent opacity-90 group-hover/card:opacity-70 transition-opacity duration-700 pointer-events-none" />
-                <div className="absolute inset-0 bg-background/20 group-hover/card:bg-transparent transition-colors duration-700 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-skills-vignette-from via-skills-vignette-via to-transparent opacity-90 group-hover/card:opacity-70 transition-opacity duration-700 pointer-events-none" />
+                <div className="absolute inset-0 bg-black/20 group-hover/card:bg-transparent transition-colors duration-700 pointer-events-none" />
                 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 p-6 md:p-8 flex flex-col w-full h-full justify-end">
-                  <span className="font-mono text-xs tracking-[0.3em] uppercase mb-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transform translate-y-0 md:translate-y-4 group-hover/card:translate-y-0 transition-all duration-500 delay-100 inline-block px-3 py-1 bg-foreground/5 border border-foreground/20 self-start w-auto whitespace-nowrap text-foreground/70">
+                  <span className="font-mono text-xs tracking-[0.3em] uppercase mb-4 opacity-100 md:opacity-0 group-hover/card:opacity-100 transform translate-y-0 md:translate-y-4 group-hover/card:translate-y-0 transition-all duration-500 delay-100 inline-block px-3 py-1 bg-white/5 border border-white/10 self-start w-auto whitespace-nowrap text-white/70">
                     MODULE_{String(i + 1).padStart(2, '0')}
                   </span>
                   
-                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-28 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "var(--foreground)" }}>
+                  <h3 className="font-syne font-bold text-3xl md:text-5xl leading-none transition-all duration-700 whitespace-nowrap lg:absolute lg:left-1/2 lg:-translate-x-1/2 lg:bottom-28 lg:-rotate-90 lg:origin-center lg:mb-0 group-hover/card:!relative group-hover/card:!left-0 group-hover/card:!translate-x-0 group-hover/card:!bottom-0 group-hover/card:!rotate-0 group-hover/card:!mb-0" style={{ fontFamily: "var(--font-syne)", color: "#faf9f6" }}>
                     {t.skills.items[i].split('·')[0]?.trim()}
                   </h3>
                   
                   <div className="overflow-hidden h-auto md:h-0 group-hover/card:h-[120px] md:group-hover/card:h-[140px] transition-all duration-700 ease-[cubic-bezier(0.76,0,0.24,1)]">
-                    <p className="font-mono text-[11px] mt-2 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-100 whitespace-normal text-foreground/50" style={{ fontFamily: "var(--font-mono)" }}>
+                    <p className="font-mono text-[11px] mt-2 opacity-100 md:opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-100 whitespace-normal text-white/50" style={{ fontFamily: "var(--font-mono)" }}>
                       {t.skills.items[i].split('·')[1]?.trim() || t.skills.items[i]}
                     </p>
                     
                     <div className="mt-4 flex flex-col gap-2.5 opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 delay-200">
                       {SKILLS_METRICS[i] && SKILLS_METRICS[i].map((m, mi) => (
                         <div key={mi} className="flex flex-col gap-1">
-                          <div className="flex justify-between font-mono text-[10px] text-foreground/60 leading-none">
+                          <div className="flex justify-between font-mono text-[10px] text-white/60 leading-none">
                             <span>{m.label}</span>
                             <span>{m.val}%</span>
                           </div>
-                          <div className="w-full h-[3px] bg-foreground/10 rounded-full overflow-hidden">
+                          <div className="w-full h-[3px] bg-white/10 rounded-full overflow-hidden">
                             <motion.div 
-                              className="h-full bg-foreground/75"
+                              className="h-full bg-white/75"
                               initial={{ width: 0 }}
                               whileInView={{ width: `${m.val}%` }}
                               viewport={{ once: false }}
@@ -2018,7 +2018,7 @@ export default function Home() {
       {/* ════════════════════════════════════
           GUESTBOOK — Sticky Note Wall
       ════════════════════════════════════ */}
-      <section id="guestbook" ref={guestbookRef} className="relative z-10 w-full min-h-screen bg-background text-foreground overflow-hidden py-16">
+      <section id="guestbook" ref={guestbookRef} className="relative z-10 w-full min-h-screen bg-transparent text-foreground overflow-hidden py-16">
         <div className="relative w-[96%] max-w-[1920px] mx-auto bg-foreground/[0.018] backdrop-blur-xl border border-foreground/[0.07] rounded-[3rem] shadow-[0_20px_80px_rgba(0,0,0,0.18)] overflow-hidden isolate">
           <GuestbookWall lang={lang} setCursorBig={setCursorBig} />
         </div>
