@@ -779,9 +779,8 @@ export default function Home() {
           // Set zIndex to be on top when it starts active transition
           tlDeck.set(card, { zIndex: 10 + i }, i - 0.95);
 
-          // 3D Cover Flow / iOS Stack style (Performance optimized with Peeking preview)
           tlDeck.fromTo(card,
-            { z: -150, y: 35, scale: 0.93, opacity: 0.4 },
+            { z: -150, y: 35, scale: 0.93, opacity: 1 },
             { 
               z: 0,
               y: 0,
