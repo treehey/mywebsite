@@ -1220,14 +1220,13 @@ export default function Home() {
         </AnimatePresence>
       </div>
       
-      {/* ───── NAV ───── */}
       <motion.header
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full w-[90vw] md:w-auto justify-between md:justify-center overflow-visible shadow-[0_12px_40px_rgba(0,0,0,0.22)]"
+        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
       >
-        <div className="absolute inset-0 bg-background/40 dark:bg-foreground/[0.03] backdrop-blur-3xl rounded-full z-[-1] border border-foreground/10" />
+        <div className="absolute inset-0 rounded-full z-[-1] bg-[var(--card-bg)] backdrop-blur-3xl border border-[var(--card-border)] shadow-[var(--card-shadow)]" />
         
         {/* Logo + active section index */}
         <div className="shrink-0 flex items-end gap-1.5">
@@ -1320,7 +1319,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col rounded-2xl p-2 min-w-[120px] origin-bottom-right md:origin-top z-[1000] border border-foreground/10 shadow-xl text-foreground bg-foreground/5 backdrop-blur-2xl"
+                  className="absolute right-0 md:right-1/2 md:translate-x-1/2 bottom-[140%] md:bottom-auto md:top-[140%] flex flex-col rounded-2xl p-2 min-w-[120px] origin-bottom-right md:origin-top z-[1000] shadow-xl text-foreground bg-[var(--card-bg)] backdrop-blur-2xl border border-[var(--card-border)]"
                 >
                   {['EN', '简', '繁'].map(l => (
                     <button
@@ -1328,12 +1327,12 @@ export default function Home() {
                       onClick={() => { setLang(l); setLangOpen(false); }}
                       className={`text-[11px] font-mono px-3 py-2.5 rounded-lg text-left transition-all flex items-center gap-2 ${
                         lang === l
-                          ? (theme === 'dark' ? 'bg-foreground/15 text-foreground font-bold' : 'bg-background/10 text-foreground font-bold')
-                          : (theme === 'dark' ? 'text-foreground/60 hover:bg-foreground/10 hover:text-foreground' : 'text-foreground/60 hover:bg-background/5 hover:text-foreground')
+                          ? 'bg-foreground/10 text-foreground font-bold'
+                          : 'text-foreground/60 hover:bg-foreground/5 hover:text-foreground'
                       }`}
                       onMouseEnter={() => setCursorBig(true)} onMouseLeave={() => setCursorBig(false)}
                     >
-                      {lang === l && <span className={`w-1 h-1 rounded-full inline-block shrink-0 ${theme === 'dark' ? 'bg-foreground' : 'bg-foreground'}`} />}
+                      {lang === l && <span className="w-1 h-1 rounded-full inline-block shrink-0 bg-foreground" />}
                       {l === 'EN' ? 'English' : l === '简' ? '简体中文' : '繁體中文'}
                     </button>
                   ))}

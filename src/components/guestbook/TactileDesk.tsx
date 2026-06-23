@@ -4,11 +4,43 @@ import { useRef, useState, useEffect } from "react";
 import { type GuestEntry } from "@/lib/supabase";
 
 const ACCENT_COLORS = [
-  "#FFFFFF",
-  "#E5E7EB",
-  "#9CA3AF",
-  "#D1D5DB",
-  "#F3F4F6",
+  "#eab308", // Yellow
+  "#f43f5e", // Rose
+  "#3b82f6", // Blue
+  "#10b981", // Green
+  "#8b5cf6", // Purple
+];
+
+const LIGHT_COLORS = [
+  "rgba(254, 249, 195, 0.85)", // Soft Yellow
+  "rgba(254, 205, 211, 0.85)", // Soft Rose
+  "rgba(219, 234, 254, 0.85)", // Soft Blue
+  "rgba(209, 250, 229, 0.85)", // Soft Green
+  "rgba(243, 232, 255, 0.85)", // Soft Purple
+];
+
+const DARK_COLORS = [
+  "rgba(253, 224, 71, 0.08)",  // Deep Translucent Yellow
+  "rgba(244, 63, 94, 0.08)",   // Deep Translucent Rose
+  "rgba(59, 130, 246, 0.08)",  // Deep Translucent Blue
+  "rgba(16, 185, 129, 0.08)",  // Deep Translucent Green
+  "rgba(139, 92, 246, 0.08)",  // Deep Translucent Purple
+];
+
+const BORDER_COLORS_LIGHT = [
+  "rgba(234, 179, 8, 0.2)",
+  "rgba(225, 29, 72, 0.2)",
+  "rgba(37, 99, 235, 0.2)",
+  "rgba(5, 150, 105, 0.2)",
+  "rgba(124, 58, 237, 0.2)",
+];
+
+const BORDER_COLORS_DARK = [
+  "rgba(253, 224, 71, 0.16)",
+  "rgba(244, 63, 94, 0.16)",
+  "rgba(59, 130, 246, 0.16)",
+  "rgba(16, 185, 129, 0.16)",
+  "rgba(139, 92, 246, 0.16)",
 ];
 
 function formatDate(iso: string) {
@@ -47,6 +79,17 @@ export function TactileDesk({ entries, tr, setCursorBig }: TactileDeskProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [notesState, setNotesState] = useState<GuestEntry[]>(entries);
   const [topZ, setTopZ] = useState(entries.length + 10);
+  const [isLight, setIsLight] = useState(false);
+
+  useEffect(() => {
+    const updateTheme = () => {
+      setIsLight(document.documentElement.classList.contains("light"));
+    };
+    updateTheme();
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
 
   const notesRef = useRef<GuestbookEntry[]>([]);
   const draggedIdRef = useRef<number | null>(null);

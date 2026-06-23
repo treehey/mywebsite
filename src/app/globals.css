@@ -38,6 +38,16 @@
   --works-bg-1: #020612;
   --works-bg-2: #040310;
   --works-bg-3: #010a06;
+  --danmaku-color: rgba(255, 255, 255, 0.85);
+  --danmaku-color-muted: rgba(255, 255, 255, 0.55);
+  --danmaku-stroke: rgba(255, 255, 255, 0.7);
+  --glow-blend: screen;
+  --glow-opacity: 0.3;
+  --glow-color-1: rgba(99, 102, 241, 0.6);
+  --glow-color-2: rgba(225, 29, 72, 0.4);
+  --aurora-color-1: rgba(90, 58, 157, 0.12);
+  --aurora-color-2: rgba(42, 75, 140, 0.1);
+  --aurora-blend: normal;
 }
 
 html.light {
@@ -46,7 +56,7 @@ html.light {
   /* Override Tailwind v4's implicit white/black behavior so utilities flip automatically */
   --color-white: #1d1d1f;
   --color-black: #f5f5f7;
-  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-bg: rgba(255, 255, 255, 0.75);
   --card-border: rgba(0, 0, 0, 0.06);
   --card-shadow: 0 12px 45px rgba(0, 0, 0, 0.045);
   --noise-opacity: 0.06;
@@ -54,6 +64,16 @@ html.light {
   --works-bg-1: #edf2fa;
   --works-bg-2: #f2eefa;
   --works-bg-3: #eefaf3;
+  --danmaku-color: rgba(29, 29, 31, 0.22);
+  --danmaku-color-muted: rgba(29, 29, 31, 0.12);
+  --danmaku-stroke: rgba(29, 29, 31, 0.18);
+  --glow-blend: multiply;
+  --glow-opacity: 0.12;
+  --glow-color-1: rgba(99, 102, 241, 0.25);
+  --glow-color-2: rgba(225, 29, 72, 0.18);
+  --aurora-color-1: rgba(244, 63, 94, 0.16);
+  --aurora-color-2: rgba(99, 102, 241, 0.16);
+  --aurora-blend: multiply;
 }
 
 body {
@@ -111,11 +131,11 @@ body {
 .ambient-aurora {
   position: fixed;
   inset: 0;
-  z-index: -1;
   pointer-events: none;
   background: 
-    radial-gradient(ellipse 60% 60% at 20% 30%, rgba(90, 58, 157, 0.12) 0%, transparent 100%),
-    radial-gradient(ellipse 60% 60% at 80% 80%, rgba(42, 75, 140, 0.1) 0%, transparent 100%);
+    radial-gradient(ellipse 70% 70% at 20% 30%, var(--aurora-color-1) 0%, transparent 100%),
+    radial-gradient(ellipse 70% 70% at 80% 80%, var(--aurora-color-2) 0%, transparent 100%);
+  mix-blend-mode: var(--aurora-blend);
   will-change: transform;
   transform: translateZ(0);
 }

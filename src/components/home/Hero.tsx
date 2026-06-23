@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useSpring, useMotionValue, AnimatePresence, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -143,6 +143,16 @@ export default function Hero({
   onSlothDismiss?: () => void;
 }) {
   const t = DICT[lang].hero;
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
+  useEffect(() => {
+    const handlePanel = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setIsPanelOpen(!!detail?.open);
+    };
+    window.addEventListener("guestbook:panel", handlePanel);
+    return () => window.removeEventListener("guestbook:panel", handlePanel);
+  }, []);
   
   // GSAP Refs
   const containerRef = useRef<HTMLElement>(null);
@@ -334,7 +344,7 @@ export default function Hero({
         <div ref={backgroundRef} className="absolute inset-0 bg-background z-[-2]"></div>
         <ParticleCanvas />
 
-        <div className="absolute inset-0 pointer-events-none opacity-75 mix-blend-screen blur-[0.5px]" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
+        <div className="absolute inset-0 pointer-events-none z-[60]" ref={(el) => { if(el) uiElementsRef.current[0] = el; }}>
           <DanmakuSystem lang={lang} />
         </div>
 
@@ -500,24 +510,29 @@ export default function Hero({
             </AnimatePresence>
           ) : (
             <motion.div 
-              className="max-w-sm flex flex-col gap-6 md:pb-8 relative z-20 backdrop-blur-2xl bg-white/[0.03] border border-white/[0.06] p-8 rounded-[2rem] shadow-[0_20px_40px_rgba(0,0,0,0.2)]"
+              className="max-w-sm flex flex-col gap-6 md:pb-8 relative z-20 bg-[var(--card-bg)] backdrop-blur-2xl border border-[var(--card-border)] shadow-[var(--card-shadow)] p-8 rounded-[2rem]"
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              animate={{ 
+                opacity: isPanelOpen ? 0 : 1, 
+                y: isPanelOpen ? 20 : 0,
+                scale: isPanelOpen ? 0.95 : 1,
+                pointerEvents: isPanelOpen ? "none" : "auto"
+              }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             >
-              <p className="font-grotesk text-sm md:text-base text-neutral-300 leading-relaxed font-light">
+              <p className="font-grotesk text-sm md:text-base text-foreground/70 leading-relaxed font-light">
                 {t.desc}
               </p>
               
               <div className="flex items-center gap-6 font-grotesk text-[11px] md:text-xs">
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-neutral-500 uppercase tracking-widest">{t.loc}</span>
-                  <span className="text-white font-medium">{t.locVal}</span>
+                  <span className="text-foreground/45 uppercase tracking-widest">{t.loc}</span>
+                  <span className="text-foreground font-medium">{t.locVal}</span>
                 </div>
-                <div className="w-[1px] h-8 bg-white/10" />
+                <div className="w-[1px] h-8 bg-foreground/10" />
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-neutral-500 uppercase tracking-widest">{t.foc}</span>
-                  <span className="text-white font-medium">{t.focVal}</span>
+                  <span className="text-foreground/45 uppercase tracking-widest">{t.foc}</span>
+                  <span className="text-foreground font-medium">{t.focVal}</span>
                 </div>
               </div>
             </motion.div>
@@ -585,14 +600,24 @@ export default function Hero({
         className="absolute inset-0 pointer-events-none z-[-1] overflow-hidden" 
       >
         <motion.div 
-          className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full mix-blend-screen opacity-30"
-          style={{ background: "radial-gradient(circle, rgba(99,102,241,0.6) 0%, rgba(0,0,0,0) 70%)", filter: "blur(90px)" }}
+          className="absolute top-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full"
+          style={{ 
+            background: "radial-gradient(circle, var(--glow-color-1) 0%, rgba(0,0,0,0) 70%)", 
+            filter: "blur(90px)",
+            mixBlendMode: "var(--glow-blend)" as any,
+            opacity: "var(--glow-opacity)" as any
+          }}
           animate={{ x: [0, 50, 0], y: [0, 30, 0] }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full mix-blend-screen opacity-30"
-          style={{ background: "radial-gradient(circle, rgba(225,29,72,0.4) 0%, rgba(0,0,0,0) 70%)", filter: "blur(100px)" }}
+          className="absolute bottom-[-10%] left-[-10%] w-[60vw] h-[60vw] rounded-full"
+          style={{ 
+            background: "radial-gradient(circle, var(--glow-color-2) 0%, rgba(0,0,0,0) 70%)", 
+            filter: "blur(100px)",
+            mixBlendMode: "var(--glow-blend)" as any,
+            opacity: "var(--glow-opacity)" as any
+          }}
           animate={{ x: [0, -40, 0], y: [0, -50, 0] }}
           transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
         />

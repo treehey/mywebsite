@@ -40,6 +40,10 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
   const [status, setStatus]           = useState<"idle" | "sending" | "done" | "err">("idle");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("guestbook:panel", { detail: { open: showInput } }));
+  }, [showInput]);
+
   const toTrack = useCallback((
     e: Pick<GuestEntry, "id" | "danmaku_title" | "color">,
     batchIndex?: number
@@ -122,7 +126,7 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
 
   return (
     <>
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[0] opacity-[0.55] select-none" aria-hidden="true">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-[0] opacity-75 mix-blend-screen blur-[0.5px] select-none" aria-hidden="true">
         {tracks.map(track => (
           <DanmakuItem key={track.id} track={track} />
         ))}
@@ -133,37 +137,40 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         onClick={() => { setShowInput(v => !v); resetPanel(); setTimeout(() => inputRef.current?.focus(), 50); }}
-        className="absolute bottom-12 right-6 md:right-12 z-[60] flex items-center gap-3 px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-500 pointer-events-auto group bg-white/5 backdrop-blur-md border border-white/10 text-white/80 hover:bg-white hover:text-black hover:scale-105 shadow-2xl"
+        className="absolute bottom-12 right-6 md:right-12 z-[60] flex items-center gap-3 px-6 py-3 rounded-full font-mono text-xs uppercase tracking-widest transition-all duration-500 pointer-events-auto group bg-foreground/10 backdrop-blur-md border border-foreground/20 text-foreground hover:bg-foreground hover:text-background hover:scale-105 shadow-2xl"
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-white group-hover:bg-black transition-colors" />
+        <span className="w-1.5 h-1.5 rounded-full bg-foreground group-hover:bg-background transition-colors" />
         {tr.btn}
       </motion.button>
 
       <AnimatePresence>
         {showInput && (
           <motion.div
-            initial={{ opacity: 0, y: 40, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 40, scale: 0.98 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-28 right-6 md:right-12 z-[60] pointer-events-auto w-[min(400px,90vw)] rounded-2xl overflow-hidden"
-            style={{
-              background: "rgba(10,10,10,0.85)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              backdropFilter: "blur(20px)",
-              boxShadow: "0 24px 64px rgba(0,0,0,0.8), 0 0 1px rgba(255,255,255,0.4)",
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute bottom-28 right-6 md:right-12 z-[60] pointer-events-auto w-[min(400px,90vw)] rounded-[2rem] overflow-hidden"
           >
-            <div className="px-8 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
-              <span className="font-mono text-[10px] text-white/50 uppercase tracking-[0.2em]">{tr.panelTitle}</span>
-              <button onClick={() => setShowInput(false)} className="text-white/30 hover:text-white transition-colors text-xl font-light leading-none"></button>
+            {/* Glass panel background wrapper to clip backdrop-filter properly */}
+            <div className="absolute inset-0 bg-[var(--card-bg)] backdrop-blur-2xl border border-[var(--card-border)] rounded-[2rem] z-[-1] shadow-[var(--card-shadow)]" />
+            <div className="px-8 pt-6 pb-4 border-b border-foreground/5 flex items-center justify-between">
+              <span className="font-mono text-[10px] text-foreground/50 uppercase tracking-[0.2em]">{tr.panelTitle}</span>
+              <button 
+                onClick={() => setShowInput(false)} 
+                className="text-foreground/30 hover:text-foreground transition-colors text-xl font-light leading-none"
+              >
+                &times;
+              </button>
             </div>
 
             <div className="px-8 py-6 flex flex-col gap-6">
               <div>
                 <div className="flex justify-between mb-3">
-                  <label className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/70">{tr.danmakuLabel} <span className="text-white/30 lowercase">{tr.optional}</span></label>
-                  <span className="font-mono text-[10px] text-white/30">{titleText.length}/30</span>
+                  <label className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/70">
+                    {tr.danmakuLabel} <span className="text-foreground/30 lowercase">{tr.optional}</span>
+                  </label>
+                  <span className="font-mono text-[10px] text-foreground/30">{titleText.length}/30</span>
                 </div>
                 <input
                   ref={inputRef}
@@ -173,16 +180,16 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
                   onKeyDown={e => e.key === "Enter" && handleSubmit()}
                   maxLength={30}
                   placeholder={tr.danmakuPlaceholder}
-                  className="w-full bg-transparent font-grotesk text-sm text-white placeholder-white/20 outline-none border-b border-white/10 focus:border-white/60 pb-2 transition-colors duration-300"
+                  className="w-full bg-transparent font-grotesk text-sm text-foreground placeholder-foreground/20 outline-none border-b border-foreground/10 focus:border-foreground/60 pb-2 transition-colors duration-300"
                 />
               </div>
 
               <div>
                 <div className="flex justify-between mb-3">
-                  <label className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/70">
-                    {tr.messageLabel} <span className="text-white/30 lowercase">{tr.optional}</span>
+                  <label className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/70">
+                    {tr.messageLabel} <span className="text-foreground/30 lowercase">{tr.optional}</span>
                   </label>
-                  <span className="font-mono text-[10px] text-white/30">{messageText.length}/150</span>
+                  <span className="font-mono text-[10px] text-foreground/30">{messageText.length}/150</span>
                 </div>
                 <textarea
                   value={messageText}
@@ -190,13 +197,13 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
                   maxLength={150}
                   rows={3}
                   placeholder={tr.messagePlaceholder}
-                  className="w-full bg-transparent font-grotesk text-sm text-white placeholder-white/20 outline-none border border-white/10 focus:border-white/40 hover:border-white/20 rounded-xl p-4 resize-none transition-colors duration-300"
+                  className="w-full bg-transparent font-grotesk text-sm text-foreground placeholder-foreground/20 outline-none border border-foreground/10 focus:border-foreground/40 hover:border-foreground/20 rounded-xl p-4 resize-none transition-colors duration-300"
                 />
               </div>
 
               <div>
-                <label className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/70 mb-3 block">
-                  {tr.nicknameLabel} <span className="text-white/30 lowercase">{tr.optional}</span>
+                <label className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground/70 mb-3 block">
+                  {tr.nicknameLabel} <span className="text-foreground/30 lowercase">{tr.optional}</span>
                 </label>
                 <input
                   type="text"
@@ -204,18 +211,18 @@ export function DanmakuSystem({ containerRef, lang = "简" }: { containerRef?: R
                   onChange={e => setNickname(e.target.value)}
                   maxLength={20}
                   placeholder={tr.nicknamePlaceholder}
-                  className="w-full bg-transparent font-grotesk text-sm text-white placeholder-white/20 outline-none border-b border-white/10 focus:border-white/60 pb-2 transition-colors duration-300"
+                  className="w-full bg-transparent font-grotesk text-sm text-foreground placeholder-foreground/20 outline-none border-b border-foreground/10 focus:border-foreground/60 pb-2 transition-colors duration-300"
                 />
               </div>
 
               <div className="flex items-center justify-between pt-2">
-                <span className="font-mono text-[10px] text-white/30 uppercase tracking-widest">
+                <span className="font-mono text-[10px] text-foreground/30 uppercase tracking-widest">
                   {supabase ? tr.persist : tr.demo}
                 </span>
                 <button
                   onClick={handleSubmit}
                   disabled={(!titleText.trim() && !messageText.trim()) || status === "sending"}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.15em] transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed bg-white text-black hover:bg-white/90"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-full font-mono text-[10px] uppercase tracking-[0.15em] transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed bg-foreground text-background hover:bg-foreground/90 font-bold"
                 >
                   {status === "sending" && (
                     <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -248,8 +255,8 @@ function DanmakuItem({ track }: { track: DanmakuTrack }) {
         className="font-grotesk font-bold tracking-widest transition-opacity duration-700 hover:opacity-100 uppercase"
         style={{ 
           fontSize: `${track.fontSize}px`,
-          color: isOutline ? "transparent" : (track.laneIdx % 2 === 0 ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.75)"),
-          WebkitTextStroke: isOutline ? "1.5px rgba(255,255,255,0.9)" : "none",
+          color: isOutline ? "transparent" : (track.laneIdx % 2 === 0 ? "var(--danmaku-color)" : "var(--danmaku-color-muted)"),
+          WebkitTextStroke: isOutline ? "1.5px var(--danmaku-stroke)" : "none",
         }}
       >
         {track.text}
