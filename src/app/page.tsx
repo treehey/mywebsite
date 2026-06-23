@@ -176,7 +176,7 @@ function TiltCard({
       onClick={onClick}
       title={title}
       style={{ transform, transformStyle: "preserve-3d" as const, transformOrigin: "center center" }}
-      className={`relative rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-xl hover:shadow-[0_30px_70px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_30px_70px_rgba(0,0,0,0.55)] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-foreground/20 group ${className || ''}`}
+      className={`relative rounded-[2rem] overflow-hidden bg-[var(--card-bg)] backdrop-blur-3xl border border-[var(--card-border)] shadow-[var(--card-shadow)] hover:shadow-[0_30px_70px_rgba(0,0,0,0.12)] dark:hover:shadow-[0_30px_70px_rgba(0,0,0,0.55)] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-foreground/20 group ${className || ''}`}
       {...props}
     >
       <div 
