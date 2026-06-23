@@ -776,14 +776,12 @@ export default function Home() {
             }, i - 0.95);
           }
 
-          // Set zIndex to be on top when it starts active transition
-          tlDeck.set(card, { zIndex: 10 + i }, i - 0.95);
-
+          // 3D Cover Flow / iOS Stack style (Performance optimized)
           tlDeck.fromTo(card,
-            { z: -150, y: 35, scale: 0.93, opacity: 1 },
+            { z: -1500, rotationY: 20, scale: 0.7, opacity: 0 },
             { 
               z: 0,
-              y: 0,
+              rotationY: 0,
               scale: 1,
               opacity: 1, 
               ease: "power3.inOut",  
@@ -1782,7 +1780,7 @@ export default function Home() {
               <div
                 key={`card-${i}`}
                 className="work-deck-card absolute inset-0 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.4)] overflow-hidden"
-                style={{ zIndex: 10 - i }}
+                style={{ zIndex: 10 + i }}
               >
                 {/* 顶部高光玻璃反射边缘 */}
                 <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent pointer-events-none z-50 mix-blend-overlay" />
