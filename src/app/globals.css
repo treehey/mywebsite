@@ -28,16 +28,24 @@
 }
 
 :root {
-  --background: #0a0a0c;
-  --foreground: #f2f2f2;
+  --background: #070709;
+  --foreground: #f4f4f6;
+  --works-bg-0: #130308;
+  --works-bg-1: #020612;
+  --works-bg-2: #040310;
+  --works-bg-3: #010a06;
 }
 
 html.light {
-  --background: #f7f7f8;
-  --foreground: #111111;
+  --background: #faf9f6;
+  --foreground: #1c1c1e;
   /* Override Tailwind v4's implicit white/black behavior so utilities flip automatically */
-  --color-white: #111111;
-  --color-black: #f7f7f8;
+  --color-white: #1c1c1e;
+  --color-black: #faf9f6;
+  --works-bg-0: #fff5f7;
+  --works-bg-1: #f2f6ff;
+  --works-bg-2: #f5f2ff;
+  --works-bg-3: #f2fbf6;
 }
 
 body {
@@ -106,10 +114,10 @@ body {
 
 /* Glassmorphism panel */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.03);
+  background: color-mix(in srgb, var(--foreground) 3%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid color-mix(in srgb, var(--foreground) 6%, transparent);
 }
 
 /* Magnetic Button Base */
@@ -260,12 +268,12 @@ html.minecraft-mode header button {
 
 /* Scroll indicator custom track */
 .scroll-indicator-track {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: color-mix(in srgb, var(--foreground) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--foreground) 6%, transparent);
 }
 
 .scroll-indicator-bar {
-  background: linear-gradient(90deg, var(--foreground) 0%, rgba(255, 255, 255, 0.3) 100%);
+  background: linear-gradient(90deg, var(--foreground) 0%, color-mix(in srgb, var(--foreground) 30%, transparent) 100%);
 }
 
 

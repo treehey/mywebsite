@@ -440,18 +440,18 @@ const PHOTOS = [
 ];
 
 const WORKS_META = [
-  { img: `${B}/images/njumatch.png`,      accent: "#E11D48", objPos: "center" }, // Elegant Rose
-  { img: `${B}/images/fimel.png`,         accent: "#2563EB", objPos: "20% center" }, // Shifted right for better frame
-  { img: `${B}/images/wide-research.png`, accent: "#4F46E5", objPos: "center" }, // Elegant Indigo
-  { img: `${B}/images/enzyme.png`,        accent: "#10B981", objPos: "center" }, // Elegant Emerald
+  { img: `${B}/images/njumatch.png`,      accent: "#b83c53", objPos: "center" }, // Refined Carmine Rose
+  { img: `${B}/images/fimel.png`,         accent: "#3a6096", objPos: "20% center" }, // Refined Prussian Blue
+  { img: `${B}/images/wide-research.png`, accent: "#635bb3", objPos: "center" }, // Refined Smoked Iris Purple
+  { img: `${B}/images/enzyme.png`,        accent: "#3d8b67", objPos: "center" }, // Refined Jade/Celadon Green
 ];
 
 const SKILLS = [
-  { name: "Computer",     accent: "#3B82F6", bg: `${B}/images/about/computer-room.jpg` }, // Blue
-  { name: "Front-End",    accent: "#EC4899", bg: `${B}/images/about/information-technology.jpg` }, // Pink
-  { name: "Python",       accent: "#10B981", bg: `${B}/images/about/python.jpeg` }, // Emerald
-  { name: "Office",       accent: "#F59E0B", bg: `${B}/images/about/ppt.jpg` }, // Amber
-  { name: "Photography",  accent: "#8B5CF6", bg: `${B}/images/zhuhai.jpg` }, // Violet
+  { name: "Computer",     accent: "#4a7bb0", bg: `${B}/images/about/computer-room.jpg` }, // Steel Blue
+  { name: "Front-End",    accent: "#c96f8c", bg: `${B}/images/about/information-technology.jpg` }, // Dusty Rose
+  { name: "Python",       accent: "#4f8f71", bg: `${B}/images/about/python.jpeg` }, // Sage/Celadon Green
+  { name: "Office",       accent: "#b88a44", bg: `${B}/images/about/ppt.jpg` }, // Champagne Gold
+  { name: "Photography",  accent: "#796ba8", bg: `${B}/images/zhuhai.jpg` }, // Muted Lavender
 ];
 
 const SKILLS_METRICS = [
@@ -710,6 +710,7 @@ export default function Home() {
   const contactClip        = useTransform(contactProgress, [0, 1], ["circle(0% at 50% 100%)", "circle(150% at 50% 100%)"]);
   const contactFontWeight  = useTransform(contactProgress, [0, 1], [100, 900]);
 
+  // Hook 1: Hero Pin & About Reveal (Independent of Theme to prevent layout shifts/zoom bugs)
   useGSAP(() => {
     // ----------------------------------------------------
     // 1. FLYTHROUGH PIN
@@ -735,18 +736,17 @@ export default function Home() {
         }
       }
     );
+  }, { scope: containerRef, dependencies: [] });
 
+  // Hook 2: Works Deck dealing & background morph (Independent of Theme to prevent layout shifts/blank screens)
+  useGSAP(() => {
     // ----------------------------------------------------
     // 3. WORKS DECK DEALING (作品集发牌式层叠)
     // ----------------------------------------------------
     // Pin the works section temporarily to throw the cards up
     const worksDeck = gsap.utils.toArray('.work-deck-card') as HTMLElement[];
+    const bgLayers = gsap.utils.toArray('.works-bg-layer') as HTMLElement[];
     if (worksDeck.length > 1) {
-      const isLight = document.documentElement.classList.contains("light");
-      const worksAccents = isLight 
-        ? ["#fff5f7", "#f2f6ff", "#f5f2ff", "#f2fbf6"] 
-        : ["#130308", "#020612", "#040310", "#010a06"];
-
       const totalTransitions = worksDeck.length - 1;
       const tlDeck = gsap.timeline({
         scrollTrigger: {
@@ -764,18 +764,17 @@ export default function Home() {
           }
         }
       });
-      
-      // Initial background color setup
-      gsap.set("#works-pin-container", { backgroundColor: worksAccents[0] });
 
       worksDeck.forEach((card, i) => {
         if (i !== 0) {
-          // Morph container background in sync
-          tlDeck.to("#works-pin-container", {
-            backgroundColor: worksAccents[i],
-            duration: 0.95,
-            ease: "power3.inOut"
-          }, i - 0.95);
+          // Morph container background layers in sync
+          if (bgLayers[i]) {
+            tlDeck.to(bgLayers[i], {
+              opacity: 1,
+              duration: 0.95,
+              ease: "power3.inOut"
+            }, i - 0.95);
+          }
 
           // 3D Cover Flow / iOS Stack style (Performance optimized)
           tlDeck.fromTo(card,
@@ -796,7 +795,10 @@ export default function Home() {
       // 尾部镇场桩：强行锁定总时间轴长度，让百分比算法绝对精准切割每个卡片的节点
       tlDeck.to({}, { duration: 0.01 }, totalTransitions);
     }
+  }, { scope: containerRef, dependencies: [] });
 
+  // Hook 3: Other scroll interactions (Gallery & Skills - Independent of Theme to prevent layout shifts)
+  useGSAP(() => {
     // ----------------------------------------------------
     // 4. GALLERY VELOCITY SKEW (画廊速度感应倾斜) & 横向滚动
     // ----------------------------------------------------
@@ -1740,9 +1742,24 @@ export default function Home() {
       {/* ════════════════════════════════════
           1.8 WORKS / CINEMATIC FULL-WIDTH
       ════════════════════════════════════ */}
-      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full h-[100svh] overflow-hidden bg-background text-foreground morph-bg-transition">
+      <section id="works-pin-container" ref={worksContainerRef} className="relative z-10 w-full h-[100svh] overflow-hidden text-foreground">
         
-        <div className="w-full h-full relative flex flex-col pt-24 md:pt-28 pb-8 md:pb-10">
+        {/* Background Layers */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          {WORKS_META.map((_, i) => (
+            <div
+              key={`bg-${i}`}
+              className="works-bg-layer absolute inset-0 transition-colors duration-1000 morph-bg-transition"
+              style={{
+                backgroundColor: `var(--works-bg-${i})`,
+                opacity: i === 0 ? 1 : 0,
+                zIndex: i,
+              }}
+            />
+          ))}
+        </div>
+
+        <div className="w-full h-full relative z-10 flex flex-col pt-24 md:pt-28 pb-8 md:pb-10">
           {/* Section Header */}
           <div className="w-[96%] max-w-[1920px] mx-auto mb-5 md:mb-7 flex items-center justify-between z-20 shrink-0">
             <h2 className="font-syne font-black text-xs md:text-sm uppercase tracking-[0.5em] text-foreground/50" style={{ fontFamily: "var(--font-syne)" }}>
