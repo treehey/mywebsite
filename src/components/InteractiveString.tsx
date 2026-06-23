@@ -19,8 +19,8 @@ export function InteractiveString() {
     let targetY = centerY;
     let currentY = centerY;
     let velocity = 0;
-    const stiffness = 0.08;
-    const damping = 0.88;
+    const stiffness = 0.12;
+    const damping = 0.80;
     
     let mouseX = width / 2;
     let isHovered = false;

@@ -125,6 +125,7 @@ function ParticleCanvas() {
 
 export default function Hero({ 
   lang, 
+  theme = "dark",
   slothMode, 
   heroClickedSet = new Set(), 
   heroExploding = new Set(), 
@@ -133,6 +134,7 @@ export default function Hero({
   onSlothDismiss
 }: { 
   lang: "EN" | "简" | "繁";
+  theme?: string;
   slothMode?: boolean;
   heroClickedSet?: Set<string>;
   heroExploding?: Set<string>;
@@ -372,7 +374,9 @@ export default function Hero({
         
         <motion.div 
           style={{ x: springX, y: springY }}
-          className="flex flex-col font-syne font-black text-[15vw] leading-[0.85] tracking-tighter uppercase whitespace-nowrap z-50 relative"
+          className={`flex flex-col font-syne font-black text-[15vw] leading-[0.85] uppercase whitespace-nowrap z-50 relative ${
+            theme === "light" ? "tracking-[-0.075em]" : "tracking-tighter"
+          }`}
         >
           {/* SLOTH Easter Egg Title Overlay (GSAP Wrapper) */}
           <div 

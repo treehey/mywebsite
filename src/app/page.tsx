@@ -176,7 +176,7 @@ function TiltCard({
       onClick={onClick}
       title={title}
       style={{ transform, transformStyle: "preserve-3d" as const, transformOrigin: "center center" }}
-      className={`relative rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-2xl transition-all duration-300 hover:border-foreground/20 group ${className || ''}`}
+      className={`relative rounded-[2rem] overflow-hidden bg-foreground/[0.03] backdrop-blur-xl border border-foreground/[0.05] shadow-xl hover:shadow-[0_30px_70px_rgba(0,0,0,0.2)] dark:hover:shadow-[0_30px_70px_rgba(0,0,0,0.55)] transition-all duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-foreground/20 group ${className || ''}`}
       {...props}
     >
       <div 
@@ -776,12 +776,15 @@ export default function Home() {
             }, i - 0.95);
           }
 
-          // 3D Cover Flow / iOS Stack style (Performance optimized)
+          // Set zIndex to be on top when it starts active transition
+          tlDeck.set(card, { zIndex: 10 + i }, i - 0.95);
+
+          // 3D Cover Flow / iOS Stack style (Performance optimized with Peeking preview)
           tlDeck.fromTo(card,
-            { z: -1500, rotationY: 20, scale: 0.7, opacity: 0 },
+            { z: -150, y: 35, scale: 0.93, opacity: 0.4 },
             { 
               z: 0,
-              rotationY: 0,
+              y: 0,
               scale: 1,
               opacity: 1, 
               ease: "power3.inOut",  
@@ -1225,9 +1228,9 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
-        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full w-[90vw] md:w-auto justify-between md:justify-center overflow-visible"
+        className="fixed bottom-6 md:bottom-auto md:top-6 left-1/2 -translate-x-1/2 z-[990] flex items-center px-5 md:px-6 py-2.5 rounded-full w-[90vw] md:w-auto justify-between md:justify-center overflow-visible shadow-[0_12px_40px_rgba(0,0,0,0.22)]"
       >
-        <div className="absolute inset-0 bg-foreground/5 backdrop-blur-2xl rounded-full z-[-1] border border-foreground/[0.05]" />
+        <div className="absolute inset-0 bg-background/40 dark:bg-foreground/[0.03] backdrop-blur-3xl rounded-full z-[-1] border border-foreground/10" />
         
         {/* Logo + active section index */}
         <div className="shrink-0 flex items-end gap-1.5">
@@ -1425,6 +1428,7 @@ export default function Home() {
           <div className="w-full h-full pointer-events-auto">
             <Hero
               lang={lang as any}
+              theme={theme}
               slothMode={slothMode}
               heroClickedSet={heroClickedSet}
               heroExploding={heroExploding}
@@ -1779,7 +1783,7 @@ export default function Home() {
               <div
                 key={`card-${i}`}
                 className="work-deck-card absolute inset-0 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-[2.5rem] shadow-[0_30px_100px_rgba(0,0,0,0.4)] overflow-hidden"
-                style={{ zIndex: 10 + i }}
+                style={{ zIndex: 10 - i }}
               >
                 {/* 顶部高光玻璃反射边缘 */}
                 <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent pointer-events-none z-50 mix-blend-overlay" />
