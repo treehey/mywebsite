@@ -31,7 +31,7 @@ const pressStart = Press_Start_2P({
 
 export const metadata: Metadata = {
   title: "TREE HEY",
-  description: "Developer  Photographer. Macau  Nanjing University.",
+  description: "Creative developer in sloth mode. Macau to Suzhou.",
   icons: { icon: process.env.NEXT_PUBLIC_BASE_PATH ? `${process.env.NEXT_PUBLIC_BASE_PATH}/favicon.png` : "/favicon.png" },
 };
 
