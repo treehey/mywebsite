@@ -22,12 +22,14 @@ import {
 } from "framer-motion";
 import styles from "./FieldNotebook.module.css";
 import { supabase, type GuestEntry } from "@/lib/supabase";
+import { globalLenis } from "../SmoothScroll";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 type Language = "简" | "繁" | "EN";
 
 const navItems = ["fragments", "experiments", "lens", "playground", "guestbook"] as const;
+const chapterItems = ["poster", ...navItems, "index", "last-page"] as const;
 
 const COPY = {
   "简": {
@@ -316,6 +318,46 @@ const fallbackEntries: GuestEntry[] = [
     color: "#9eb9c5",
     created_at: "2026-05-05",
   },
+  {
+    id: 104,
+    danmaku_title: null,
+    message: "Flowvale is so soothing!",
+    nickname: "Ken",
+    color: "#f1eee5",
+    created_at: "2026-05-17",
+  },
+  {
+    id: 105,
+    danmaku_title: null,
+    message: "Every scroll feels like opening another drawer.",
+    nickname: "Rin",
+    color: "#e8e3d8",
+    created_at: "2026-05-29",
+  },
+  {
+    id: 106,
+    danmaku_title: null,
+    message: "The project wall makes the work feel collected, not listed.",
+    nickname: "Jia",
+    color: "#f8f5ed",
+    created_at: "2026-06-02",
+  },
+  {
+    id: 107,
+    danmaku_title: null,
+    message: "Tiny hidden jokes are a design system too.",
+    nickname: "Noah",
+    color: "#e75638",
+    created_at: "2026-06-11",
+  },
+  {
+    id: 108,
+    danmaku_title: null,
+    message: "The field notebook idea fits you.",
+    nickname: "L.",
+    color: "#59633a",
+    created_at: "2026-06-18",
+  },
 ];
 
 function SectionLabel({
@@ -339,6 +381,8 @@ function SectionLabel({
 export default function FieldNotebook() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [language, setLanguage] = useState<Language>("简");
+  const [activeSection, setActiveSection] = useState<(typeof chapterItems)[number]>("poster");
+  const [activeProject, setActiveProject] = useState(0);
   const [playgroundKey, setPlaygroundKey] = useState(0);
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
@@ -351,6 +395,7 @@ export default function FieldNotebook() {
   const treeX = useTransform(scrollYProgress, [0, 0.12], ["0%", "-4%"]);
   const heyX = useTransform(scrollYProgress, [0, 0.12], ["0%", "5%"]);
   const posterScale = useTransform(scrollYProgress, [0, 0.12], [1, 0.96]);
+  const posterLift = useTransform(scrollYProgress, [0, 0.16], ["0vh", "-8vh"]);
 
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
@@ -375,6 +420,81 @@ export default function FieldNotebook() {
     document.documentElement.lang = language === "简" ? "zh-CN" : language === "繁" ? "zh-Hant" : "en";
   }, [language]);
 
+  useEffect(() => {
+    const scrollToHash = () => {
+      const id = window.location.hash.slice(1);
+      if (!id) return;
+      const target = document.getElementById(decodeURIComponent(id));
+      if (!target) return;
+      const shouldReduceMotion = reduceMotion === true;
+      const top = target.getBoundingClientRect().top + window.scrollY - 76;
+      if (globalLenis) {
+        globalLenis.scrollTo(top, { immediate: true });
+      }
+      window.scrollTo({ top, behavior: shouldReduceMotion ? "auto" : "smooth" });
+    };
+
+    const frame = window.requestAnimationFrame(scrollToHash);
+    const timers = [120, 420, 760].map((delay) => window.setTimeout(scrollToHash, delay));
+    window.addEventListener("hashchange", scrollToHash);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      timers.forEach((timer) => window.clearTimeout(timer));
+      window.removeEventListener("hashchange", scrollToHash);
+    };
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    let ticking = false;
+    const updateFromViewport = () => {
+      ticking = false;
+      const probeY = window.innerHeight * 0.42;
+      const current = chapterItems.find((id) => {
+        const section = document.getElementById(id);
+        if (!section) return false;
+        const rect = section.getBoundingClientRect();
+        return rect.top <= probeY && rect.bottom > probeY;
+      });
+      if (current) setActiveSection(current);
+    };
+
+    const requestUpdate = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(updateFromViewport);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible?.target.id && chapterItems.includes(visible.target.id as (typeof chapterItems)[number])) {
+          setActiveSection(visible.target.id as (typeof chapterItems)[number]);
+        }
+      },
+      {
+        rootMargin: "-35% 0px -45% 0px",
+        threshold: [0.12, 0.32, 0.52, 0.72],
+      },
+    );
+
+    chapterItems.forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) observer.observe(section);
+    });
+
+    updateFromViewport();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+    };
+  }, []);
+
   const selectLanguage = (next: Language) => {
     setLanguage(next);
     window.localStorage.setItem("treehey-language", next);
@@ -387,7 +507,7 @@ export default function FieldNotebook() {
       .select("*")
       .not("message", "is", null)
       .order("created_at", { ascending: false })
-      .limit(4)
+      .limit(12)
       .then(({ data }) => {
         if (data?.length) setGuestEntries(data as GuestEntry[]);
       });
@@ -421,12 +541,12 @@ export default function FieldNotebook() {
         setGuestStatus("error");
         return;
       }
-      setGuestEntries((current) => [data as GuestEntry, ...current].slice(0, 4));
+      setGuestEntries((current) => [data as GuestEntry, ...current].slice(0, 12));
     } else {
       setGuestEntries((current) => [
         { ...entry, id: Date.now(), created_at: new Date().toISOString() },
         ...current,
-      ].slice(0, 4));
+      ].slice(0, 12));
     }
 
     formElement.reset();
@@ -443,14 +563,25 @@ export default function FieldNotebook() {
   return (
     <MotionConfig reducedMotion="user">
     <main className={styles.site}>
-      <header className={styles.header}>
+      <motion.div
+        className={styles.scrollProgress}
+        style={reduceMotion ? undefined : { scaleX: scrollYProgress }}
+        aria-hidden="true"
+      />
+
+      <header className={`${styles.header} ${activeSection !== "poster" ? styles.headerScrolled : ""}`}>
         <a className={styles.brand} href="#poster" onClick={closeMenu}>
           TREE HEY
         </a>
         <span className={styles.runningTitle}>Living Field Notebook</span>
         <nav className={styles.desktopNav} aria-label="Primary navigation">
-          {navItems.slice(0, 4).map((id) => (
-            <a key={id} href={`#${id}`}>
+          {navItems.map((id, index) => (
+            <a
+              key={id}
+              href={`#${id}`}
+              className={activeSection === id ? styles.activeNavLink : undefined}
+            >
+              <span>0{index + 1}</span>
               {t.nav[id][0]}
             </a>
           ))}
@@ -495,10 +626,23 @@ export default function FieldNotebook() {
         </motion.nav>
       )}
 
+      <aside className={styles.chapterRail} aria-label="Page chapters">
+        {chapterItems.map((id, index) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            className={activeSection === id ? styles.activeChapter : undefined}
+            aria-label={`Go to ${id}`}
+          >
+            <span>{String(index).padStart(2, "0")}</span>
+          </a>
+        ))}
+      </aside>
+
       <section id="poster" className={styles.poster}>
         <motion.div
           className={styles.posterType}
-          style={reduceMotion ? undefined : { scale: posterScale }}
+          style={reduceMotion ? undefined : { scale: posterScale, y: posterLift }}
         >
           <motion.span
             className={styles.tree}
@@ -513,6 +657,21 @@ export default function FieldNotebook() {
             HEY
           </motion.span>
         </motion.div>
+
+        <motion.div
+          className={styles.posterCircle}
+          initial={{ opacity: 0, scale: 0.72, rotate: -18 }}
+          animate={{ opacity: 1, scale: 1, rotate: 9 }}
+          transition={{ delay: 0.35, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          aria-hidden="true"
+        />
+
+        <div className={styles.posterMicrogrid} aria-hidden="true">
+          <span>Macau</span>
+          <span>Nanjing</span>
+          <span>Useful</span>
+          <span>Playful</span>
+        </div>
 
         <div className={styles.archiveTab}>
           <span>2026</span>
@@ -619,7 +778,9 @@ export default function FieldNotebook() {
           {experiments.map((project, index) => (
             <motion.article
               key={project.number}
-              className={`${styles.project} ${project.className}`}
+              className={`${styles.project} ${project.className} ${activeProject === index ? styles.projectActive : ""}`}
+              onMouseEnter={() => setActiveProject(index)}
+              onFocus={() => setActiveProject(index)}
               initial={{ opacity: 0, y: 70 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-8%" }}
@@ -649,6 +810,12 @@ export default function FieldNotebook() {
               </a>
             </motion.article>
           ))}
+        </div>
+
+        <div className={styles.projectTicker} aria-live="polite">
+          <span>{experiments[activeProject].number}</span>
+          <strong>{experiments[activeProject].title}</strong>
+          <small>{experiments[activeProject].tags}</small>
         </div>
       </section>
 
@@ -807,12 +974,13 @@ export default function FieldNotebook() {
 
         <div className={styles.openBook}>
           <div className={styles.bookMessages}>
-            {guestEntries.slice(0, 4).map((entry, index) => (
+            {guestEntries.map((entry, index) => (
               <motion.blockquote
                 key={entry.id}
                 className={styles.guestEntry}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
+                initial={{ opacity: 0, y: 24, rotate: index % 2 ? 1.5 : -1.5 }}
+                whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 0.6 : -0.6 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.08 }}
               >
