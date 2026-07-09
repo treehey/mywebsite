@@ -94,6 +94,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+html.field-notebook-theme {
+  --background: #f1eee5;
+  --foreground: #111210;
+  --noise-opacity: 0.035;
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+html.field-notebook-theme body {
+  background: #f1eee5;
+  color: #111210;
+}
+
+html.field-notebook-theme ::selection {
+  color: #f1eee5;
+  background: #e75638;
+}
+
 /* Hide scrollbar for a cleaner look */
 ::-webkit-scrollbar { width: 0; background: transparent; display: none; }
 
