@@ -11,6 +11,30 @@
   color: var(--ink);
 }
 
+.cursorHalo {
+  position: fixed;
+  z-index: 90;
+  top: -7rem;
+  left: -7rem;
+  width: 14rem;
+  height: 14rem;
+  border: 1px solid rgb(231 86 56 / 34%);
+  border-radius: 50%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.cursorHalo::after {
+  position: absolute;
+  inset: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  content: "";
+  background: var(--tomato);
+  transform: translate(-50%, -50%);
+}
+
 .site :is(section, footer) {
   scroll-margin-top: 5.2rem;
 }
@@ -41,8 +65,8 @@
   font-size: 0.66rem;
   line-height: 1;
   text-transform: uppercase;
-  background: rgb(241 238 229 / 72%);
-  backdrop-filter: blur(10px);
+  background: rgb(241 238 229 / 94%);
+  box-shadow: 0 1px 0 rgb(17 18 16 / 12%);
   transition:
     padding 320ms cubic-bezier(0.16, 1, 0.3, 1),
     background 320ms ease,
@@ -51,9 +75,8 @@
 
 .headerScrolled {
   padding-block: 1rem;
-  background: rgb(241 238 229 / 86%);
+  background: rgb(241 238 229 / 96%);
   box-shadow: 0 1px 0 rgb(17 18 16 / 12%);
-  backdrop-filter: blur(14px);
 }
 
 .brand {
@@ -166,6 +189,13 @@
   display: grid;
   gap: 0.55rem;
   transform: translateY(-50%);
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.chapterRailHidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(0.6rem, -50%);
 }
 
 .chapterRail a {
@@ -217,7 +247,7 @@
 
 .poster {
   position: relative;
-  min-height: min(72vh, 800px);
+  min-height: clamp(660px, 74vh, 800px);
   overflow: hidden;
   border-bottom: 1px solid rgb(17 18 16 / 18%);
   background:
@@ -226,14 +256,14 @@
 
 .posterType {
   position: absolute;
-  inset: 4.1rem -2vw auto -2.3vw;
+  inset: 4.6rem 0 auto 0;
   display: grid;
   height: calc(100% - 3.7rem);
   grid-template-rows: 35% 65%;
   font-family: var(--font-syne), sans-serif;
-  font-size: clamp(9rem, 28vw, 30rem);
+  font-size: clamp(9rem, 24.5vw, 25.5rem);
   font-weight: 800;
-  line-height: 0.66;
+  line-height: 0.7;
   pointer-events: none;
   letter-spacing: 0;
 }
@@ -246,12 +276,13 @@
 
 .tree {
   align-self: end;
+  margin-left: -0.25vw;
 }
 
 .hey {
   align-self: start;
   justify-self: end;
-  margin-right: 4.4vw;
+  margin-right: 1.2vw;
 }
 
 .posterCircle {
@@ -270,8 +301,8 @@
 .posterMicrogrid {
   position: absolute;
   z-index: 3;
-  right: 17%;
-  bottom: 21%;
+  right: 17.5%;
+  bottom: 17%;
   display: grid;
   grid-template-columns: repeat(2, max-content);
   gap: 0.55rem 1.1rem;
@@ -305,9 +336,9 @@
 .posterIntro {
   position: absolute;
   z-index: 2;
-  bottom: 15%;
+  bottom: 13%;
   left: 16%;
-  max-width: 13rem;
+  max-width: 10rem;
   font-family: var(--font-mono), monospace;
   font-size: clamp(0.62rem, 0.75vw, 0.74rem);
   line-height: 1.55;
@@ -325,7 +356,7 @@
   position: absolute;
   z-index: 4;
   top: 19%;
-  right: 0;
+  right: -0.1rem;
   min-width: 10rem;
   padding: 0.65rem 1.2rem 0.75rem 1.7rem;
   color: #191713;
@@ -335,6 +366,37 @@
   font-style: italic;
   line-height: 1.05;
   box-shadow: 0 18px 38px rgb(31 29 22 / 18%);
+}
+
+.motionRibbon {
+  overflow: hidden;
+  border-bottom: 1px solid rgb(17 18 16 / 16%);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+}
+
+.motionRibbon > div {
+  display: flex;
+  width: max-content;
+  animation: ribbonMove 22s linear infinite;
+}
+
+.motionRibbon span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.82rem 2.4rem;
+}
+
+.motionRibbon span::after {
+  width: 0.42rem;
+  height: 0.42rem;
+  border: 1px solid var(--tomato);
+  border-radius: 50%;
+  content: "";
 }
 
 .scrollCue {
@@ -367,7 +429,7 @@
 
 .fragments {
   position: relative;
-  min-height: 1150px;
+  min-height: 1260px;
   padding: clamp(2.6rem, 4vw, 4rem) clamp(1.25rem, 6vw, 6rem) clamp(5rem, 8vw, 8rem);
   background-color: var(--paper);
   background-image:
@@ -399,6 +461,13 @@
   z-index: 3;
   width: min(31rem, 44vw);
   margin-top: 1.5rem;
+}
+
+@media (min-width: 901px) {
+  .fragmentsIntro {
+    position: sticky;
+    top: 7rem;
+  }
 }
 
 .fragmentsIntro > p:first-child {
@@ -1100,6 +1169,9 @@
   align-content: start;
   gap: 1rem;
   padding: clamp(1.5rem, 3vw, 3rem);
+  max-height: 760px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .guestEntry {
@@ -1132,6 +1204,10 @@
   font-size: clamp(1rem, 1.5vw, 1.3rem);
   font-style: italic;
   line-height: 1.45;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
 }
 
 .guestForm {
@@ -1355,11 +1431,14 @@
 }
 
 @media (max-width: 900px) {
+  .cursorHalo {
+    display: none;
+  }
+
   .header {
     grid-template-columns: 1fr auto auto;
     padding: 1.2rem;
     background: rgb(241 238 229 / 86%);
-    backdrop-filter: blur(12px);
   }
 
   .runningTitle {
@@ -1570,7 +1649,7 @@
 
   .posterType {
     top: 5rem;
-    font-size: 36vw;
+    font-size: 35vw;
   }
 
   .posterIntro {
@@ -1673,6 +1752,7 @@
   .bookMessages {
     grid-template-columns: 1fr;
     padding: 1rem;
+    max-height: 820px;
   }
 
   .guestEntry {
@@ -1706,6 +1786,10 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .motionRibbon > div {
+    animation: none;
   }
 }
 
@@ -1771,5 +1855,14 @@
     opacity: 1;
     clip-path: inset(0 0 0 0);
     transform: translateY(0);
+  }
+}
+
+@keyframes ribbonMove {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }

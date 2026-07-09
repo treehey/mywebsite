@@ -16,8 +16,10 @@ import {
 import {
   motion,
   MotionConfig,
+  useMotionValue,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
 } from "framer-motion";
 import styles from "./FieldNotebook.module.css";
@@ -390,12 +392,17 @@ export default function FieldNotebook() {
   const playgroundRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
+  const cursorX = useMotionValue(-120);
+  const cursorY = useMotionValue(-120);
+  const cursorSpringX = useSpring(cursorX, { stiffness: 210, damping: 28, mass: 0.45 });
+  const cursorSpringY = useSpring(cursorY, { stiffness: 210, damping: 28, mass: 0.45 });
   const t = COPY[language];
 
-  const treeX = useTransform(scrollYProgress, [0, 0.12], ["0%", "-4%"]);
-  const heyX = useTransform(scrollYProgress, [0, 0.12], ["0%", "5%"]);
-  const posterScale = useTransform(scrollYProgress, [0, 0.12], [1, 0.96]);
-  const posterLift = useTransform(scrollYProgress, [0, 0.16], ["0vh", "-8vh"]);
+  const treeX = useTransform(scrollYProgress, [0, 0.1], ["0%", "-2.6%"]);
+  const heyX = useTransform(scrollYProgress, [0, 0.1], ["0%", "2.8%"]);
+  const posterScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.985]);
+  const posterLift = useTransform(scrollYProgress, [0, 0.14], ["0vh", "-5vh"]);
+  const posterInk = useTransform(scrollYProgress, [0, 0.09], [1, 0.84]);
 
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
@@ -426,6 +433,9 @@ export default function FieldNotebook() {
       if (!id) return;
       const target = document.getElementById(decodeURIComponent(id));
       if (!target) return;
+      if (chapterItems.includes(id as (typeof chapterItems)[number])) {
+        setActiveSection(id as (typeof chapterItems)[number]);
+      }
       const shouldReduceMotion = reduceMotion === true;
       const top = target.getBoundingClientRect().top + window.scrollY - 76;
       if (globalLenis) {
@@ -435,12 +445,14 @@ export default function FieldNotebook() {
     };
 
     const frame = window.requestAnimationFrame(scrollToHash);
-    const timers = [120, 420, 760].map((delay) => window.setTimeout(scrollToHash, delay));
+    const timers = [120, 420, 760, 1280, 2200].map((delay) => window.setTimeout(scrollToHash, delay));
     window.addEventListener("hashchange", scrollToHash);
+    window.addEventListener("resize", scrollToHash);
     return () => {
       window.cancelAnimationFrame(frame);
       timers.forEach((timer) => window.clearTimeout(timer));
       window.removeEventListener("hashchange", scrollToHash);
+      window.removeEventListener("resize", scrollToHash);
     };
   }, [reduceMotion]);
 
@@ -509,7 +521,13 @@ export default function FieldNotebook() {
       .order("created_at", { ascending: false })
       .limit(12)
       .then(({ data }) => {
-        if (data?.length) setGuestEntries(data as GuestEntry[]);
+        const liveEntries = data?.length ? (data as GuestEntry[]) : [];
+        const liveIds = new Set(liveEntries.map((entry) => entry.id));
+        const merged = [
+          ...liveEntries,
+          ...fallbackEntries.filter((entry) => !liveIds.has(entry.id)),
+        ].slice(0, 12);
+        setGuestEntries(merged);
       });
   }, []);
 
@@ -562,7 +580,23 @@ export default function FieldNotebook() {
 
   return (
     <MotionConfig reducedMotion="user">
-    <main className={styles.site}>
+    <main
+      className={styles.site}
+      onPointerMove={(event) => {
+        cursorX.set(event.clientX);
+        cursorY.set(event.clientY);
+      }}
+      onPointerLeave={() => {
+        cursorX.set(-120);
+        cursorY.set(-120);
+      }}
+    >
+      <motion.div
+        className={styles.cursorHalo}
+        style={reduceMotion ? undefined : { x: cursorSpringX, y: cursorSpringY }}
+        aria-hidden="true"
+      />
+
       <motion.div
         className={styles.scrollProgress}
         style={reduceMotion ? undefined : { scaleX: scrollYProgress }}
@@ -626,7 +660,10 @@ export default function FieldNotebook() {
         </motion.nav>
       )}
 
-      <aside className={styles.chapterRail} aria-label="Page chapters">
+      <aside
+        className={`${styles.chapterRail} ${activeSection === "poster" ? styles.chapterRailHidden : ""}`}
+        aria-label="Page chapters"
+      >
         {chapterItems.map((id, index) => (
           <a
             key={id}
@@ -642,7 +679,7 @@ export default function FieldNotebook() {
       <section id="poster" className={styles.poster}>
         <motion.div
           className={styles.posterType}
-          style={reduceMotion ? undefined : { scale: posterScale, y: posterLift }}
+          style={reduceMotion ? undefined : { scale: posterScale, y: posterLift, opacity: posterInk }}
         >
           <motion.span
             className={styles.tree}
@@ -697,6 +734,17 @@ export default function FieldNotebook() {
           <span>{t.poster.scroll}</span>
         </a>
       </section>
+
+      <div className={styles.motionRibbon} aria-hidden="true">
+        <div>
+          <span>Scroll to collect fragments</span>
+          <span>Drag the field</span>
+          <span>Open the work</span>
+          <span>Leave a trace</span>
+          <span>Scroll to collect fragments</span>
+          <span>Drag the field</span>
+        </div>
+      </div>
 
       <section id="fragments" className={styles.fragments}>
         <SectionLabel index="01" en={t.nav.fragments[0]} zh={t.nav.fragments[1]} />
@@ -946,6 +994,7 @@ export default function FieldNotebook() {
               src={`${B}/sloth_color.png`}
               alt="Tree Hey sloth mascot"
               fill
+              loading="eager"
               sizes="260px"
             />
             <figcaption>SLOW IS A VALID SPEED.</figcaption>
