@@ -48,6 +48,56 @@ const fragments = [
   },
 ] as const;
 
+const experiments = [
+  {
+    number: "01",
+    title: "NJU Match",
+    zh: "南得一见",
+    src: `${B}/images/njumatch.png`,
+    href: "https://njumatch.com",
+    tags: "Campus product / Full-stack",
+    note: "让一次相遇，从真实校园里发生。",
+    className: styles.projectNju,
+  },
+  {
+    number: "02",
+    title: "Fimel",
+    zh: "繁梦工作室",
+    src: `${B}/images/fimel.png`,
+    href: "https://treehey.github.io/Fimel/",
+    tags: "Minecraft / Creative web",
+    note: "为创作者搭一座可以漫游的入口。",
+    className: styles.projectFimel,
+  },
+  {
+    number: "03",
+    title: "Wide Research",
+    zh: "宽研",
+    src: `${B}/images/wide-research.png`,
+    href: "https://finai.org.cn",
+    tags: "AI / Information design",
+    note: "让研究更宽，也让噪声更少。",
+    className: styles.projectWide,
+  },
+  {
+    number: "04",
+    title: "Enzyme Explorer",
+    zh: "酶学探索",
+    src: `${B}/images/enzyme.png`,
+    href: "https://treehey.github.io/Enzyme/",
+    tags: "Science / Interactive web",
+    note: "从食物出发，摸到看不见的反应。",
+    className: styles.projectEnzyme,
+  },
+] as const;
+
+const lensPhotos = [
+  { src: `${B}/images/HK.jpg`, place: "Hong Kong", number: "42" },
+  { src: `${B}/images/shanghai.jpg`, place: "Shanghai", number: "43" },
+  { src: `${B}/images/zhuhai.jpg`, place: "Zhuhai", number: "44" },
+  { src: `${B}/images/panda.jpg`, place: "Sichuan", number: "45" },
+] as const;
+
 function SectionLabel({
   index,
   en,
@@ -233,8 +283,109 @@ export default function FieldNotebook() {
         </div>
       </section>
 
-      <section id="experiments" className={styles.placeholderSection}>
-        <SectionLabel index="02" en="Experiments" zh="实验" />
+      <section id="experiments" className={styles.experiments}>
+        <div className={styles.experimentsHeading}>
+          <SectionLabel index="02" en="Experiments" zh="实验" />
+          <div>
+            <p>Experiments</p>
+            <h2>实验现场</h2>
+            <p>想法的展墙，视觉的实验场。每一件都从真实的问题开始。</p>
+          </div>
+          <span className={styles.projectCount}>01 — 04</span>
+        </div>
+
+        <div className={styles.projectWall}>
+          {experiments.map((project, index) => (
+            <motion.article
+              key={project.number}
+              className={`${styles.project} ${project.className}`}
+              initial={{ opacity: 0, y: 70 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-8%" }}
+              transition={{ duration: 0.8, delay: index * 0.06 }}
+            >
+              <a href={project.href} target="_blank" rel="noreferrer">
+                <div className={styles.projectMeta}>
+                  <span className={styles.projectNumber}>{project.number}</span>
+                  <div>
+                    <h3>{project.title}</h3>
+                    <p>{project.zh}</p>
+                  </div>
+                  <ArrowUpRight aria-hidden="true" />
+                </div>
+                <div className={styles.projectImage}>
+                  <Image
+                    src={project.src}
+                    alt={`${project.title} project interface`}
+                    fill
+                    sizes="(max-width: 760px) 94vw, 48vw"
+                  />
+                </div>
+                <div className={styles.projectCaption}>
+                  <span>{project.tags}</span>
+                  <p>{project.note}</p>
+                </div>
+              </a>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
+      <section id="lens" className={styles.lens}>
+        <div className={styles.lensIntro}>
+          <SectionLabel index="03" en="Lens" zh="镜头" />
+          <h2>镜头记录</h2>
+          <p>生活里的光与影，构成另一种结构练习。</p>
+          <a href={`${B}/images/HK.jpg`} target="_blank" className={styles.lensLink}>
+            View all <ArrowUpRight aria-hidden="true" />
+          </a>
+        </div>
+
+        <div className={styles.filmViewport}>
+          <motion.div
+            className={styles.filmStrip}
+            initial={{ x: "10%" }}
+            whileInView={{ x: "-8%" }}
+            viewport={{ once: false, amount: 0.25 }}
+            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {[...lensPhotos, ...lensPhotos].map((photo, index) => (
+              <a
+                href={photo.src}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.filmFrame}
+                key={`${photo.number}-${index}`}
+              >
+                <span>{photo.number}</span>
+                <div>
+                  <Image
+                    src={photo.src}
+                    alt={`${photo.place} photography`}
+                    fill
+                    sizes="(max-width: 760px) 70vw, 24vw"
+                  />
+                </div>
+                <small>{photo.place}</small>
+              </a>
+            ))}
+          </motion.div>
+        </div>
+
+        <motion.figure
+          className={styles.lensPolaroid}
+          initial={{ opacity: 0, rotate: 9, y: 40 }}
+          whileInView={{ opacity: 1, rotate: 4, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <Image
+            src={`${B}/images/3.jpg`}
+            alt="A quiet personal photograph"
+            fill
+            sizes="200px"
+          />
+          <figcaption>2026.05</figcaption>
+        </motion.figure>
       </section>
     </main>
   );
