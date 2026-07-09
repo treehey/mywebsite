@@ -250,7 +250,7 @@
 .poster {
   position: relative;
   margin-top: var(--nav-height);
-  min-height: clamp(720px, 82vh, 880px);
+  min-height: calc(100vh - var(--nav-height));
   overflow: hidden;
   border-bottom: 1px solid rgb(17 18 16 / 18%);
   background:
@@ -380,24 +380,16 @@
   font-family: var(--font-mono), monospace;
   font-size: 0.62rem;
   text-transform: uppercase;
-  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
 
 .motionRibbon::before {
-  position: absolute;
-  z-index: 2;
-  inset: 0 auto 0 0;
-  width: 18vw;
-  content: "";
-  background: linear-gradient(90deg, transparent, rgb(231 86 56 / 36), transparent);
-  mix-blend-mode: screen;
-  animation: beltPulse 4.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  display: none;
 }
 
 .motionRibbon > div {
   display: flex;
   width: max-content;
-  animation: ribbonMove 24s linear infinite;
+  will-change: transform;
 }
 
 .motionRibbon span {
@@ -421,7 +413,7 @@
 
 .scrollBridge {
   position: relative;
-  height: clamp(24rem, 54vh, 42rem);
+  min-height: calc(100vh - var(--nav-height));
   overflow: hidden;
   background:
     linear-gradient(rgb(17 18 16 / 5%) 1px, transparent 1px),
@@ -1334,6 +1326,7 @@
   position: relative;
   display: grid;
   grid-template-columns: 1.35fr 0.65fr;
+  align-items: start;
   min-height: 620px;
   border: 1px solid rgb(17 18 16 / 18%);
   background: #f6f1e5;
@@ -1358,14 +1351,13 @@
   align-content: start;
   gap: 1rem;
   padding: clamp(1.5rem, 3vw, 3rem);
-  max-height: 760px;
-  overflow-y: auto;
-  scrollbar-width: thin;
+  overflow: visible;
 }
 
 .guestEntry {
   min-height: 12rem;
   padding: 1.35rem;
+  overflow: hidden;
   background: color-mix(in srgb, var(--note-color, #f8f5ed) 24%, #f8f5ed);
   border: 1px solid rgb(17 18 16 / 12%);
   box-shadow: 0 12px 25px rgb(31 29 22 / 9%);
@@ -1395,8 +1387,12 @@
   line-height: 1.45;
   display: -webkit-box;
   overflow: hidden;
+  max-height: 7.2rem;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .guestForm {
@@ -1680,7 +1676,7 @@
   }
 
   .poster {
-    min-height: min(84vh, 740px);
+    min-height: calc(100vh - var(--nav-height));
     background:
       linear-gradient(90deg, var(--moss) 0 7%, transparent 7% 92%, var(--sky) 92%);
   }
@@ -1718,7 +1714,7 @@
   }
 
   .scrollBridge {
-    height: clamp(18rem, 42vh, 28rem);
+    min-height: calc(100vh - var(--nav-height));
   }
 
   .bridgeTrack,
@@ -1856,7 +1852,7 @@
   }
 
   .poster {
-    min-height: min(84vh, 690px);
+    min-height: calc(100vh - var(--nav-height));
   }
 
   .posterType {
@@ -1901,7 +1897,7 @@
   }
 
   .scrollBridge {
-    height: 22rem;
+    min-height: calc(100vh - var(--nav-height));
   }
 
   .bridgeTrack figure,
@@ -2055,35 +2051,10 @@
   .projectWall,
   .filmViewport,
   .playgroundField,
-  .openBook,
-  .scrollBridge::before {
+  .openBook {
     animation: materialReveal both;
     animation-timeline: view();
     animation-range: entry 12% cover 42%;
-  }
-
-  .bridgeTrack {
-    animation: bridgeTrackDrift both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 80%;
-  }
-
-  .bridgeFilm {
-    animation: filmDevelop both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 72%;
-  }
-
-  .playBridge img {
-    animation: objectScatter both;
-    animation-timeline: view();
-    animation-range: entry 8% cover 68%;
-  }
-
-  .noteBridge blockquote {
-    animation: noteGather both;
-    animation-timeline: view();
-    animation-range: entry 0% cover 78%;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -2098,12 +2069,7 @@
     .projectWall,
     .filmViewport,
     .playgroundField,
-    .openBook,
-    .scrollBridge::before,
-    .bridgeTrack,
-    .bridgeFilm,
-    .playBridge img,
-    .noteBridge blockquote {
+    .openBook {
       animation: none;
     }
   }

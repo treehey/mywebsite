@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
 import {
   ArrowDown,
   ArrowUpRight,
@@ -389,6 +391,7 @@ export default function FieldNotebook() {
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [copied, setCopied] = useState(false);
+  const siteRef = useRef<HTMLElement>(null);
   const playgroundRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
@@ -408,6 +411,138 @@ export default function FieldNotebook() {
     document.documentElement.classList.add("field-notebook-theme");
     return () => document.documentElement.classList.remove("field-notebook-theme");
   }, []);
+
+  useEffect(() => {
+    if (reduceMotion || !siteRef.current) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+    const ctx = gsap.context(() => {
+      const heroTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: `.${styles.poster}`,
+          start: "top top",
+          end: "+=90%",
+          scrub: 0.9,
+        },
+      });
+
+      heroTimeline
+        .to(`.${styles.tree}`, { xPercent: -4, yPercent: -7, ease: "none" }, 0)
+        .to(`.${styles.hey}`, { xPercent: 5, yPercent: 4, ease: "none" }, 0)
+        .to(`.${styles.redNote}`, { xPercent: -14, yPercent: 18, rotate: -6, ease: "none" }, 0)
+        .to(`.${styles.posterCircle}`, { scale: 2.2, rotate: 160, opacity: 0.22, ease: "none" }, 0)
+        .to(`.${styles.archiveTab}`, { yPercent: -18, ease: "none" }, 0);
+
+      gsap.to(`.${styles.motionRibbon} > div`, {
+        xPercent: -50,
+        ease: "none",
+        repeat: -1,
+        duration: 18,
+      });
+
+      gsap.utils.toArray<HTMLElement>(`.${styles.caseBridge}`).forEach((bridge) => {
+        const track = bridge.querySelector(`.${styles.bridgeTrack}`);
+        gsap.fromTo(
+          track,
+          { xPercent: 8, rotate: -1.5 },
+          {
+            xPercent: -28,
+            rotate: 1.2,
+            ease: "none",
+            scrollTrigger: {
+              trigger: bridge,
+              start: "top top",
+              end: "+=150%",
+              scrub: 1,
+              pin: true,
+              anticipatePin: 1,
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(`.${styles.lensBridge}`).forEach((bridge) => {
+        const film = bridge.querySelector(`.${styles.bridgeFilm}`);
+        gsap.fromTo(
+          film,
+          { xPercent: 5, filter: "grayscale(1) contrast(1.24)", opacity: 0.45 },
+          {
+            xPercent: -34,
+            filter: "grayscale(0.15) contrast(1.04)",
+            opacity: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: bridge,
+              start: "top top",
+              end: "+=140%",
+              scrub: 1,
+              pin: true,
+              anticipatePin: 1,
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(`.${styles.playBridge}`).forEach((bridge) => {
+        const objects = bridge.querySelectorAll("img");
+        gsap.fromTo(
+          objects,
+          { y: 90, scale: 0.72, rotate: 0, opacity: 0.36 },
+          {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            stagger: 0.08,
+            ease: "none",
+            scrollTrigger: {
+              trigger: bridge,
+              start: "top top",
+              end: "+=130%",
+              scrub: 1,
+              pin: true,
+              anticipatePin: 1,
+            },
+          },
+        );
+      });
+
+      gsap.utils.toArray<HTMLElement>(`.${styles.noteBridge}`).forEach((bridge) => {
+        const notes = bridge.querySelectorAll("blockquote");
+        gsap.fromTo(
+          notes,
+          { y: 110, scale: 0.8, opacity: 0, rotate: 0 },
+          {
+            y: 0,
+            scale: 1,
+            opacity: 1,
+            stagger: 0.045,
+            ease: "none",
+            scrollTrigger: {
+              trigger: bridge,
+              start: "top top",
+              end: "+=135%",
+              scrub: 1,
+              pin: true,
+              anticipatePin: 1,
+            },
+          },
+        );
+      });
+    }, siteRef);
+
+    const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 350);
+
+    return () => {
+      window.clearTimeout(refreshTimer);
+      ctx.revert();
+    };
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => window.cancelAnimationFrame(frame);
+  }, [guestEntries.length, reduceMotion]);
 
   useEffect(() => {
     const saved = window.localStorage.getItem("treehey-language") as Language | null;
@@ -581,6 +716,7 @@ export default function FieldNotebook() {
   return (
     <MotionConfig reducedMotion="user">
     <main
+      ref={siteRef}
       className={styles.site}
       onPointerMove={(event) => {
         cursorX.set(event.clientX);
