@@ -903,13 +903,7 @@ export default function FieldNotebook() {
               </a>
             </div>
           </div>
-          <motion.figure
-            className={styles.lastPhoto}
-            initial={{ clipPath: "inset(0 100% 0 0)" }}
-            whileInView={{ clipPath: "inset(0 0 0 0)" }}
-            viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-          >
+          <figure className={styles.lastPhoto}>
             <Image
               src={`${B}/images/1.jpg`}
               alt="Macau rooftops collected along the way"
@@ -917,7 +911,7 @@ export default function FieldNotebook() {
               sizes="(max-width: 760px) 92vw, 52vw"
             />
             <figcaption>{t.last.caption}</figcaption>
-          </motion.figure>
+          </figure>
         </div>
         <div className={styles.footerLine}>
           <span>© 2026 TREE HEY</span>

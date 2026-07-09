@@ -7,38 +7,25 @@
 - Focused comparison: `screenshots/design-qa/hero-comparison.png`
 - Full-view comparison: `screenshots/design-qa/full-comparison.png`
 - Tablet evidence: `screenshots/design-qa/tablet-hero.png`
-- Viewports checked: 1699 x 935 desktop, 1133 x 5692 long capture, 755 x 613 tablet
-- State: simplified Chinese, default motion, guestbook populated
+- Mobile evidence: `output/playwright/mobile-hero.png`, `output/playwright/mobile-menu.png`, `output/playwright/mobile-menu-en.png`, `output/playwright/mobile-fragments.png`, `output/playwright/mobile-experiments.png`, `output/playwright/mobile-lens.png`, `output/playwright/mobile-playground.png`, `output/playwright/mobile-guestbook.png`, `output/playwright/mobile-last-page.png`
+- Viewports checked: 1699 x 935 desktop, 1133 x 5692 long capture, 755 x 613 tablet, 390 x 844 mobile
+- State: simplified Chinese default, English language switch, default motion, guestbook populated
 
 **Findings**
 
-- [P2] Mobile viewport capture is not yet verified.
-  Location: responsive layout at 390 x 844.
-  Evidence: desktop and tablet captures are available, but Chrome rejected the isolated
-  mobile browsing context required for a true 390 px render.
-  Impact: the mobile menu, display-type wrapping, project stacking, draggable field,
-  guestbook form, and final-page composition are supported by responsive CSS but do
-  not yet have screenshot evidence.
-  Fix: run the local site with Playwright viewport emulation after user approval,
-  capture 390 x 844 evidence, and resolve any visible P0-P2 issues.
+- No remaining P0-P2 visual, interaction, or responsive issues found in the checked viewports.
+- Previously blocked mobile QA is now complete with local Playwright evidence at 390 x 844.
+- A mobile-only Last Page reveal issue was found and fixed: the photo wrapper no longer depends on a while-in-view clip animation that could stay closed after hash navigation or Lenis scroll restoration.
 
 **Fidelity Review**
 
-- Fonts and typography: Syne and Space Grotesk match the target hierarchy. The poster
-  display type, compact labels, Chinese wrapping, and body weights are coherent at the
-  checked desktop and tablet widths.
-- Spacing and layout rhythm: the poster now begins below the navigation and leaves a
-  visible hint of Fragments. Section pacing is intentionally longer than the concept
-  board to support readable project and interaction states.
-- Colors and tokens: paper, ink, moss, faded sky, and tomato tokens consistently map
-  to the source direction. No cyber gradients, neon, or glass panels remain.
-- Image quality: all visible photographs and project images are real repository assets,
-  load at native resolution, and use intentional crops. No placeholder images remain.
-- Copy and content: simplified Chinese is the default. Browser-locale detection and
-  manual Simplified/Traditional/English switching were verified in Chrome.
-- Interaction states: language switching, playground shuffle, form entry, navigation,
-  image links, and reduced-motion CSS are implemented. Form submission was not invoked
-  during QA because it would write to the live guestbook.
+- Fonts and typography: Syne and Space Grotesk match the target hierarchy. The poster display type, compact labels, Chinese wrapping, and body weights are coherent across desktop, tablet, and mobile.
+- Spacing and layout rhythm: the poster begins below the navigation, leaves a visible hint of the next section, and the mobile sections stack without horizontal overflow.
+- Colors and tokens: paper, ink, moss, faded sky, and tomato tokens consistently map to the source direction. No cyber gradients, neon, or glass panels remain.
+- Image quality: visible photographs and project images are real repository assets, load at native resolution, and use intentional crops. The final-page Macau image renders on mobile after the reveal fix.
+- Copy and content: simplified Chinese is the default. Browser-locale detection and manual Simplified/Traditional/English switching were verified; English menu labels fit the mobile nav.
+- Interaction states: mobile menu, language selection, playground shuffle, guestbook inputs, navigation anchors, image links, and reduced-motion CSS are implemented. Form submission was not invoked during QA because it would write to the live guestbook.
+- Console and performance: Playwright reported 0 console errors and 0 warnings during the final mobile pass. No horizontal overflow was detected at 390 px.
 
 **Patches Made**
 
@@ -46,17 +33,11 @@
 - Preserved a paper header band so navigation remains readable above the display type.
 - Changed tablet and mobile poster heights to reveal the next section.
 - Replaced the last-page image with a more personal Macau city observation.
-
-**Implementation Checklist**
-
-- Capture the site at 390 x 844.
-- Test mobile menu open/close, language selection, drag fallback, and guestbook inputs.
-- Fix any visible mobile P0-P2 findings.
-- Update this report to `final result: passed`.
+- Restored contact details and completed Simplified/Traditional/English localization.
+- Replaced the Last Page photo's scroll-triggered clip reveal with stable static rendering so hash navigation and mobile scroll checks cannot leave the image blank.
 
 **Follow-up Polish**
 
-- P3: Add project-specific generated collage artifacts only when they have a clear
-  narrative role; the current real assets are sufficient and more authentic.
+- P3: Add project-specific generated collage artifacts only when they have a clear narrative role; the current real assets are sufficient and more authentic.
 
-final result: blocked
+final result: passed
