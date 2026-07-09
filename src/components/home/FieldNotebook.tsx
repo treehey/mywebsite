@@ -1,8 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { ArrowDown, ArrowUpRight, Menu, X } from "lucide-react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUpRight,
+  Check,
+  Copy,
+  Menu,
+  Send,
+  Shuffle,
+  X,
+} from "lucide-react";
 import {
   motion,
   useReducedMotion,
@@ -10,6 +19,7 @@ import {
   useTransform,
 } from "framer-motion";
 import styles from "./FieldNotebook.module.css";
+import { supabase, type GuestEntry } from "@/lib/supabase";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
@@ -98,6 +108,33 @@ const lensPhotos = [
   { src: `${B}/images/panda.jpg`, place: "Sichuan", number: "45" },
 ] as const;
 
+const fallbackEntries: GuestEntry[] = [
+  {
+    id: 101,
+    danmaku_title: null,
+    message: "Love your sense of calm and detail.",
+    nickname: "Alice",
+    color: "#e75638",
+    created_at: "2026-04-10",
+  },
+  {
+    id: 102,
+    danmaku_title: null,
+    message: "The tiny things make the whole page feel alive.",
+    nickname: "Yifan",
+    color: "#59633a",
+    created_at: "2026-04-21",
+  },
+  {
+    id: 103,
+    danmaku_title: null,
+    message: "Keep building strange and useful things.",
+    nickname: "M.",
+    color: "#9eb9c5",
+    created_at: "2026-05-05",
+  },
+];
+
 function SectionLabel({
   index,
   en,
@@ -118,6 +155,11 @@ function SectionLabel({
 
 export default function FieldNotebook() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [playgroundKey, setPlaygroundKey] = useState(0);
+  const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
+  const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [copied, setCopied] = useState(false);
+  const playgroundRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
 
@@ -130,7 +172,65 @@ export default function FieldNotebook() {
     return () => document.documentElement.classList.remove("field-notebook-theme");
   }, []);
 
+  useEffect(() => {
+    if (!supabase) return;
+    supabase
+      .from("guestbook")
+      .select("*")
+      .not("message", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(4)
+      .then(({ data }) => {
+        if (data?.length) setGuestEntries(data as GuestEntry[]);
+      });
+  }, []);
+
   const closeMenu = () => setMenuOpen(false);
+
+  const submitGuestbook = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const nickname = String(form.get("nickname") ?? "").trim();
+    const message = String(form.get("message") ?? "").trim();
+    if (!message) return;
+
+    setGuestStatus("sending");
+    const entry: Omit<GuestEntry, "id" | "created_at"> = {
+      danmaku_title: null,
+      message,
+      nickname: nickname || "Anonymous",
+      color: "#e75638",
+    };
+
+    if (supabase) {
+      const { data, error } = await supabase
+        .from("guestbook")
+        .insert(entry)
+        .select("*")
+        .single();
+      if (error) {
+        setGuestStatus("error");
+        return;
+      }
+      setGuestEntries((current) => [data as GuestEntry, ...current].slice(0, 4));
+    } else {
+      setGuestEntries((current) => [
+        { ...entry, id: Date.now(), created_at: new Date().toISOString() },
+        ...current,
+      ].slice(0, 4));
+    }
+
+    formElement.reset();
+    setGuestStatus("done");
+    window.setTimeout(() => setGuestStatus("idle"), 1800);
+  };
+
+  const copyEmail = async () => {
+    await navigator.clipboard.writeText("hey@treehey.com");
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1600);
+  };
 
   return (
     <main className={styles.site}>
@@ -387,6 +487,214 @@ export default function FieldNotebook() {
           <figcaption>2026.05</figcaption>
         </motion.figure>
       </section>
+
+      <section id="playground" className={styles.playground}>
+        <div className={styles.playgroundHeading}>
+          <SectionLabel index="04" en="Playground" zh="游乐场" />
+          <div>
+            <h2>Move things.<br />Find a new order.</h2>
+            <p>拖动这些碎片。好的想法，常从重新排列开始。</p>
+          </div>
+          <button
+            type="button"
+            className={styles.shuffleButton}
+            onClick={() => setPlaygroundKey((key) => key + 1)}
+          >
+            <Shuffle aria-hidden="true" />
+            <span>Shuffle field</span>
+          </button>
+        </div>
+
+        <div className={styles.playgroundField} ref={playgroundRef}>
+          <motion.figure
+            key={`camera-${playgroundKey}`}
+            className={`${styles.playObject} ${styles.playCamera}`}
+            drag
+            dragConstraints={playgroundRef}
+            dragElastic={0.12}
+            whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
+            initial={{ x: playgroundKey % 2 ? 30 : 0, rotate: -5 }}
+            animate={{ x: 0, rotate: -3 }}
+          >
+            <Image
+              src={`${B}/images/about/computer-room.jpg`}
+              alt="A creative desk"
+              fill
+              sizes="320px"
+            />
+            <figcaption>FIELD DESK / 03:17</figcaption>
+          </motion.figure>
+
+          <motion.figure
+            key={`block-${playgroundKey}`}
+            className={`${styles.playObject} ${styles.playBlock}`}
+            drag
+            dragConstraints={playgroundRef}
+            dragElastic={0.12}
+            whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
+            initial={{ x: playgroundKey % 2 ? -35 : 0, rotate: 5 }}
+            animate={{ x: 0, rotate: 2 }}
+          >
+            <Image
+              src={`${B}/images/about/Minecraft.png`}
+              alt="Minecraft experiment"
+              fill
+              sizes="300px"
+            />
+            <figcaption>BUILD A SMALL WORLD</figcaption>
+          </motion.figure>
+
+          <motion.figure
+            key={`sloth-${playgroundKey}`}
+            className={`${styles.playObject} ${styles.playSloth}`}
+            drag
+            dragConstraints={playgroundRef}
+            dragElastic={0.12}
+            whileDrag={{ scale: 1.05, rotate: 0, zIndex: 8 }}
+            initial={{ y: playgroundKey % 2 ? -28 : 0, rotate: -2 }}
+            animate={{ y: 0, rotate: 3 }}
+          >
+            <Image
+              src={`${B}/sloth_color.png`}
+              alt="Tree Hey sloth mascot"
+              fill
+              sizes="260px"
+            />
+            <figcaption>SLOW IS A VALID SPEED.</figcaption>
+          </motion.figure>
+
+          <motion.blockquote
+            key={`note-${playgroundKey}`}
+            className={styles.playNote}
+            drag
+            dragConstraints={playgroundRef}
+            whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
+            initial={{ opacity: 0, rotate: 8 }}
+            animate={{ opacity: 1, rotate: -2 }}
+          >
+            Curiosity is a tool.<br />Use it until the edges wear out.
+          </motion.blockquote>
+        </div>
+      </section>
+
+      <section id="guestbook" className={styles.guestbook}>
+        <div className={styles.guestbookHeading}>
+          <SectionLabel index="05" en="Guestbook" zh="留言簿" />
+          <h2>Leave a trace.</h2>
+          <p>写下一句话，让它留在这本不断生长的册子里。</p>
+        </div>
+
+        <div className={styles.openBook}>
+          <div className={styles.bookMessages}>
+            {guestEntries.slice(0, 4).map((entry, index) => (
+              <motion.blockquote
+                key={entry.id}
+                className={styles.guestEntry}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.08 }}
+              >
+                <time>
+                  {new Date(entry.created_at).toLocaleDateString("zh-CN", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                  })}
+                </time>
+                <p>{entry.message}</p>
+                <cite>— {entry.nickname || "Anonymous"}</cite>
+              </motion.blockquote>
+            ))}
+          </div>
+
+          <form className={styles.guestForm} onSubmit={submitGuestbook}>
+            <label>
+              <span>Name / 名字</span>
+              <input name="nickname" maxLength={24} placeholder="Anonymous" />
+            </label>
+            <label>
+              <span>Message / 留言</span>
+              <textarea
+                name="message"
+                required
+                maxLength={240}
+                rows={5}
+                placeholder="Write something worth finding later..."
+              />
+            </label>
+            <button type="submit" disabled={guestStatus === "sending"}>
+              <Send aria-hidden="true" />
+              <span>
+                {guestStatus === "sending"
+                  ? "Sending"
+                  : guestStatus === "done"
+                    ? "Pinned"
+                    : guestStatus === "error"
+                      ? "Try again"
+                      : "Leave a note"}
+              </span>
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section id="index" className={styles.index}>
+        <SectionLabel index="06" en="Index" zh="索引" />
+        <div className={styles.indexGrid}>
+          <div>
+            <h3>Tools</h3>
+            <p>Figma</p><p>VS Code</p><p>React</p><p>TypeScript</p><p>Blender</p>
+          </div>
+          <div>
+            <h3>Places</h3>
+            <p>Macau</p><p>Nanjing</p><p>Suzhou</p><p>Zhuhai</p><p>Hong Kong</p>
+          </div>
+          <div>
+            <h3>Dates</h3>
+            <p>2024.09 / New map</p><p>2026.01 / NJU Match</p><p>2026.03 / Fimel</p><p>2026.06 / Field notes</p>
+          </div>
+          <div>
+            <h3>Influences</h3>
+            <p>Field recordings</p><p>Japanese posters</p><p>Quiet interfaces</p><p>Useful accidents</p>
+          </div>
+        </div>
+      </section>
+
+      <footer id="last-page" className={styles.lastPage}>
+        <SectionLabel index="07" en="Last Page" zh="最后一页" />
+        <div className={styles.lastGrid}>
+          <div className={styles.lastCopy}>
+            <p>One more useful thing<br />can always be made.</p>
+            <h2>Let&apos;s leave<br />a good trace.</h2>
+            <div className={styles.emailRow}>
+              <a href="mailto:hey@treehey.com">hey@treehey.com</a>
+              <button type="button" onClick={copyEmail} aria-label="Copy email address">
+                {copied ? <Check /> : <Copy />}
+              </button>
+            </div>
+          </div>
+          <motion.figure
+            className={styles.lastPhoto}
+            initial={{ clipPath: "inset(0 100% 0 0)" }}
+            whileInView={{ clipPath: "inset(0 0 0 0)" }}
+            viewport={{ once: true, margin: "-10%" }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <Image
+              src={`${B}/images/nanjing.jpg`}
+              alt="A view collected along the way"
+              fill
+              sizes="(max-width: 760px) 92vw, 52vw"
+            />
+            <figcaption>Nanjing, 2026 / See you outside the screen.</figcaption>
+          </motion.figure>
+        </div>
+        <div className={styles.footerLine}>
+          <span>© 2026 TREE HEY</span>
+          <a href="#poster">Back to poster <ArrowUpRight aria-hidden="true" /></a>
+        </div>
+      </footer>
     </main>
   );
 }
