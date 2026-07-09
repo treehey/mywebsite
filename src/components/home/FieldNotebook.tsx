@@ -7,6 +7,7 @@ import {
   ArrowUpRight,
   Check,
   Copy,
+  Globe2,
   Menu,
   Send,
   Shuffle,
@@ -23,13 +24,177 @@ import { supabase, type GuestEntry } from "@/lib/supabase";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-const navItems = [
-  ["fragments", "Fragments", "碎片"],
-  ["experiments", "Experiments", "实验"],
-  ["lens", "Lens", "镜头"],
-  ["playground", "Playground", "游乐场"],
-  ["guestbook", "Guestbook", "留言簿"],
-] as const;
+type Language = "简" | "繁" | "EN";
+
+const navItems = ["fragments", "experiments", "lens", "playground", "guestbook"] as const;
+
+const COPY = {
+  "简": {
+    nav: {
+      fragments: ["Fragments", "碎片"],
+      experiments: ["Experiments", "实验"],
+      lens: ["Lens", "镜头"],
+      playground: ["Playground", "游乐场"],
+      guestbook: ["Guestbook", "留言簿"],
+    },
+    poster: {
+      title: "生活现场笔记",
+      intro: "用好奇心，构建有趣的东西。",
+      sub: "设计与构建\n好玩又有用的东西。",
+      note: "构建\n玩耍\n观察\n分享",
+      scroll: "向下探索",
+    },
+    fragments: {
+      eyebrow: "碎片、实验、与视角",
+      title: ["碎片，", "实验，", "与镜头。"],
+      copy: "这里是我捕捉思绪、记录实验、探索视角，并打造小世界的地方。",
+      link: "探索笔记",
+    },
+    experiments: {
+      kicker: "Experiments",
+      title: "实验现场",
+      copy: "想法的展墙，视觉的实验场。每一件都从真实的问题开始。",
+    },
+    lens: {
+      title: "镜头记录",
+      copy: "生活里的光与影，构成另一种结构练习。",
+      link: "查看全部",
+    },
+    playground: {
+      title: "移动碎片。\n找到新的秩序。",
+      copy: "拖动这些碎片。好的想法，常从重新排列开始。",
+      shuffle: "重新排列",
+    },
+    guestbook: {
+      title: "留下一点痕迹。",
+      copy: "写下一句话，让它留在这本不断生长的册子里。",
+      name: "名字",
+      message: "留言",
+      namePlaceholder: "匿名访客",
+      messagePlaceholder: "写点以后再次发现时，仍值得读的话……",
+      send: "留下纸条",
+      sending: "发送中",
+      done: "已贴上",
+      error: "再试一次",
+    },
+    index: ["工具", "地点", "日期", "灵感"],
+    last: {
+      pre: "总还能再做一件\n真正有用的东西。",
+      title: "让我们留下\n一点好痕迹。",
+      back: "回到海报",
+    },
+  },
+  "繁": {
+    nav: {
+      fragments: ["Fragments", "碎片"],
+      experiments: ["Experiments", "實驗"],
+      lens: ["Lens", "鏡頭"],
+      playground: ["Playground", "遊樂場"],
+      guestbook: ["Guestbook", "留言簿"],
+    },
+    poster: {
+      title: "生活現場筆記",
+      intro: "用好奇心，構建有趣的東西。",
+      sub: "設計與構建\n好玩又有用的東西。",
+      note: "構建\n玩耍\n觀察\n分享",
+      scroll: "向下探索",
+    },
+    fragments: {
+      eyebrow: "碎片、實驗、與視角",
+      title: ["碎片，", "實驗，", "與鏡頭。"],
+      copy: "這裡是我捕捉思緒、記錄實驗、探索視角，並打造小世界的地方。",
+      link: "探索筆記",
+    },
+    experiments: {
+      kicker: "Experiments",
+      title: "實驗現場",
+      copy: "想法的展牆，視覺的實驗場。每一件都從真實的問題開始。",
+    },
+    lens: {
+      title: "鏡頭記錄",
+      copy: "生活裡的光與影，構成另一種結構練習。",
+      link: "查看全部",
+    },
+    playground: {
+      title: "移動碎片。\n找到新的秩序。",
+      copy: "拖動這些碎片。好的想法，常從重新排列開始。",
+      shuffle: "重新排列",
+    },
+    guestbook: {
+      title: "留下一點痕跡。",
+      copy: "寫下一句話，讓它留在這本不斷生長的冊子裡。",
+      name: "名字",
+      message: "留言",
+      namePlaceholder: "匿名訪客",
+      messagePlaceholder: "寫點以後再次發現時，仍值得讀的話……",
+      send: "留下紙條",
+      sending: "傳送中",
+      done: "已貼上",
+      error: "再試一次",
+    },
+    index: ["工具", "地點", "日期", "靈感"],
+    last: {
+      pre: "總還能再做一件\n真正有用的東西。",
+      title: "讓我們留下\n一點好痕跡。",
+      back: "回到海報",
+    },
+  },
+  EN: {
+    nav: {
+      fragments: ["Fragments", "Notes"],
+      experiments: ["Experiments", "Making"],
+      lens: ["Lens", "Images"],
+      playground: ["Playground", "Play"],
+      guestbook: ["Guestbook", "Messages"],
+    },
+    poster: {
+      title: "Living Field Notebook",
+      intro: "Build interesting things with curiosity.",
+      sub: "Design and build\nplayful, useful things.",
+      note: "Build\nPlay\nObserve\nShare",
+      scroll: "Scroll to explore",
+    },
+    fragments: {
+      eyebrow: "Fragments, experiments, and points of view",
+      title: ["Fragments,", "Experiments,", "& Lens."],
+      copy: "A place to catch thoughts, document experiments, explore perspectives, and make small worlds.",
+      link: "Explore notebook",
+    },
+    experiments: {
+      kicker: "Experiments",
+      title: "The making wall",
+      copy: "A wall of ideas and a field of visual tests. Each one begins with a real question.",
+    },
+    lens: {
+      title: "Through the lens",
+      copy: "Light and shadow from ordinary days become another exercise in structure.",
+      link: "View all",
+    },
+    playground: {
+      title: "Move things.\nFind a new order.",
+      copy: "Drag the fragments. Good ideas often begin with rearranging what is already here.",
+      shuffle: "Shuffle field",
+    },
+    guestbook: {
+      title: "Leave a trace.",
+      copy: "Write a line and leave it inside this notebook as it keeps growing.",
+      name: "Name",
+      message: "Message",
+      namePlaceholder: "Anonymous",
+      messagePlaceholder: "Write something worth finding again later...",
+      send: "Leave a note",
+      sending: "Sending",
+      done: "Pinned",
+      error: "Try again",
+    },
+    index: ["Tools", "Places", "Dates", "Influences"],
+    last: {
+      pre: "There is always room for\none more useful thing.",
+      title: "Let's leave\na good trace.",
+      back: "Back to poster",
+    },
+  },
+} as const;
 
 const fragments = [
   {
@@ -155,6 +320,7 @@ function SectionLabel({
 
 export default function FieldNotebook() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [language, setLanguage] = useState<Language>("简");
   const [playgroundKey, setPlaygroundKey] = useState(0);
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
@@ -162,6 +328,7 @@ export default function FieldNotebook() {
   const playgroundRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
+  const t = COPY[language];
 
   const treeX = useTransform(scrollYProgress, [0, 0.12], ["0%", "-4%"]);
   const heyX = useTransform(scrollYProgress, [0, 0.12], ["0%", "5%"]);
@@ -171,6 +338,29 @@ export default function FieldNotebook() {
     document.documentElement.classList.add("field-notebook-theme");
     return () => document.documentElement.classList.remove("field-notebook-theme");
   }, []);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("treehey-language") as Language | null;
+    const browserLocale = navigator.languages?.[0]?.toLowerCase() ?? navigator.language.toLowerCase();
+    const detected: Language = /^zh-(hk|mo|tw)/.test(browserLocale)
+      ? "繁"
+      : browserLocale.startsWith("en")
+        ? "EN"
+        : "简";
+    const frame = window.requestAnimationFrame(() => {
+      setLanguage(saved && saved in COPY ? saved : detected);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language === "简" ? "zh-CN" : language === "繁" ? "zh-Hant" : "en";
+  }, [language]);
+
+  const selectLanguage = (next: Language) => {
+    setLanguage(next);
+    window.localStorage.setItem("treehey-language", next);
+  };
 
   useEffect(() => {
     if (!supabase) return;
@@ -240,12 +430,24 @@ export default function FieldNotebook() {
         </a>
         <span className={styles.runningTitle}>Living Field Notebook</span>
         <nav className={styles.desktopNav} aria-label="Primary navigation">
-          {navItems.slice(0, 4).map(([id, en]) => (
+          {navItems.slice(0, 4).map((id) => (
             <a key={id} href={`#${id}`}>
-              {en}
+              {t.nav[id][0]}
             </a>
           ))}
         </nav>
+        <label className={styles.languageSelect}>
+          <Globe2 aria-hidden="true" />
+          <span className="sr-only">Language</span>
+          <select
+            value={language}
+            onChange={(event) => selectLanguage(event.target.value as Language)}
+          >
+            <option value="简">简</option>
+            <option value="繁">繁</option>
+            <option value="EN">EN</option>
+          </select>
+        </label>
         <button
           className={styles.menuButton}
           type="button"
@@ -264,11 +466,11 @@ export default function FieldNotebook() {
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {navItems.map(([id, en, zh], index) => (
+          {navItems.map((id, index) => (
             <a key={id} href={`#${id}`} onClick={closeMenu}>
               <span>0{index + 1}</span>
-              <strong>{en}</strong>
-              <small>{zh}</small>
+              <strong>{t.nav[id][0]}</strong>
+              <small>{t.nav[id][1]}</small>
             </a>
           ))}
         </motion.nav>
@@ -299,8 +501,8 @@ export default function FieldNotebook() {
         </div>
 
         <div className={styles.posterIntro}>
-          <p className={styles.introChinese}>用好奇心，构建有趣的东西。</p>
-          <p>Design &amp; build<br />playful things<br />with curiosity.</p>
+          <p className={styles.introChinese}>{t.poster.intro}</p>
+          <p>{t.poster.sub.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</p>
         </div>
 
         <motion.aside
@@ -309,29 +511,29 @@ export default function FieldNotebook() {
           animate={{ opacity: 1, rotate: 2, y: 0 }}
           transition={{ delay: 0.55, duration: 0.7 }}
         >
-          Build<br />Play<br />Observe<br />Share
+          {t.poster.note.split("\n").map((line) => <span key={line}>{line}<br /></span>)}
         </motion.aside>
 
         <a className={styles.scrollCue} href="#fragments">
           <ArrowDown aria-hidden="true" />
-          <span>Scroll to explore</span>
+          <span>{t.poster.scroll}</span>
         </a>
       </section>
 
       <section id="fragments" className={styles.fragments}>
-        <SectionLabel index="01" en="Fragments" zh="碎片" />
+        <SectionLabel index="01" en={t.nav.fragments[0]} zh={t.nav.fragments[1]} />
         <div className={styles.fragmentsIntro}>
-          <p>碎片、实验、与视角</p>
+          <p>{t.fragments.eyebrow}</p>
           <h1>
-            Fragments,<br />
-            Experiments,<br />
-            <span>&amp; Lens.</span>
+            {t.fragments.title[0]}<br />
+            {t.fragments.title[1]}<br />
+            <span>{t.fragments.title[2]}</span>
           </h1>
           <p className={styles.fragmentsCopy}>
-            这里是我捕捉思绪、记录实验、探索视角，并打造小世界的地方。
+            {t.fragments.copy}
           </p>
           <a href="#experiments" className={styles.textLink}>
-            Explore notebook <ArrowUpRight aria-hidden="true" />
+            {t.fragments.link} <ArrowUpRight aria-hidden="true" />
           </a>
         </div>
 
@@ -385,11 +587,11 @@ export default function FieldNotebook() {
 
       <section id="experiments" className={styles.experiments}>
         <div className={styles.experimentsHeading}>
-          <SectionLabel index="02" en="Experiments" zh="实验" />
+          <SectionLabel index="02" en={t.nav.experiments[0]} zh={t.nav.experiments[1]} />
           <div>
-            <p>Experiments</p>
-            <h2>实验现场</h2>
-            <p>想法的展墙，视觉的实验场。每一件都从真实的问题开始。</p>
+            <p>{t.experiments.kicker}</p>
+            <h2>{t.experiments.title}</h2>
+            <p>{t.experiments.copy}</p>
           </div>
           <span className={styles.projectCount}>01 — 04</span>
         </div>
@@ -433,11 +635,11 @@ export default function FieldNotebook() {
 
       <section id="lens" className={styles.lens}>
         <div className={styles.lensIntro}>
-          <SectionLabel index="03" en="Lens" zh="镜头" />
-          <h2>镜头记录</h2>
-          <p>生活里的光与影，构成另一种结构练习。</p>
+          <SectionLabel index="03" en={t.nav.lens[0]} zh={t.nav.lens[1]} />
+          <h2>{t.lens.title}</h2>
+          <p>{t.lens.copy}</p>
           <a href={`${B}/images/HK.jpg`} target="_blank" className={styles.lensLink}>
-            View all <ArrowUpRight aria-hidden="true" />
+            {t.lens.link} <ArrowUpRight aria-hidden="true" />
           </a>
         </div>
 
@@ -490,10 +692,10 @@ export default function FieldNotebook() {
 
       <section id="playground" className={styles.playground}>
         <div className={styles.playgroundHeading}>
-          <SectionLabel index="04" en="Playground" zh="游乐场" />
+          <SectionLabel index="04" en={t.nav.playground[0]} zh={t.nav.playground[1]} />
           <div>
-            <h2>Move things.<br />Find a new order.</h2>
-            <p>拖动这些碎片。好的想法，常从重新排列开始。</p>
+            <h2>{t.playground.title.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</h2>
+            <p>{t.playground.copy}</p>
           </div>
           <button
             type="button"
@@ -501,7 +703,7 @@ export default function FieldNotebook() {
             onClick={() => setPlaygroundKey((key) => key + 1)}
           >
             <Shuffle aria-hidden="true" />
-            <span>Shuffle field</span>
+            <span>{t.playground.shuffle}</span>
           </button>
         </div>
 
@@ -579,9 +781,9 @@ export default function FieldNotebook() {
 
       <section id="guestbook" className={styles.guestbook}>
         <div className={styles.guestbookHeading}>
-          <SectionLabel index="05" en="Guestbook" zh="留言簿" />
-          <h2>Leave a trace.</h2>
-          <p>写下一句话，让它留在这本不断生长的册子里。</p>
+          <SectionLabel index="05" en={t.nav.guestbook[0]} zh={t.nav.guestbook[1]} />
+          <h2>{t.guestbook.title}</h2>
+          <p>{t.guestbook.copy}</p>
         </div>
 
         <div className={styles.openBook}>
@@ -610,29 +812,29 @@ export default function FieldNotebook() {
 
           <form className={styles.guestForm} onSubmit={submitGuestbook}>
             <label>
-              <span>Name / 名字</span>
-              <input name="nickname" maxLength={24} placeholder="Anonymous" />
+              <span>{t.guestbook.name}</span>
+              <input name="nickname" maxLength={24} placeholder={t.guestbook.namePlaceholder} />
             </label>
             <label>
-              <span>Message / 留言</span>
+              <span>{t.guestbook.message}</span>
               <textarea
                 name="message"
                 required
                 maxLength={240}
                 rows={5}
-                placeholder="Write something worth finding later..."
+                placeholder={t.guestbook.messagePlaceholder}
               />
             </label>
             <button type="submit" disabled={guestStatus === "sending"}>
               <Send aria-hidden="true" />
               <span>
                 {guestStatus === "sending"
-                  ? "Sending"
+                  ? t.guestbook.sending
                   : guestStatus === "done"
-                    ? "Pinned"
+                    ? t.guestbook.done
                     : guestStatus === "error"
-                      ? "Try again"
-                      : "Leave a note"}
+                      ? t.guestbook.error
+                      : t.guestbook.send}
               </span>
             </button>
           </form>
@@ -640,33 +842,33 @@ export default function FieldNotebook() {
       </section>
 
       <section id="index" className={styles.index}>
-        <SectionLabel index="06" en="Index" zh="索引" />
+        <SectionLabel index="06" en="Index" zh={language === "繁" ? "索引" : language === "EN" ? "Archive" : "索引"} />
         <div className={styles.indexGrid}>
           <div>
-            <h3>Tools</h3>
+            <h3>{t.index[0]}</h3>
             <p>Figma</p><p>VS Code</p><p>React</p><p>TypeScript</p><p>Blender</p>
           </div>
           <div>
-            <h3>Places</h3>
+            <h3>{t.index[1]}</h3>
             <p>Macau</p><p>Nanjing</p><p>Suzhou</p><p>Zhuhai</p><p>Hong Kong</p>
           </div>
           <div>
-            <h3>Dates</h3>
+            <h3>{t.index[2]}</h3>
             <p>2024.09 / New map</p><p>2026.01 / NJU Match</p><p>2026.03 / Fimel</p><p>2026.06 / Field notes</p>
           </div>
           <div>
-            <h3>Influences</h3>
+            <h3>{t.index[3]}</h3>
             <p>Field recordings</p><p>Japanese posters</p><p>Quiet interfaces</p><p>Useful accidents</p>
           </div>
         </div>
       </section>
 
       <footer id="last-page" className={styles.lastPage}>
-        <SectionLabel index="07" en="Last Page" zh="最后一页" />
+        <SectionLabel index="07" en="Last Page" zh={language === "繁" ? "最後一頁" : language === "EN" ? "Closing" : "最后一页"} />
         <div className={styles.lastGrid}>
           <div className={styles.lastCopy}>
-            <p>One more useful thing<br />can always be made.</p>
-            <h2>Let&apos;s leave<br />a good trace.</h2>
+            <p>{t.last.pre.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</p>
+            <h2>{t.last.title.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</h2>
             <div className={styles.emailRow}>
               <a href="mailto:hey@treehey.com">hey@treehey.com</a>
               <button type="button" onClick={copyEmail} aria-label="Copy email address">
@@ -692,7 +894,7 @@ export default function FieldNotebook() {
         </div>
         <div className={styles.footerLine}>
           <span>© 2026 TREE HEY</span>
-          <a href="#poster">Back to poster <ArrowUpRight aria-hidden="true" /></a>
+          <a href="#poster">{t.last.back} <ArrowUpRight aria-hidden="true" /></a>
         </div>
       </footer>
     </main>
