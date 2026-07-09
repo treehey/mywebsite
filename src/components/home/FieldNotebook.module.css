@@ -114,10 +114,10 @@
 
 .posterType {
   position: absolute;
-  inset: 2.7rem -1.8vw auto -2vw;
+  inset: 7rem -1.8vw auto -2vw;
   display: grid;
-  height: calc(100% - 2.7rem);
-  grid-template-rows: 53% 47%;
+  height: calc(100% - 7rem);
+  grid-template-rows: 30% 70%;
   font-family: var(--font-syne), sans-serif;
   font-size: clamp(9rem, 27vw, 28rem);
   font-weight: 800;
@@ -1174,15 +1174,15 @@
   }
 
   .poster {
-    min-height: 760px;
+    min-height: min(92vh, 760px);
     background:
       linear-gradient(90deg, var(--moss) 0 7%, transparent 7% 92%, var(--sky) 92%);
   }
 
   .posterType {
-    inset: 5rem -4vw auto -4vw;
+    inset: 7rem -4vw auto -4vw;
     height: 64%;
-    grid-template-rows: 49% 51%;
+    grid-template-rows: 32% 68%;
     font-size: clamp(7rem, 34vw, 18rem);
     line-height: 0.78;
   }
@@ -1312,7 +1312,7 @@
   }
 
   .poster {
-    min-height: 690px;
+    min-height: min(92vh, 690px);
   }
 
   .posterType {

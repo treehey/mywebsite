@@ -884,12 +884,12 @@ export default function FieldNotebook() {
             transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
           >
             <Image
-              src={`${B}/images/nanjing.jpg`}
-              alt="A view collected along the way"
+              src={`${B}/images/1.jpg`}
+              alt="Macau rooftops collected along the way"
               fill
               sizes="(max-width: 760px) 92vw, 52vw"
             />
-            <figcaption>Nanjing, 2026 / See you outside the screen.</figcaption>
+            <figcaption>Macau, 2026 / See you outside the screen.</figcaption>
           </motion.figure>
         </div>
         <div className={styles.footerLine}>
