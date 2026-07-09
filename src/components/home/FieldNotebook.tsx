@@ -743,6 +743,8 @@ export default function FieldNotebook() {
           <span>Leave a trace</span>
           <span>Scroll to collect fragments</span>
           <span>Drag the field</span>
+          <span>Open the work</span>
+          <span>Leave a trace</span>
         </div>
       </div>
 
@@ -811,6 +813,18 @@ export default function FieldNotebook() {
         </div>
       </section>
 
+      <div className={`${styles.scrollBridge} ${styles.caseBridge}`} aria-hidden="true">
+        <div className={styles.bridgeTrack}>
+          {experiments.map((project) => (
+            <figure key={`bridge-${project.number}`}>
+              <Image src={project.src} alt="" fill sizes="28vw" />
+              <figcaption>{project.number}</figcaption>
+            </figure>
+          ))}
+        </div>
+        <span>02 / work opens from the pile</span>
+      </div>
+
       <section id="experiments" className={styles.experiments}>
         <div className={styles.experimentsHeading}>
           <SectionLabel index="02" en={t.nav.experiments[0]} zh={t.nav.experiments[1]} />
@@ -866,6 +880,17 @@ export default function FieldNotebook() {
           <small>{experiments[activeProject].tags}</small>
         </div>
       </section>
+
+      <div className={`${styles.scrollBridge} ${styles.lensBridge}`} aria-hidden="true">
+        <div className={styles.bridgeFilm}>
+          {lensPhotos.map((photo) => (
+            <figure key={`lens-bridge-${photo.number}`}>
+              <Image src={photo.src} alt="" fill sizes="22vw" />
+            </figure>
+          ))}
+        </div>
+        <span>03 / light develops into contact sheets</span>
+      </div>
 
       <section id="lens" className={styles.lens}>
         <div className={styles.lensIntro}>
@@ -923,6 +948,13 @@ export default function FieldNotebook() {
           <figcaption>2026.05</figcaption>
         </motion.figure>
       </section>
+
+      <div className={`${styles.scrollBridge} ${styles.playBridge}`} aria-hidden="true">
+        <Image src={`${B}/images/about/Minecraft.png`} alt="" width={320} height={210} />
+        <Image src={`${B}/images/about/computer-room.jpg`} alt="" width={320} height={210} />
+        <Image src={`${B}/sloth_color.png`} alt="" width={180} height={180} />
+        <span>04 / rearrange the desk</span>
+      </div>
 
       <section id="playground" className={styles.playground}>
         <div className={styles.playgroundHeading}>
@@ -1013,6 +1045,15 @@ export default function FieldNotebook() {
           </motion.blockquote>
         </div>
       </section>
+
+      <div className={`${styles.scrollBridge} ${styles.noteBridge}`} aria-hidden="true">
+        {guestEntries.slice(0, 6).map((entry, index) => (
+          <blockquote key={`note-bridge-${entry.id}`} style={{ ["--i" as string]: index }}>
+            {entry.message}
+          </blockquote>
+        ))}
+        <span>05 / notes gather on the wall</span>
+      </div>
 
       <section id="guestbook" className={styles.guestbook}>
         <div className={styles.guestbookHeading}>

@@ -5,6 +5,7 @@
   --moss: #59633a;
   --sky: #9eb9c5;
   --tomato: #e75638;
+  --nav-height: 4.15rem;
   min-height: 100vh;
   overflow: clip;
   background: var(--paper);
@@ -60,6 +61,7 @@
   gap: 1.3rem;
   align-items: center;
   width: 100%;
+  min-height: var(--nav-height);
   padding: 1.5rem 2.25rem;
   font-family: var(--font-mono), monospace;
   font-size: 0.66rem;
@@ -247,7 +249,8 @@
 
 .poster {
   position: relative;
-  min-height: clamp(660px, 74vh, 800px);
+  margin-top: var(--nav-height);
+  min-height: clamp(720px, 82vh, 880px);
   overflow: hidden;
   border-bottom: 1px solid rgb(17 18 16 / 18%);
   background:
@@ -256,9 +259,9 @@
 
 .posterType {
   position: absolute;
-  inset: 4.6rem 0 auto 0;
+  inset: 1.15rem 0 auto 0;
   display: grid;
-  height: calc(100% - 3.7rem);
+  height: calc(100% - 1.3rem);
   grid-template-rows: 35% 65%;
   font-family: var(--font-syne), sans-serif;
   font-size: clamp(9rem, 24.5vw, 25.5rem);
@@ -369,6 +372,7 @@
 }
 
 .motionRibbon {
+  position: relative;
   overflow: hidden;
   border-bottom: 1px solid rgb(17 18 16 / 16%);
   background: var(--ink);
@@ -376,19 +380,35 @@
   font-family: var(--font-mono), monospace;
   font-size: 0.62rem;
   text-transform: uppercase;
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+
+.motionRibbon::before {
+  position: absolute;
+  z-index: 2;
+  inset: 0 auto 0 0;
+  width: 18vw;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgb(231 86 56 / 36), transparent);
+  mix-blend-mode: screen;
+  animation: beltPulse 4.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
 
 .motionRibbon > div {
   display: flex;
   width: max-content;
-  animation: ribbonMove 22s linear infinite;
+  animation: ribbonMove 24s linear infinite;
 }
 
 .motionRibbon span {
   display: inline-flex;
+  justify-content: center;
   align-items: center;
   gap: 0.9rem;
+  min-width: clamp(17rem, 25vw, 30rem);
   padding: 0.82rem 2.4rem;
+  border-right: 1px solid rgb(241 238 229 / 12%);
+  white-space: nowrap;
 }
 
 .motionRibbon span::after {
@@ -397,6 +417,175 @@
   border: 1px solid var(--tomato);
   border-radius: 50%;
   content: "";
+}
+
+.scrollBridge {
+  position: relative;
+  height: clamp(24rem, 54vh, 42rem);
+  overflow: hidden;
+  background:
+    linear-gradient(rgb(17 18 16 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(17 18 16 / 5%) 1px, transparent 1px),
+    var(--paper);
+  background-size: 28px 28px;
+}
+
+.scrollBridge::before,
+.scrollBridge::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.scrollBridge::before {
+  z-index: 0;
+  background: linear-gradient(90deg, rgb(241 238 229 / 0), rgb(231 86 56 / 16), rgb(158 185 197 / 18), rgb(241 238 229 / 0));
+  transform: translateX(-35%);
+}
+
+.scrollBridge::after {
+  z-index: 4;
+  background: linear-gradient(180deg, var(--paper) 0, transparent 22%, transparent 78%, var(--paper) 100%);
+}
+
+.scrollBridge > span {
+  position: absolute;
+  z-index: 2;
+  left: clamp(1.25rem, 6vw, 6rem);
+  bottom: clamp(2rem, 5vw, 5rem);
+  color: rgb(17 18 16 / 58%);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.bridgeTrack,
+.bridgeFilm {
+  position: absolute;
+  z-index: 1;
+  inset: 10% -10% auto -10%;
+  display: flex;
+  gap: clamp(1rem, 3vw, 3rem);
+  width: max-content;
+}
+
+.bridgeTrack figure,
+.bridgeFilm figure {
+  position: relative;
+  flex: 0 0 clamp(17rem, 28vw, 38rem);
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgb(17 18 16 / 16%);
+  background: #ddd7ca;
+  box-shadow: 0 22px 55px rgb(31 29 22 / 14%);
+}
+
+.bridgeTrack img,
+.bridgeFilm img {
+  object-fit: cover;
+  object-position: top center;
+}
+
+.bridgeTrack figcaption {
+  position: absolute;
+  top: 0.8rem;
+  left: 0.8rem;
+  z-index: 2;
+  padding: 0.35rem 0.48rem;
+  color: var(--paper);
+  background: var(--ink);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.62rem;
+}
+
+.caseBridge {
+  background-color: var(--paper-deep);
+}
+
+.lensBridge {
+  color: var(--paper);
+  background: var(--ink);
+}
+
+.lensBridge::after {
+  background: linear-gradient(180deg, var(--ink) 0, transparent 24%, transparent 76%, var(--ink) 100%);
+}
+
+.lensBridge > span {
+  color: rgb(241 238 229 / 62%);
+}
+
+.bridgeFilm {
+  inset-block-start: 24%;
+}
+
+.bridgeFilm figure {
+  flex-basis: clamp(13rem, 21vw, 27rem);
+  filter: grayscale(1) contrast(1.08);
+}
+
+.playBridge {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.playBridge img {
+  position: absolute;
+  z-index: 1;
+  object-fit: cover;
+  box-shadow: 0 18px 44px rgb(31 29 22 / 16%);
+}
+
+.playBridge img:nth-child(1) {
+  left: 12%;
+  top: 18%;
+  width: min(28vw, 360px);
+  height: auto;
+  --scatter-transform: rotate(-8deg) translateY(0) scale(1);
+  transform: rotate(-8deg);
+}
+
+.playBridge img:nth-child(2) {
+  right: 14%;
+  top: 22%;
+  width: min(30vw, 390px);
+  height: auto;
+  --scatter-transform: rotate(6deg) translateY(0) scale(1);
+  transform: rotate(6deg);
+}
+
+.playBridge img:nth-child(3) {
+  top: 32%;
+  left: 50%;
+  width: min(18vw, 190px);
+  height: auto;
+  --scatter-transform: translateX(-50%) rotate(3deg) scale(1);
+  transform: translateX(-50%) rotate(3deg);
+  box-shadow: none;
+}
+
+.noteBridge {
+  background: var(--paper-deep);
+}
+
+.noteBridge blockquote {
+  position: absolute;
+  z-index: 1;
+  top: calc(12% + (var(--i) * 6%));
+  left: calc(8% + (var(--i) * 12%));
+  width: min(18rem, 30vw);
+  margin: 0;
+  padding: 1.25rem;
+  background: #f8f5ed;
+  box-shadow: 0 16px 38px rgb(31 29 22 / 12%);
+  font-family: Georgia, serif;
+  font-size: clamp(0.9rem, 1.1vw, 1.15rem);
+  font-style: italic;
+  line-height: 1.4;
+  transform: rotate(calc(-5deg + (var(--i) * 2deg)));
 }
 
 .scrollCue {
@@ -1491,13 +1680,13 @@
   }
 
   .poster {
-    min-height: min(78vh, 700px);
+    min-height: min(84vh, 740px);
     background:
       linear-gradient(90deg, var(--moss) 0 7%, transparent 7% 92%, var(--sky) 92%);
   }
 
   .posterType {
-    inset: 5.5rem -4vw auto -4vw;
+    inset: 1rem -4vw auto -4vw;
     height: 66%;
     grid-template-rows: 32% 68%;
     font-size: clamp(7rem, 34vw, 18rem);
@@ -1526,6 +1715,29 @@
   .posterMicrogrid {
     right: 10%;
     bottom: 18%;
+  }
+
+  .scrollBridge {
+    height: clamp(18rem, 42vh, 28rem);
+  }
+
+  .bridgeTrack,
+  .bridgeFilm {
+    inset-inline: -36%;
+  }
+
+  .playBridge img:nth-child(1),
+  .playBridge img:nth-child(2) {
+    width: min(46vw, 260px);
+  }
+
+  .playBridge img:nth-child(3) {
+    width: min(28vw, 150px);
+  }
+
+  .noteBridge blockquote {
+    width: min(16rem, 48vw);
+    left: calc(4% + (var(--i) * 9%));
   }
 
   .scrollCue {
@@ -1644,16 +1856,17 @@
   }
 
   .poster {
-    min-height: min(78vh, 640px);
+    min-height: min(84vh, 690px);
   }
 
   .posterType {
-    top: 5rem;
+    top: 1.1rem;
     font-size: 35vw;
   }
 
   .posterIntro {
     left: 13%;
+    bottom: 17%;
   }
 
   .posterIntro .introChinese {
@@ -1676,6 +1889,34 @@
 
   .fragments {
     padding-top: 4.5rem;
+  }
+
+  .motionRibbon {
+    font-size: 0.55rem;
+  }
+
+  .motionRibbon span {
+    min-width: 16rem;
+    padding-inline: 1.6rem;
+  }
+
+  .scrollBridge {
+    height: 22rem;
+  }
+
+  .bridgeTrack figure,
+  .bridgeFilm figure {
+    flex-basis: 17rem;
+  }
+
+  .scrollBridge > span {
+    left: 1.25rem;
+    bottom: 1.4rem;
+  }
+
+  .noteBridge blockquote {
+    width: min(14rem, 62vw);
+    font-size: 0.86rem;
   }
 
   .fragmentsIntro h1 {
@@ -1791,6 +2032,10 @@
   .motionRibbon > div {
     animation: none;
   }
+
+  .motionRibbon::before {
+    animation: none;
+  }
 }
 
 @supports (animation-timeline: view()) {
@@ -1810,10 +2055,35 @@
   .projectWall,
   .filmViewport,
   .playgroundField,
-  .openBook {
+  .openBook,
+  .scrollBridge::before {
     animation: materialReveal both;
     animation-timeline: view();
     animation-range: entry 12% cover 42%;
+  }
+
+  .bridgeTrack {
+    animation: bridgeTrackDrift both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 80%;
+  }
+
+  .bridgeFilm {
+    animation: filmDevelop both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 72%;
+  }
+
+  .playBridge img {
+    animation: objectScatter both;
+    animation-timeline: view();
+    animation-range: entry 8% cover 68%;
+  }
+
+  .noteBridge blockquote {
+    animation: noteGather both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 78%;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -1828,7 +2098,12 @@
     .projectWall,
     .filmViewport,
     .playgroundField,
-    .openBook {
+    .openBook,
+    .scrollBridge::before,
+    .bridgeTrack,
+    .bridgeFilm,
+    .playBridge img,
+    .noteBridge blockquote {
       animation: none;
     }
   }
@@ -1864,5 +2139,62 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+@keyframes beltPulse {
+  from {
+    transform: translateX(-120%);
+  }
+  48%,
+  62% {
+    transform: translateX(240%);
+  }
+  to {
+    transform: translateX(720%);
+  }
+}
+
+@keyframes bridgeTrackDrift {
+  from {
+    transform: translateX(12%) rotate(-1.5deg);
+  }
+  to {
+    transform: translateX(-18%) rotate(1deg);
+  }
+}
+
+@keyframes filmDevelop {
+  from {
+    opacity: 0.32;
+    filter: grayscale(1) contrast(1.25);
+    transform: translateX(-8%);
+  }
+  to {
+    opacity: 1;
+    filter: grayscale(0.15) contrast(1.04);
+    transform: translateX(-28%);
+  }
+}
+
+@keyframes objectScatter {
+  from {
+    opacity: 0.45;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: var(--scatter-transform, translate(-50%, 0) rotate(0deg) scale(1));
+  }
+}
+
+@keyframes noteGather {
+  from {
+    opacity: 0;
+    transform: translateY(5rem) rotate(0deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(calc(-5deg + (var(--i) * 2deg))) scale(1);
   }
 }
