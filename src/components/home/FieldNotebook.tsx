@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import {
   motion,
+  MotionConfig,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -54,6 +55,12 @@ const COPY = {
       kicker: "Experiments",
       title: "实验现场",
       copy: "想法的展墙，视觉的实验场。每一件都从真实的问题开始。",
+      notes: [
+        "让一次相遇，从真实校园里发生。",
+        "为创作者搭一座可以漫游的入口。",
+        "让研究更宽，也让噪声更少。",
+        "从食物出发，摸到看不见的反应。",
+      ],
     },
     lens: {
       title: "镜头记录",
@@ -82,6 +89,7 @@ const COPY = {
       pre: "总还能再做一件\n真正有用的东西。",
       title: "让我们留下\n一点好痕迹。",
       back: "回到海报",
+      caption: "澳门，2026 / 屏幕外见。",
     },
   },
   "繁": {
@@ -109,6 +117,12 @@ const COPY = {
       kicker: "Experiments",
       title: "實驗現場",
       copy: "想法的展牆，視覺的實驗場。每一件都從真實的問題開始。",
+      notes: [
+        "讓一次相遇，從真實校園裡發生。",
+        "為創作者搭一座可以漫遊的入口。",
+        "讓研究更寬，也讓噪聲更少。",
+        "從食物出發，摸到看不見的反應。",
+      ],
     },
     lens: {
       title: "鏡頭記錄",
@@ -137,6 +151,7 @@ const COPY = {
       pre: "總還能再做一件\n真正有用的東西。",
       title: "讓我們留下\n一點好痕跡。",
       back: "回到海報",
+      caption: "澳門，2026 / 屏幕外見。",
     },
   },
   EN: {
@@ -164,6 +179,12 @@ const COPY = {
       kicker: "Experiments",
       title: "The making wall",
       copy: "A wall of ideas and a field of visual tests. Each one begins with a real question.",
+      notes: [
+        "Let one real meeting begin on campus.",
+        "A place for creators to wander into.",
+        "Wider research, with less noise.",
+        "Start with food and touch an invisible reaction.",
+      ],
     },
     lens: {
       title: "Through the lens",
@@ -192,6 +213,7 @@ const COPY = {
       pre: "There is always room for\none more useful thing.",
       title: "Let's leave\na good trace.",
       back: "Back to poster",
+      caption: "Macau, 2026 / See you outside the screen.",
     },
   },
 } as const;
@@ -231,7 +253,6 @@ const experiments = [
     src: `${B}/images/njumatch.png`,
     href: "https://njumatch.com",
     tags: "Campus product / Full-stack",
-    note: "让一次相遇，从真实校园里发生。",
     className: styles.projectNju,
   },
   {
@@ -241,7 +262,6 @@ const experiments = [
     src: `${B}/images/fimel.png`,
     href: "https://treehey.github.io/Fimel/",
     tags: "Minecraft / Creative web",
-    note: "为创作者搭一座可以漫游的入口。",
     className: styles.projectFimel,
   },
   {
@@ -251,7 +271,6 @@ const experiments = [
     src: `${B}/images/wide-research.png`,
     href: "https://finai.org.cn",
     tags: "AI / Information design",
-    note: "让研究更宽，也让噪声更少。",
     className: styles.projectWide,
   },
   {
@@ -261,7 +280,6 @@ const experiments = [
     src: `${B}/images/enzyme.png`,
     href: "https://treehey.github.io/Enzyme/",
     tags: "Science / Interactive web",
-    note: "从食物出发，摸到看不见的反应。",
     className: styles.projectEnzyme,
   },
 ] as const;
@@ -417,12 +435,13 @@ export default function FieldNotebook() {
   };
 
   const copyEmail = async () => {
-    await navigator.clipboard.writeText("hey@treehey.com");
+    await navigator.clipboard.writeText("123kevinlio@gmail.com");
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1600);
   };
 
   return (
+    <MotionConfig reducedMotion="user">
     <main className={styles.site}>
       <header className={styles.header}>
         <a className={styles.brand} href="#poster" onClick={closeMenu}>
@@ -625,7 +644,7 @@ export default function FieldNotebook() {
                 </div>
                 <div className={styles.projectCaption}>
                   <span>{project.tags}</span>
-                  <p>{project.note}</p>
+                  <p>{t.experiments.notes[index]}</p>
                 </div>
               </a>
             </motion.article>
@@ -870,10 +889,18 @@ export default function FieldNotebook() {
             <p>{t.last.pre.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</p>
             <h2>{t.last.title.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</h2>
             <div className={styles.emailRow}>
-              <a href="mailto:hey@treehey.com">hey@treehey.com</a>
+              <a href="mailto:123kevinlio@gmail.com">123kevinlio@gmail.com</a>
               <button type="button" onClick={copyEmail} aria-label="Copy email address">
                 {copied ? <Check /> : <Copy />}
               </button>
+            </div>
+            <div className={styles.socialRow}>
+              <a href="https://github.com/treehey" target="_blank" rel="noreferrer">
+                GitHub <ArrowUpRight aria-hidden="true" />
+              </a>
+              <a href="https://www.instagram.com/tree_hey/" target="_blank" rel="noreferrer">
+                Instagram <ArrowUpRight aria-hidden="true" />
+              </a>
             </div>
           </div>
           <motion.figure
@@ -889,7 +916,7 @@ export default function FieldNotebook() {
               fill
               sizes="(max-width: 760px) 92vw, 52vw"
             />
-            <figcaption>Macau, 2026 / See you outside the screen.</figcaption>
+            <figcaption>{t.last.caption}</figcaption>
           </motion.figure>
         </div>
         <div className={styles.footerLine}>
@@ -898,5 +925,6 @@ export default function FieldNotebook() {
         </div>
       </footer>
     </main>
+    </MotionConfig>
   );
 }
