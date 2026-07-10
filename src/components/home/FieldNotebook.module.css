@@ -1640,13 +1640,59 @@
   position: relative;
   min-height: 100svh;
   overflow: hidden;
-  color: var(--ink);
-  background: var(--paper-deep);
+  color: var(--paper);
+  background: #0f1110;
+}
+
+.noteGateWorld {
+  position: absolute;
+  z-index: 0;
+  inset: -9%;
+  overflow: hidden;
+  background: #0f1110;
+}
+
+.noteGateWorld::after {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  background: rgb(7 10 9 / 58%);
+  content: "";
+  pointer-events: none;
+}
+
+.noteGateWorld img {
+  object-fit: cover;
+  filter: saturate(0.58) contrast(1.18) brightness(0.62);
+  will-change: transform, opacity;
+}
+
+.noteGateWorldFar {
+  z-index: 0;
+}
+
+.noteGateWorldMid {
+  z-index: 1;
+}
+
+.noteGateWorldNear {
+  z-index: 2;
+}
+
+.noteGateDepthGrid {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background-image:
+    linear-gradient(rgb(244 241 231 / 8%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(244 241 231 / 8%) 1px, transparent 1px);
+  background-size: 12.5vw 18vh;
+  opacity: 0.32;
 }
 
 .noteGateSource {
   position: absolute;
-  z-index: 1;
+  z-index: 3;
   inset: 0;
 }
 
@@ -1671,25 +1717,48 @@
   aspect-ratio: 16 / 10;
 }
 
-.noteGateSource figure:nth-child(3) {
-  right: 31%;
-  bottom: 2%;
-  width: min(21vw, 16rem);
-  aspect-ratio: 1;
-  box-shadow: none;
-}
-
 .noteGateSource img {
   object-fit: cover;
 }
 
-.noteGateSource figure:nth-child(3) img {
+.noteTearCanvas {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.noteGateReveal {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  overflow: hidden;
+  clip-path: polygon(0 110%, 100% 110%, 100% 100%, 0 100%);
+  will-change: clip-path;
+}
+
+.noteGateCarry {
+  position: absolute;
+  z-index: 2;
+  right: 8%;
+  bottom: -4%;
+  width: min(16vw, 13rem);
+  aspect-ratio: 1;
+  margin: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 22px 28px rgb(31 29 22 / 18%));
+  will-change: transform, opacity;
+}
+
+.noteGateCarry img {
   object-fit: contain;
 }
 
 .noteGateWall {
   position: absolute;
-  z-index: 3;
+  z-index: 1;
   inset: clamp(5rem, 10vh, 8rem) clamp(2rem, 8vw, 8rem);
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1705,7 +1774,30 @@
   padding: clamp(1rem, 1.8vw, 1.8rem);
   overflow: hidden;
   background: color-mix(in srgb, var(--note-color, #f8f5ed) 34%, var(--paper));
-  box-shadow: 0 18px 38px rgb(31 29 22 / 13%);
+  color: var(--ink);
+  box-shadow: 0 18px 38px rgb(0 0 0 / 28%);
+}
+
+.noteGateCaption {
+  position: absolute;
+  z-index: 2;
+  bottom: 7%;
+  left: 3.5%;
+  display: grid;
+  gap: 0.28rem;
+  width: min(15rem, 24vw);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.62rem;
+  line-height: 1.2;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 55%);
+  text-transform: uppercase;
+  will-change: transform, opacity;
+}
+
+.noteGateCaption strong {
+  margin-bottom: 0.5rem;
+  color: var(--tomato);
+  font-weight: 500;
 }
 
 .noteGateWall blockquote:nth-child(3),
@@ -1737,7 +1829,7 @@
 
 .noteGateLabel {
   position: absolute;
-  z-index: 4;
+  z-index: 5;
   right: 2.5rem;
   bottom: 1.6rem;
   font-family: var(--font-mono), monospace;
@@ -1747,7 +1839,8 @@
 
 .guestbook {
   padding: clamp(5rem, 8vw, 8rem) clamp(1.25rem, 4vw, 4rem);
-  background: var(--paper-deep);
+  color: var(--paper);
+  background: #0f1110;
 }
 
 .guestbookHeading {
@@ -1788,6 +1881,7 @@
   min-height: 13rem;
   padding: 1.35rem;
   overflow: hidden;
+  color: var(--ink);
   background: color-mix(in srgb, var(--note-color, #f8f5ed) 32%, #f8f5ed);
   border: 1px solid rgb(17 18 16 / 12%);
   box-shadow: 0 12px 25px rgb(31 29 22 / 9%);
@@ -2339,7 +2433,48 @@
   }
 
   .noteGate {
+    display: block;
+    min-height: 90svh;
+    background-size: 24px 24px;
+  }
+
+  .noteGateSource figure:nth-child(1) {
+    top: 8%;
+    left: -10%;
+    width: min(72vw, 32rem);
+  }
+
+  .noteGateSource figure:nth-child(2) {
+    top: 22%;
+    right: -24%;
+    width: min(78vw, 34rem);
+  }
+
+  .noteGateCarry {
+    right: 2%;
+    bottom: 1%;
+    width: min(38vw, 12rem);
+  }
+
+  .noteGateWall {
+    inset: 2.5rem 1rem 3.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(9rem, 1fr);
+    gap: 0.7rem;
+  }
+
+  .noteGateWall blockquote:nth-child(3),
+  .noteGateWall blockquote:nth-child(6) {
+    grid-column: auto;
+  }
+
+  .noteGateWall blockquote:nth-child(n + 5) {
     display: none;
+  }
+
+  .noteGateLabel {
+    right: 1rem;
+    bottom: 1.2rem;
   }
 
   .guestbookWall {
@@ -2567,9 +2702,19 @@
 
   .projectIndex,
   .projectCounter,
-  .filmGate,
-  .noteGate {
+  .filmGate {
     display: none;
+  }
+
+  .noteGate {
+    min-height: 88svh;
+  }
+
+  .noteGateCaption {
+    bottom: 4%;
+    left: 1rem;
+    width: 8.5rem;
+    font-size: 0.48rem;
   }
 }
 

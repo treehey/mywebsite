@@ -360,6 +360,258 @@ const fallbackEntries: GuestEntry[] = [
   },
 ];
 
+type TearRenderer = {
+  render: (progress: number) => void;
+  destroy: () => void;
+};
+
+const tearNoise = (value: number) =>
+  Math.abs(Math.sin(value * 12.9898 + 78.233) * 43758.5453) % 1;
+
+function createTearRenderer(
+  canvas: HTMLCanvasElement,
+  revealLayer: HTMLElement,
+): TearRenderer {
+  const context = canvas.getContext("2d");
+  let targetProgress = 0;
+  let currentProgress = 0;
+  let scrollEnergy = 0;
+  let lastFrame = performance.now();
+  let frameId = 0;
+  let isVisible = false;
+  let texture: HTMLCanvasElement | null = null;
+
+  const buildTexture = () => {
+    const nextTexture = document.createElement("canvas");
+    nextTexture.width = 320;
+    nextTexture.height = 320;
+    const textureContext = nextTexture.getContext("2d");
+    if (!textureContext) return nextTexture;
+
+    textureContext.fillStyle = "#e8e3d8";
+    textureContext.fillRect(0, 0, 320, 320);
+
+    for (let index = 0; index < 1100; index += 1) {
+      const x = tearNoise(index * 3.11) * 320;
+      const y = tearNoise(index * 7.37 + 11) * 320;
+      const alpha = 0.018 + tearNoise(index * 4.91) * 0.045;
+      textureContext.fillStyle =
+        index % 3 === 0
+          ? `rgba(255,255,255,${alpha})`
+          : `rgba(36,34,28,${alpha})`;
+      textureContext.fillRect(x, y, 0.5 + tearNoise(index) * 1.4, 0.5);
+    }
+
+    textureContext.strokeStyle = "rgba(255,255,255,0.09)";
+    textureContext.lineWidth = 0.6;
+    for (let index = 0; index < 75; index += 1) {
+      const x = tearNoise(index * 8.41) * 320;
+      const y = tearNoise(index * 5.27 + 3) * 320;
+      textureContext.beginPath();
+      textureContext.moveTo(x, y);
+      textureContext.lineTo(x + 9 + tearNoise(index) * 15, y + 1.5);
+      textureContext.stroke();
+    }
+
+    return nextTexture;
+  };
+
+  const draw = (time: number) => {
+    if (!context) return;
+    const deltaTime = Math.min(40, Math.max(1, time - lastFrame));
+    lastFrame = time;
+    currentProgress += (targetProgress - currentProgress) * Math.min(1, deltaTime * 0.018);
+    scrollEnergy *= Math.pow(0.92, deltaTime / 16.67);
+
+    const rect = canvas.getBoundingClientRect();
+    const width = Math.max(1, rect.width);
+    const height = Math.max(1, rect.height);
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const targetWidth = Math.round(width * pixelRatio);
+    const targetHeight = Math.round(height * pixelRatio);
+
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      texture = buildTexture();
+    }
+
+    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    context.clearRect(0, 0, width, height);
+
+    const eased = currentProgress * currentProgress * (3 - 2 * currentProgress);
+    const baseY = height + 90 - eased * (height + 180);
+    const segmentCount = Math.max(100, Math.round(width / 10));
+    const points: Array<{ x: number; y: number }> = [];
+    const drift = time * 0.00018;
+    const motionAmplitude = 1 + Math.min(1, scrollEnergy) * 1.25;
+
+    for (let index = 0; index <= segmentCount; index += 1) {
+      const ratio = index / segmentCount;
+      const x = ratio * width;
+      const broadWave =
+        Math.sin(ratio * Math.PI * 3.7 + 0.8 + drift) * 21 +
+        Math.sin(ratio * Math.PI * 7.6 - drift * 0.72) * 10;
+      const liveRipple =
+        Math.sin(ratio * Math.PI * 14.5 + drift * 2.8) *
+        (2.8 + scrollEnergy * 8);
+      const deckle =
+        (tearNoise(index * 1.73) - 0.5) * 7 +
+        (tearNoise(index * 4.37 + Math.floor(time / 180)) - 0.5) *
+          1.8 *
+          motionAmplitude;
+      points.push({ x, y: baseY + broadWave + liveRipple + deckle });
+    }
+
+    const paperPath = new Path2D();
+    paperPath.moveTo(0, -2);
+    paperPath.lineTo(width, -2);
+    paperPath.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+    points
+      .slice()
+      .reverse()
+      .forEach((point) => paperPath.lineTo(point.x, point.y));
+    paperPath.closePath();
+
+    context.save();
+    context.shadowColor = `rgba(24,22,18,${0.16 + Math.min(0.1, scrollEnergy * 0.08)})`;
+    context.shadowBlur = 30 + Math.min(18, scrollEnergy * 14);
+    context.shadowOffsetY = 10;
+    context.fillStyle = "#e8e3d8";
+    context.fill(paperPath);
+    context.restore();
+
+    context.save();
+    context.clip(paperPath);
+    const pattern = texture ? context.createPattern(texture, "repeat") : null;
+    context.fillStyle = pattern ?? "#e8e3d8";
+    context.fillRect(0, -120, width, Math.min(height + 240, baseY + 240));
+    context.restore();
+
+    const edgePath = new Path2D();
+    edgePath.moveTo(points[0].x, points[0].y);
+    points.slice(1).forEach((point) => edgePath.lineTo(point.x, point.y));
+
+    context.save();
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.strokeStyle = "rgba(249,247,239,0.78)";
+    context.lineWidth = 4.5;
+    context.stroke(edgePath);
+    context.strokeStyle = "rgba(63,58,48,0.12)";
+    context.lineWidth = 0.8;
+    context.stroke(edgePath);
+
+    points.forEach((point, index) => {
+      const strandCount =
+        tearNoise(index * 9.7) > 0.34
+          ? 1 + Math.floor(tearNoise(index * 3.9) * 3)
+          : 0;
+      for (let strand = 0; strand < strandCount; strand += 1) {
+        const seed = index * 8.3 + strand * 19.1;
+        const tremor = Math.sin(time * 0.0022 + seed) * (0.8 + scrollEnergy * 2.4);
+        const offsetX = (tearNoise(seed * 0.53) - 0.5) * 13;
+        const direction = tearNoise(seed * 1.31) > 0.28 ? -1 : 1;
+        const length = (2 + tearNoise(seed * 0.87) * 15) * direction;
+        context.beginPath();
+        context.moveTo(point.x + offsetX, point.y + tremor);
+        context.quadraticCurveTo(
+          point.x + offsetX + (tearNoise(seed * 1.7) - 0.5) * 8,
+          point.y + length * 0.48,
+          point.x + offsetX + (tearNoise(seed * 2.3) - 0.5) * 10,
+          point.y + length,
+        );
+        context.strokeStyle = `rgba(248,246,238,${
+          0.2 + tearNoise(seed * 3.1) * 0.58
+        })`;
+        context.lineWidth = 0.35 + tearNoise(seed * 4.1) * 1.05;
+        context.stroke();
+      }
+
+      const dustCount = 1 + (index % 3 === 0 ? 2 : 0);
+      for (let dust = 0; dust < dustCount; dust += 1) {
+        const dustSeed =
+          index * 11.1 + dust * 29.7 + Math.floor(time / 95) * 0.17;
+        const dustX = point.x + (tearNoise(dustSeed) - 0.5) * 38;
+        const dustY =
+          point.y +
+          (tearNoise(dustSeed * 1.19) - 0.56) *
+            (26 + Math.min(24, scrollEnergy * 20));
+        const radius = 0.3 + tearNoise(dustSeed * 1.57) * 1.65;
+        context.beginPath();
+        context.ellipse(
+          dustX,
+          dustY,
+          radius * (0.75 + tearNoise(dustSeed * 2.19)),
+          radius,
+          tearNoise(dustSeed * 2.83) * Math.PI,
+          0,
+          Math.PI * 2,
+        );
+        context.fillStyle = `rgba(246,243,233,${
+          0.14 + tearNoise(dustSeed * 1.73) * 0.5
+        })`;
+        context.fill();
+      }
+    });
+    context.restore();
+
+    const revealRect = revealLayer.getBoundingClientRect();
+    const revealOffsetX = rect.left - revealRect.left;
+    const revealOffsetY = rect.top - revealRect.top;
+    const polygon = [
+      ...points.map(
+        (point) =>
+          `${(point.x + revealOffsetX).toFixed(1)}px ${(point.y + revealOffsetY).toFixed(1)}px`,
+      ),
+      `${(width + revealOffsetX).toFixed(1)}px ${revealLayer.offsetHeight + 2}px`,
+      `${revealOffsetX.toFixed(1)}px ${revealLayer.offsetHeight + 2}px`,
+    ].join(", ");
+    revealLayer.style.clipPath = `polygon(${polygon})`;
+    revealLayer.style.setProperty("--tear-progress", currentProgress.toFixed(3));
+  };
+
+  const tick = (time: number) => {
+    if (isVisible) draw(time);
+    frameId = window.requestAnimationFrame(tick);
+  };
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) draw(performance.now());
+    },
+    { rootMargin: "20% 0px" },
+  );
+  const render = (progress: number) => {
+    const nextProgress = gsap.utils.clamp(0, 1, progress);
+    scrollEnergy = Math.min(
+      1.6,
+      scrollEnergy + Math.abs(nextProgress - targetProgress) * 20,
+    );
+    targetProgress = nextProgress;
+    if (!isVisible) {
+      currentProgress = nextProgress;
+      draw(performance.now());
+    }
+  };
+  const handleResize = () => draw(performance.now());
+  window.addEventListener("resize", handleResize);
+  observer.observe(canvas);
+  frameId = window.requestAnimationFrame(tick);
+  render(0);
+
+  return {
+    render,
+    destroy: () => {
+      window.removeEventListener("resize", handleResize);
+      window.cancelAnimationFrame(frameId);
+      observer.disconnect();
+      revealLayer.style.removeProperty("clip-path");
+      revealLayer.style.removeProperty("--tear-progress");
+    },
+  };
+}
+
 function SectionLabel({
   index,
   en,
@@ -419,13 +671,29 @@ export default function FieldNotebook() {
 
     gsap.registerPlugin(ScrollTrigger);
     const media = gsap.matchMedia();
+    let tearRenderer: TearRenderer | null = null;
     const ctx = gsap.context(() => {
+      const noteGateScene = siteRef.current?.querySelector<HTMLElement>(
+        `.${styles.noteGate}`,
+      );
+      const noteTearCanvas = noteGateScene?.querySelector<HTMLCanvasElement>(
+        `.${styles.noteTearCanvas}`,
+      );
+      const noteTearReveal = noteGateScene?.querySelector<HTMLElement>(
+        `.${styles.noteGateReveal}`,
+      );
+      const tearState = { progress: 0 };
+
+      if (noteTearCanvas && noteTearReveal) {
+        tearRenderer = createTearRenderer(noteTearCanvas, noteTearReveal);
+      }
+
       const heroTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: `.${styles.poster}`,
           start: "top top",
           end: "+=140%",
-          scrub: 1,
+          scrub: 1.1,
           pin: true,
           pinSpacing: true,
           anticipatePin: 1,
@@ -536,7 +804,7 @@ export default function FieldNotebook() {
             trigger: fragmentScene,
             start: "top top",
             end: "+=230%",
-            scrub: 1,
+            scrub: 1.1,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
@@ -630,12 +898,11 @@ export default function FieldNotebook() {
             trigger: experimentsScene,
             start: "top top",
             end: "+=410%",
-            scrub: 1,
+            scrub: 1.15,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            fastScrollEnd: true,
             onUpdate: (self) => {
               const index = Math.min(
                 projectScenes.length - 1,
@@ -765,12 +1032,11 @@ export default function FieldNotebook() {
             trigger: lensScene,
             start: "top top",
             end: "+=250%",
-            scrub: 1,
+            scrub: 1.15,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
             invalidateOnRefresh: true,
-            fastScrollEnd: true,
           },
         });
 
@@ -858,18 +1124,32 @@ export default function FieldNotebook() {
           );
         }
 
-        const noteGate = siteRef.current?.querySelector<HTMLElement>(`.${styles.noteGate}`);
-        if (!noteGate) return;
-        const noteSources = noteGate.querySelectorAll(`.${styles.noteGateSource} figure`);
-        const noteCards = noteGate.querySelectorAll(`.${styles.noteGateWall} blockquote`);
-        const noteGateLabel = noteGate.querySelector(`.${styles.noteGateLabel}`);
+        if (!noteGateScene || !tearRenderer) return;
+        const noteSources = noteGateScene.querySelectorAll(
+          `.${styles.noteGateSource} figure`,
+        );
+        const noteCards = noteGateScene.querySelectorAll(
+          `.${styles.noteGateWall} blockquote`,
+        );
+        const noteGateCarry = noteGateScene.querySelector(`.${styles.noteGateCarry}`);
+        const noteGateLabel = noteGateScene.querySelector(`.${styles.noteGateLabel}`);
+        const noteGateWorldFar = noteGateScene.querySelector(
+          `.${styles.noteGateWorldFar}`,
+        );
+        const noteGateWorldMid = noteGateScene.querySelector(
+          `.${styles.noteGateWorldMid}`,
+        );
+        const noteGateWorldNear = noteGateScene.querySelector(
+          `.${styles.noteGateWorldNear}`,
+        );
+        const noteGateCaption = noteGateScene.querySelector(`.${styles.noteGateCaption}`);
 
         const noteTimeline = gsap.timeline({
           scrollTrigger: {
-            trigger: noteGate,
+            trigger: noteGateScene,
             start: "top top",
-            end: "+=185%",
-            scrub: 1,
+            end: "+=205%",
+            scrub: 1.2,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
@@ -878,57 +1158,165 @@ export default function FieldNotebook() {
         });
 
         noteTimeline
-          .fromTo(
+          .to(
+            tearState,
+            {
+              progress: 1,
+              ease: "none",
+              duration: 1.08,
+              onUpdate: () => tearRenderer?.render(tearState.progress),
+            },
+            0,
+          )
+          .to(
             noteSources,
             {
-              scale: 1.08,
-              rotate: (index) => [-5, 4, -2][index] ?? 0,
-              clipPath: "inset(0% 0% 0% 0%)",
-              opacity: 1,
-            },
-            {
-              scale: 0.72,
-              rotate: (index) => [-12, 10, -8][index] ?? 0,
-              clipPath: "inset(44% 0% 44% 0%)",
-              opacity: 0.12,
+              y: (index) => (index % 2 === 0 ? -72 : -42),
+              x: (index) => (index % 2 === 0 ? -36 : 46),
+              scale: 0.9,
+              rotate: (index) => (index % 2 === 0 ? -7 : 6),
+              opacity: 0.22,
               stagger: 0.05,
               ease: "none",
-              duration: 0.62,
+              duration: 0.82,
             },
             0,
           )
           .fromTo(
-            noteCards,
+            noteGateWorldFar,
+            { yPercent: -2, scale: 1.13, opacity: 0.46 },
             {
-              x: (index) => (index % 2 === 0 ? -120 : 120),
-              y: (index) => (index % 3 === 0 ? 160 : -130),
-              scale: 0.55,
-              rotate: (index) => (index % 2 === 0 ? -14 : 12),
-              opacity: 0,
+              yPercent: 3,
+              scale: 1.07,
+              opacity: 0.3,
+              ease: "none",
+              duration: 1.08,
+            },
+            0,
+          )
+          .fromTo(
+            noteGateWorldMid,
+            { yPercent: -7, scale: 1.12, opacity: 0.72 },
+            {
+              yPercent: 9,
+              scale: 1.02,
+              opacity: 0.48,
+              ease: "none",
+              duration: 1.08,
+            },
+            0,
+          )
+          .fromTo(
+            noteGateWorldNear,
+            {
+              xPercent: -2,
+              yPercent: -10,
+              scale: 1.08,
+              opacity: 0.88,
             },
             {
-              x: 0,
+              xPercent: 2,
+              yPercent: 12,
+              scale: 1.01,
+              opacity: 0.62,
+              ease: "none",
+              duration: 1.08,
+            },
+            0,
+          )
+          .fromTo(
+            noteGateCaption,
+            { y: 90, opacity: 0 },
+            { y: -30, opacity: 1, ease: "none", duration: 0.78 },
+            0.18,
+          )
+          .fromTo(
+            noteCards,
+            {
+              y: 48,
+              scale: 0.94,
+              rotate: (index) => (index % 2 === 0 ? -5 : 4),
+              opacity: 0.28,
+            },
+            {
               y: 0,
               scale: 1,
               rotate: (index) => [-2, 1.5, -1, 2, -1.5, 1, -2.2, 1.8][index] ?? 0,
               opacity: 1,
-              stagger: 0.045,
+              stagger: 0.035,
               ease: "none",
-              duration: 0.72,
+              duration: 0.68,
             },
-            0.18,
+            0.2,
           )
           .fromTo(
             noteGateLabel,
             { y: 30, opacity: 0 },
             { y: 0, opacity: 1, ease: "none", duration: 0.28 },
-            0.68,
+            0.58,
           )
           .to(
             noteGateLabel,
             { y: -18, opacity: 0, ease: "none", duration: 0.18 },
-            0.9,
+            0.91,
           );
+
+        if (noteGateCarry) {
+          noteTimeline
+            .fromTo(
+              noteGateCarry,
+              { xPercent: 24, yPercent: 35, rotate: 10, scale: 0.82 },
+              {
+                xPercent: -18,
+                yPercent: -28,
+                rotate: -6,
+                scale: 1.06,
+                ease: "none",
+                duration: 0.74,
+              },
+              0.08,
+            )
+            .to(
+              noteGateCarry,
+              { yPercent: -70, rotate: -12, opacity: 0, ease: "none", duration: 0.24 },
+              0.82,
+            );
+        }
+
+        const depthLayers = [
+          noteGateWorldFar,
+          noteGateWorldMid,
+          noteGateWorldNear,
+        ].filter((layer): layer is Element => Boolean(layer));
+        const depthStrength = [7, 15, 26];
+        const depthX = depthLayers.map((layer) =>
+          gsap.quickTo(layer, "x", { duration: 0.9, ease: "power3.out" }),
+        );
+        const depthY = depthLayers.map((layer) =>
+          gsap.quickTo(layer, "y", { duration: 1.1, ease: "power3.out" }),
+        );
+        const moveDepth = (event: PointerEvent) => {
+          const bounds = noteGateScene.getBoundingClientRect();
+          const normalizedX = (event.clientX - bounds.left) / bounds.width - 0.5;
+          const normalizedY = (event.clientY - bounds.top) / bounds.height - 0.5;
+          depthLayers.forEach((_, index) => {
+            depthX[index](normalizedX * depthStrength[index]);
+            depthY[index](normalizedY * depthStrength[index] * 0.55);
+          });
+        };
+        const resetDepth = () => {
+          depthLayers.forEach((_, index) => {
+            depthX[index](0);
+            depthY[index](0);
+          });
+        };
+        noteGateScene.addEventListener("pointermove", moveDepth);
+        noteGateScene.addEventListener("pointerleave", resetDepth);
+
+        return () => {
+          noteGateScene.removeEventListener("pointermove", moveDepth);
+          noteGateScene.removeEventListener("pointerleave", resetDepth);
+        };
       });
 
       media.add("(max-width: 900px)", () => {
@@ -948,6 +1336,60 @@ export default function FieldNotebook() {
             start: "top 72%",
           },
         });
+
+        if (!noteGateScene || !tearRenderer) return;
+        const mobileNotes = noteGateScene.querySelectorAll(
+          `.${styles.noteGateWall} blockquote`,
+        );
+        const mobileCarry = noteGateScene.querySelector(`.${styles.noteGateCarry}`);
+        const mobileTear = { progress: 0 };
+
+        gsap.to(mobileTear, {
+          progress: 1,
+          ease: "none",
+          onUpdate: () => tearRenderer?.render(mobileTear.progress),
+          scrollTrigger: {
+            trigger: noteGateScene,
+            start: "top 88%",
+            end: "bottom 18%",
+            scrub: 0.8,
+          },
+        });
+
+        gsap.fromTo(
+          mobileNotes,
+          { y: 34, opacity: 0.35 },
+          {
+            y: 0,
+            opacity: 1,
+            stagger: 0.035,
+            ease: "none",
+            scrollTrigger: {
+              trigger: noteGateScene,
+              start: "top 78%",
+              end: "bottom 28%",
+              scrub: 0.8,
+            },
+          },
+        );
+
+        if (mobileCarry) {
+          gsap.fromTo(
+            mobileCarry,
+            { yPercent: 24, rotate: 8 },
+            {
+              yPercent: -42,
+              rotate: -7,
+              ease: "none",
+              scrollTrigger: {
+                trigger: noteGateScene,
+                start: "top 90%",
+                end: "bottom 20%",
+                scrub: 0.8,
+              },
+            },
+          );
+        }
       });
 
     }, siteRef);
@@ -958,6 +1400,7 @@ export default function FieldNotebook() {
       window.clearTimeout(refreshTimer);
       media.revert();
       ctx.revert();
+      tearRenderer?.destroy();
     };
   }, [reduceMotion]);
 
@@ -998,19 +1441,24 @@ export default function FieldNotebook() {
       const top = target.getBoundingClientRect().top + window.scrollY - 76;
       if (globalLenis) {
         globalLenis.scrollTo(top, { immediate: true });
+      } else {
+        window.scrollTo({ top, behavior: shouldReduceMotion ? "auto" : "smooth" });
       }
-      window.scrollTo({ top, behavior: shouldReduceMotion ? "auto" : "smooth" });
     };
 
-    const frame = window.requestAnimationFrame(scrollToHash);
-    const timers = [120, 420, 760, 1280, 2200].map((delay) => window.setTimeout(scrollToHash, delay));
-    window.addEventListener("hashchange", scrollToHash);
-    window.addEventListener("resize", scrollToHash);
+    const refreshAndScroll = () => {
+      ScrollTrigger.refresh();
+      window.requestAnimationFrame(scrollToHash);
+    };
+    const frame = window.requestAnimationFrame(refreshAndScroll);
+    const timers = [180, 620, 1400, 2600].map((delay) =>
+      window.setTimeout(refreshAndScroll, delay),
+    );
+    window.addEventListener("hashchange", refreshAndScroll);
     return () => {
       window.cancelAnimationFrame(frame);
       timers.forEach((timer) => window.clearTimeout(timer));
-      window.removeEventListener("hashchange", scrollToHash);
-      window.removeEventListener("resize", scrollToHash);
+      window.removeEventListener("hashchange", refreshAndScroll);
     };
   }, [reduceMotion]);
 
@@ -1629,6 +2077,31 @@ export default function FieldNotebook() {
       </section>
 
       <div className={styles.noteGate} aria-hidden="true">
+        <div className={styles.noteGateWorld}>
+          <Image
+            src={`${B}/images/field-notebook-archive-far.png`}
+            alt=""
+            fill
+            sizes="100vw"
+            className={styles.noteGateWorldFar}
+          />
+          <Image
+            src={`${B}/images/field-notebook-archive-mid.png`}
+            alt=""
+            fill
+            sizes="100vw"
+            className={styles.noteGateWorldMid}
+          />
+          <Image
+            src={`${B}/images/field-notebook-archive-near.png`}
+            alt=""
+            fill
+            sizes="100vw"
+            className={styles.noteGateWorldNear}
+          />
+        </div>
+        <div className={styles.noteGateDepthGrid} />
+        <canvas className={styles.noteTearCanvas} aria-hidden="true" />
         <div className={styles.noteGateSource}>
           <figure>
             <Image src={`${B}/images/about/computer-room.jpg`} alt="" fill sizes="34vw" />
@@ -1636,22 +2109,30 @@ export default function FieldNotebook() {
           <figure>
             <Image src={`${B}/images/about/Minecraft.jfif`} alt="" fill sizes="36vw" />
           </figure>
-          <figure>
-            <Image src={`${B}/sloth_color.png`} alt="" fill sizes="24vw" />
+        </div>
+        <div className={styles.noteGateReveal}>
+          <div className={styles.noteGateCaption}>
+            <strong>TRACES / 生活痕迹</strong>
+            <span>MACAU</span>
+            <span>NANJING</span>
+            <span>BUILD · PLAY · OBSERVE</span>
+          </div>
+          <div className={styles.noteGateWall}>
+            {guestEntries.slice(0, 8).map((entry) => (
+              <blockquote
+                key={`note-gate-${entry.id}`}
+                style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
+              >
+                <p>{entry.message}</p>
+                <cite>{entry.nickname || "Anonymous"}</cite>
+              </blockquote>
+            ))}
+          </div>
+          <figure className={styles.noteGateCarry}>
+            <Image src={`${B}/sloth_color.png`} alt="" fill sizes="18vw" />
           </figure>
         </div>
-        <div className={styles.noteGateWall}>
-          {guestEntries.slice(0, 8).map((entry) => (
-            <blockquote
-              key={`note-gate-${entry.id}`}
-              style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
-            >
-              <p>{entry.message}</p>
-              <cite>{entry.nickname || "Anonymous"}</cite>
-            </blockquote>
-          ))}
-        </div>
-        <span className={styles.noteGateLabel}>05 / collected by visitors</span>
+        <span className={styles.noteGateLabel}>05 / traces become paper</span>
       </div>
 
       <section id="guestbook" className={styles.guestbook}>

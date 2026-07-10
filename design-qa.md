@@ -22,7 +22,10 @@
 - Fragments transform into the NJU project stage instead of ending at a hard section boundary.
 - Four project scenes use distinct full-screen compositions and a clickable project index.
 - Enzyme transforms into film; film develops into photography; photography scatters into Playground objects.
-- Playground objects compress into visitor notes before the Guestbook wall appears.
+- Playground tears open into a dark archive world before the Guestbook wall appears.
+- The tear contour changes continuously with time, scroll progress, and scroll velocity.
+- Far, middle, and foreground archive PNGs use independent ScrollTrigger and pointer parallax.
+- Guest notes and the sloth share the live tear mask, so content cannot appear before the paper edge reaches it.
 - Reduced-motion mode removes pinning and transition gates, then stacks all four project scenes as readable full-screen sections.
 
 ## Navigation And Locale
@@ -49,6 +52,8 @@
 - Reduced motion: `output/playwright/one-long-take/phase-07-reduced-motion.png`
 - Mobile fragments: `output/playwright/one-long-take/phase-07-mobile-fragments.png`
 - Guestbook wall: `output/playwright/one-long-take/phase-05-guestbook-wall.png`
+- Image 2 depth transition: `output/playwright/one-long-take/phase-08-image2-depth-mid.png`
+- Mobile tear transition: `output/playwright/one-long-take/phase-08-mobile-image2.png`
 - Last page: `output/playwright/one-long-take/phase-05-last-page.png`
 
 final result: passed
