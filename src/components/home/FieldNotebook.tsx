@@ -435,6 +435,38 @@ export default function FieldNotebook() {
         .to(`.${styles.redNote}`, { xPercent: 22, yPercent: 35, rotate: -10, ease: "none" }, 0)
         .to(`.${styles.posterCircle}`, { scale: 5.4, rotate: 220, opacity: 0, ease: "none" }, 0)
         .to(`.${styles.archiveTab}`, { yPercent: -65, ease: "none" }, 0)
+        .fromTo(
+          `.${styles.posterArtifacts} figure`,
+          {
+            autoAlpha: 0,
+            scale: 0.45,
+            rotate: (index) => [-8, 7, -5, 4][index] ?? 0,
+            clipPath: "inset(46% 0% 46% 0%)",
+          },
+          {
+            autoAlpha: 1,
+            scale: 1,
+            rotate: (index) => [-3, 3, -2, 2][index] ?? 0,
+            clipPath: "inset(0% 0% 0% 0%)",
+            stagger: 0.045,
+            ease: "none",
+            duration: 0.34,
+          },
+          0.18,
+        )
+        .to(
+          `.${styles.posterArtifacts} figure`,
+          {
+            x: (index) => [-150, 180, -90, 140][index] ?? 0,
+            y: (index) => [-90, 120, 150, -130][index] ?? 0,
+            scale: 1.26,
+            opacity: 0,
+            stagger: 0.035,
+            ease: "none",
+            duration: 0.32,
+          },
+          0.68,
+        )
         .to(`.${styles.posterType}`, { opacity: 0.08, ease: "none" }, 0.72);
 
       const ribbonTween = gsap.to(`.${styles.motionRibbon} > div`, {
@@ -1216,6 +1248,13 @@ export default function FieldNotebook() {
             aria-label={`Go to ${id}`}
           >
             <span>{String(index).padStart(2, "0")}</span>
+            <strong>
+              {id === "poster"
+                ? "Opening"
+                : id === "last-page"
+                  ? "Last page"
+                  : t.nav[id][0]}
+            </strong>
           </a>
         ))}
       </aside>
@@ -1227,6 +1266,21 @@ export default function FieldNotebook() {
         </div>
 
         <div className={styles.posterCircle} aria-hidden="true" />
+
+        <div className={styles.posterArtifacts} aria-hidden="true">
+          <figure>
+            <Image src={`${B}/images/about/nju.jpg`} alt="" fill sizes="18vw" />
+          </figure>
+          <figure>
+            <Image src={`${B}/images/about/Minecraft.jfif`} alt="" fill sizes="20vw" />
+          </figure>
+          <figure>
+            <Image src={`${B}/images/HK.jpg`} alt="" fill sizes="16vw" />
+          </figure>
+          <figure>
+            <Image src={`${B}/sloth_color.png`} alt="" fill sizes="12vw" />
+          </figure>
+        </div>
 
         <div className={styles.posterMicrogrid} aria-hidden="true">
           <span>Macau</span>
