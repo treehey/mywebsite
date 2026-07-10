@@ -596,7 +596,7 @@ export default function FieldNotebook() {
             id: "experiments-stage",
             trigger: experimentsScene,
             start: "top top",
-            end: "+=360%",
+            end: "+=410%",
             scrub: 1,
             pin: true,
             pinSpacing: true,
@@ -677,7 +677,153 @@ export default function FieldNotebook() {
             );
         }
 
-        experimentsTimeline.to({}, { duration: 0.7 });
+        const filmGate = experimentsScene.querySelector(`.${styles.filmGate}`);
+        const filmGateFrames = filmGate?.querySelectorAll("figure");
+        const filmGateTrack = filmGate?.querySelector(`.${styles.filmGateTrack}`);
+        const lastProject = projectScenes.at(-1);
+
+        if (filmGate && filmGateFrames && filmGateTrack && lastProject) {
+          experimentsTimeline
+            .to(
+              lastProject,
+              { scale: 0.88, opacity: 0.16, ease: "none", duration: 0.46 },
+              3.72,
+            )
+            .to(
+              filmGate,
+              { autoAlpha: 1, ease: "none", duration: 0.36 },
+              3.78,
+            )
+            .from(
+              filmGateFrames,
+              {
+                y: 120,
+                rotate: (index) => (index % 2 === 0 ? -4 : 4),
+                opacity: 0,
+                stagger: 0.06,
+                ease: "none",
+                duration: 0.42,
+              },
+              3.84,
+            )
+            .to(
+              filmGateTrack,
+              { xPercent: -9, ease: "none", duration: 0.55 },
+              4.05,
+            );
+        }
+
+        experimentsTimeline.to({}, { duration: 0.35 });
+
+        const lensScene = siteRef.current?.querySelector<HTMLElement>(`.${styles.lens}`);
+        if (!lensScene) return;
+        const filmStrip = lensScene.querySelector(`.${styles.filmStrip}`);
+        const filmFrames = gsap.utils.toArray<HTMLElement>(
+          lensScene.querySelectorAll(`.${styles.filmFrame}`),
+        );
+        const filmImages = lensScene.querySelectorAll(`.${styles.filmFrame} img`);
+        const lensIntro = lensScene.querySelector(`.${styles.lensIntro}`);
+        const lensViewport = lensScene.querySelector(`.${styles.filmViewport}`);
+        const lensPolaroid = lensScene.querySelector(`.${styles.lensPolaroid}`);
+        const playObjects = lensScene.querySelectorAll(`.${styles.lensPlayObjects} img`);
+
+        const lensTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: lensScene,
+            start: "top top",
+            end: "+=250%",
+            scrub: 1,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            fastScrollEnd: true,
+          },
+        });
+
+        lensTimeline
+          .fromTo(
+            filmStrip,
+            { xPercent: 6 },
+            { xPercent: -34, ease: "none", duration: 1 },
+            0,
+          )
+          .fromTo(
+            filmImages,
+            { filter: "grayscale(1) contrast(1.18)", opacity: 0.58 },
+            {
+              filter: "grayscale(0) contrast(1)",
+              opacity: 1,
+              stagger: 0.035,
+              ease: "none",
+              duration: 0.72,
+            },
+            0.05,
+          );
+
+        if (lensPolaroid) {
+          lensTimeline.fromTo(
+            lensPolaroid,
+            { y: 80, rotate: 9, opacity: 0 },
+            { y: 0, rotate: 4, opacity: 1, ease: "none", duration: 0.38 },
+            0.18,
+          );
+        }
+
+        lensTimeline
+          .to(
+            lensIntro,
+            { y: -68, opacity: 0, ease: "none", duration: 0.38 },
+            0.58,
+          )
+          .to(
+            filmFrames,
+            {
+              y: (index) => (index % 2 === 0 ? -80 : 95),
+              rotate: (index) => (index % 2 === 0 ? -5 : 6),
+              scale: 0.86,
+              stagger: 0.025,
+              ease: "none",
+              duration: 0.45,
+            },
+            0.62,
+          )
+          .to(
+            lensScene,
+            { backgroundColor: "#f1eee5", color: "#111210", ease: "none", duration: 0.4 },
+            0.68,
+          )
+          .to(
+            lensViewport,
+            { opacity: 0.16, scale: 0.84, ease: "none", duration: 0.42 },
+            0.7,
+          )
+          .fromTo(
+            playObjects,
+            {
+              y: 120,
+              scale: 0.72,
+              rotate: 0,
+              opacity: 0,
+            },
+            {
+              y: 0,
+              scale: 1,
+              opacity: 1,
+              stagger: 0.07,
+              ease: "none",
+              duration: 0.45,
+            },
+            0.7,
+          );
+
+        if (lensPolaroid) {
+          lensTimeline.to(
+            lensPolaroid,
+            { y: 70, rotate: -7, opacity: 0, ease: "none", duration: 0.3 },
+            0.72,
+          );
+        }
       });
 
       media.add("(max-width: 900px)", () => {
@@ -697,51 +843,6 @@ export default function FieldNotebook() {
             start: "top 72%",
           },
         });
-      });
-
-      gsap.utils.toArray<HTMLElement>(`.${styles.lensBridge}`).forEach((bridge) => {
-        const film = bridge.querySelector(`.${styles.bridgeFilm}`);
-        gsap.fromTo(
-          film,
-          { xPercent: 5, filter: "grayscale(1) contrast(1.24)", opacity: 0.45 },
-          {
-            xPercent: -34,
-            filter: "grayscale(0.15) contrast(1.04)",
-            opacity: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: bridge,
-              start: "top top",
-              end: "+=140%",
-              scrub: 1,
-              pin: true,
-              anticipatePin: 1,
-            },
-          },
-        );
-      });
-
-      gsap.utils.toArray<HTMLElement>(`.${styles.playBridge}`).forEach((bridge) => {
-        const objects = bridge.querySelectorAll("img");
-        gsap.fromTo(
-          objects,
-          { y: 90, scale: 0.72, rotate: 0, opacity: 0.36 },
-          {
-            y: 0,
-            scale: 1,
-            opacity: 1,
-            stagger: 0.08,
-            ease: "none",
-            scrollTrigger: {
-              trigger: bridge,
-              start: "top top",
-              end: "+=130%",
-              scrub: 1,
-              pin: true,
-              anticipatePin: 1,
-            },
-          },
-        );
       });
 
       gsap.utils.toArray<HTMLElement>(`.${styles.noteBridge}`).forEach((bridge) => {
@@ -1259,83 +1360,74 @@ export default function FieldNotebook() {
             <span>{experiments[activeProject].number}</span>
             <small>{experiments[activeProject].tags}</small>
           </div>
+
+          <div className={styles.filmGate} aria-hidden="true">
+            <div className={styles.filmGateTrack}>
+              {lensPhotos.map((photo) => (
+                <figure key={`film-gate-${photo.number}`}>
+                  <Image src={photo.src} alt="" fill sizes="25vw" />
+                  <figcaption>{photo.number}</figcaption>
+                </figure>
+              ))}
+            </div>
+            <span>03 / light develops into contact sheets</span>
+          </div>
         </div>
       </section>
-
-      <div className={`${styles.scrollBridge} ${styles.lensBridge}`} aria-hidden="true">
-        <div className={styles.bridgeFilm}>
-          {lensPhotos.map((photo) => (
-            <figure key={`lens-bridge-${photo.number}`}>
-              <Image src={photo.src} alt="" fill sizes="22vw" />
-            </figure>
-          ))}
-        </div>
-        <span>03 / light develops into contact sheets</span>
-      </div>
 
       <section id="lens" className={styles.lens}>
-        <div className={styles.lensIntro}>
-          <SectionLabel index="03" en={t.nav.lens[0]} zh={t.nav.lens[1]} />
-          <h2>{t.lens.title}</h2>
-          <p>{t.lens.copy}</p>
-          <a href={`${B}/images/HK.jpg`} target="_blank" className={styles.lensLink}>
-            {t.lens.link} <ArrowUpRight aria-hidden="true" />
-          </a>
-        </div>
+        <div className={styles.lensStage}>
+          <div className={styles.lensIntro}>
+            <SectionLabel index="03" en={t.nav.lens[0]} zh={t.nav.lens[1]} />
+            <h2>{t.lens.title}</h2>
+            <p>{t.lens.copy}</p>
+            <a href={`${B}/images/HK.jpg`} target="_blank" className={styles.lensLink}>
+              {t.lens.link} <ArrowUpRight aria-hidden="true" />
+            </a>
+          </div>
 
-        <div className={styles.filmViewport}>
-          <motion.div
-            className={styles.filmStrip}
-            initial={{ x: "10%" }}
-            whileInView={{ x: "-8%" }}
-            viewport={{ once: false, amount: 0.25 }}
-            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {[...lensPhotos, ...lensPhotos].map((photo, index) => (
-              <a
-                href={photo.src}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.filmFrame}
-                key={`${photo.number}-${index}`}
-              >
-                <span>{photo.number}</span>
-                <div>
-                  <Image
-                    src={photo.src}
-                    alt={`${photo.place} photography`}
-                    fill
-                    sizes="(max-width: 760px) 70vw, 24vw"
-                  />
-                </div>
-                <small>{photo.place}</small>
-              </a>
-            ))}
-          </motion.div>
-        </div>
+          <div className={styles.filmViewport}>
+            <div className={styles.filmStrip}>
+              {[...lensPhotos, ...lensPhotos].map((photo, index) => (
+                <a
+                  href={photo.src}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.filmFrame}
+                  key={`${photo.number}-${index}`}
+                >
+                  <span>{photo.number}</span>
+                  <div>
+                    <Image
+                      src={photo.src}
+                      alt={`${photo.place} photography`}
+                      fill
+                      sizes="(max-width: 760px) 70vw, 24vw"
+                    />
+                  </div>
+                  <small>{photo.place}</small>
+                </a>
+              ))}
+            </div>
+          </div>
 
-        <motion.figure
-          className={styles.lensPolaroid}
-          initial={{ opacity: 0, rotate: 9, y: 40 }}
-          whileInView={{ opacity: 1, rotate: 4, y: 0 }}
-          viewport={{ once: true }}
-        >
-          <Image
-            src={`${B}/images/3.jpg`}
-            alt="A quiet personal photograph"
-            fill
-            sizes="200px"
-          />
-          <figcaption>2026.05</figcaption>
-        </motion.figure>
+          <figure className={styles.lensPolaroid}>
+            <Image
+              src={`${B}/images/3.jpg`}
+              alt="A quiet personal photograph"
+              fill
+              sizes="200px"
+            />
+            <figcaption>2026.05</figcaption>
+          </figure>
+
+          <div className={styles.lensPlayObjects} aria-hidden="true">
+            <Image src={`${B}/images/about/computer-room.jpg`} alt="" width={420} height={300} />
+            <Image src={`${B}/images/about/Minecraft.jfif`} alt="" width={480} height={300} />
+            <Image src={`${B}/sloth_color.png`} alt="" width={210} height={210} />
+          </div>
+        </div>
       </section>
-
-      <div className={`${styles.scrollBridge} ${styles.playBridge}`} aria-hidden="true">
-        <Image src={`${B}/images/about/Minecraft.png`} alt="" width={320} height={210} />
-        <Image src={`${B}/images/about/computer-room.jpg`} alt="" width={320} height={210} />
-        <Image src={`${B}/sloth_color.png`} alt="" width={180} height={180} />
-        <span>04 / rearrange the desk</span>
-      </div>
 
       <section id="playground" className={styles.playground}>
         <div className={styles.playgroundHeading}>
