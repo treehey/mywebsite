@@ -387,6 +387,7 @@ export default function FieldNotebook() {
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [copied, setCopied] = useState(false);
+  const [motionReady, setMotionReady] = useState(false);
   const siteRef = useRef<HTMLElement>(null);
   const playgroundRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
@@ -406,6 +407,11 @@ export default function FieldNotebook() {
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
     return () => document.documentElement.classList.remove("field-notebook-theme");
+  }, []);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setMotionReady(true));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -1163,17 +1169,21 @@ export default function FieldNotebook() {
         cursorY.set(-120);
       }}
     >
-      <motion.div
-        className={styles.cursorHalo}
-        style={reduceMotion ? undefined : { x: cursorSpringX, y: cursorSpringY }}
-        aria-hidden="true"
-      />
+      {motionReady && !reduceMotion && (
+        <>
+          <motion.div
+            className={styles.cursorHalo}
+            style={{ x: cursorSpringX, y: cursorSpringY }}
+            aria-hidden="true"
+          />
 
-      <motion.div
-        className={styles.scrollProgress}
-        style={reduceMotion ? undefined : { scaleX: scrollYProgress }}
-        aria-hidden="true"
-      />
+          <motion.div
+            className={styles.scrollProgress}
+            style={{ scaleX: scrollYProgress }}
+            aria-hidden="true"
+          />
+        </>
+      )}
 
       <header
         className={`${styles.header} ${

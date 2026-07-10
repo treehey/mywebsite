@@ -2529,6 +2529,48 @@
   .motionRibbon::before {
     animation: none;
   }
+
+  .experiments,
+  .experimentsStage {
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .experimentsHeading {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    padding: 5rem clamp(1.5rem, 4vw, 4rem) 2rem;
+  }
+
+  .projectScenes {
+    position: relative;
+    inset: auto;
+  }
+
+  .projectScene {
+    position: relative;
+    inset: auto;
+    min-height: 100svh;
+    opacity: 1 !important;
+    visibility: visible !important;
+    clip-path: none !important;
+    transform: none !important;
+  }
+
+  .projectScene > a {
+    position: relative;
+    inset: auto;
+    min-height: 100svh;
+  }
+
+  .projectIndex,
+  .projectCounter,
+  .filmGate,
+  .noteGate {
+    display: none;
+  }
 }
 
 @supports (animation-timeline: view()) {
