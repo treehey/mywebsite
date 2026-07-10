@@ -32,7 +32,7 @@ const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 type Language = "简" | "繁" | "EN";
 
 const navItems = ["fragments", "experiments", "lens", "playground", "guestbook"] as const;
-const chapterItems = ["poster", ...navItems, "index", "last-page"] as const;
+const chapterItems = ["poster", ...navItems, "last-page"] as const;
 
 const COPY = {
   "简": {
@@ -89,7 +89,6 @@ const COPY = {
       done: "已贴上",
       error: "再试一次",
     },
-    index: ["工具", "地点", "日期", "灵感"],
     last: {
       pre: "总还能再做一件\n真正有用的东西。",
       title: "让我们留下\n一点好痕迹。",
@@ -151,7 +150,6 @@ const COPY = {
       done: "已貼上",
       error: "再試一次",
     },
-    index: ["工具", "地點", "日期", "靈感"],
     last: {
       pre: "總還能再做一件\n真正有用的東西。",
       title: "讓我們留下\n一點好痕跡。",
@@ -213,7 +211,6 @@ const COPY = {
       done: "Pinned",
       error: "Try again",
     },
-    index: ["Tools", "Places", "Dates", "Influences"],
     last: {
       pre: "There is always room for\none more useful thing.",
       title: "Let's leave\na good trace.",
@@ -402,11 +399,9 @@ export default function FieldNotebook() {
   const runningTitle =
     activeSection === "poster"
       ? "ONE LONG TAKE"
-      : activeSection === "index"
-        ? "INDEX"
-        : activeSection === "last-page"
-          ? "LAST PAGE"
-          : t.nav[activeSection][0];
+      : activeSection === "last-page"
+        ? "LAST PAGE"
+        : t.nav[activeSection][0];
 
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
@@ -824,6 +819,78 @@ export default function FieldNotebook() {
             0.72,
           );
         }
+
+        const noteGate = siteRef.current?.querySelector<HTMLElement>(`.${styles.noteGate}`);
+        if (!noteGate) return;
+        const noteSources = noteGate.querySelectorAll(`.${styles.noteGateSource} figure`);
+        const noteCards = noteGate.querySelectorAll(`.${styles.noteGateWall} blockquote`);
+        const noteGateLabel = noteGate.querySelector(`.${styles.noteGateLabel}`);
+
+        const noteTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: noteGate,
+            start: "top top",
+            end: "+=185%",
+            scrub: 1,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        noteTimeline
+          .fromTo(
+            noteSources,
+            {
+              scale: 1.08,
+              rotate: (index) => [-5, 4, -2][index] ?? 0,
+              clipPath: "inset(0% 0% 0% 0%)",
+              opacity: 1,
+            },
+            {
+              scale: 0.72,
+              rotate: (index) => [-12, 10, -8][index] ?? 0,
+              clipPath: "inset(44% 0% 44% 0%)",
+              opacity: 0.12,
+              stagger: 0.05,
+              ease: "none",
+              duration: 0.62,
+            },
+            0,
+          )
+          .fromTo(
+            noteCards,
+            {
+              x: (index) => (index % 2 === 0 ? -120 : 120),
+              y: (index) => (index % 3 === 0 ? 160 : -130),
+              scale: 0.55,
+              rotate: (index) => (index % 2 === 0 ? -14 : 12),
+              opacity: 0,
+            },
+            {
+              x: 0,
+              y: 0,
+              scale: 1,
+              rotate: (index) => [-2, 1.5, -1, 2, -1.5, 1, -2.2, 1.8][index] ?? 0,
+              opacity: 1,
+              stagger: 0.045,
+              ease: "none",
+              duration: 0.72,
+            },
+            0.18,
+          )
+          .fromTo(
+            noteGateLabel,
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, ease: "none", duration: 0.28 },
+            0.68,
+          )
+          .to(
+            noteGateLabel,
+            { y: -18, opacity: 0, ease: "none", duration: 0.18 },
+            0.9,
+          );
       });
 
       media.add("(max-width: 900px)", () => {
@@ -845,28 +912,6 @@ export default function FieldNotebook() {
         });
       });
 
-      gsap.utils.toArray<HTMLElement>(`.${styles.noteBridge}`).forEach((bridge) => {
-        const notes = bridge.querySelectorAll("blockquote");
-        gsap.fromTo(
-          notes,
-          { y: 110, scale: 0.8, opacity: 0, rotate: 0 },
-          {
-            y: 0,
-            scale: 1,
-            opacity: 1,
-            stagger: 0.045,
-            ease: "none",
-            scrollTrigger: {
-              trigger: bridge,
-              start: "top top",
-              end: "+=135%",
-              scrub: 1,
-              pin: true,
-              anticipatePin: 1,
-            },
-          },
-        );
-      });
     }, siteRef);
 
     const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 350);
@@ -1519,13 +1564,30 @@ export default function FieldNotebook() {
         </div>
       </section>
 
-      <div className={`${styles.scrollBridge} ${styles.noteBridge}`} aria-hidden="true">
-        {guestEntries.slice(0, 6).map((entry, index) => (
-          <blockquote key={`note-bridge-${entry.id}`} style={{ ["--i" as string]: index }}>
-            {entry.message}
-          </blockquote>
-        ))}
-        <span>05 / notes gather on the wall</span>
+      <div className={styles.noteGate} aria-hidden="true">
+        <div className={styles.noteGateSource}>
+          <figure>
+            <Image src={`${B}/images/about/computer-room.jpg`} alt="" fill sizes="34vw" />
+          </figure>
+          <figure>
+            <Image src={`${B}/images/about/Minecraft.jfif`} alt="" fill sizes="36vw" />
+          </figure>
+          <figure>
+            <Image src={`${B}/sloth_color.png`} alt="" fill sizes="24vw" />
+          </figure>
+        </div>
+        <div className={styles.noteGateWall}>
+          {guestEntries.slice(0, 8).map((entry) => (
+            <blockquote
+              key={`note-gate-${entry.id}`}
+              style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
+            >
+              <p>{entry.message}</p>
+              <cite>{entry.nickname || "Anonymous"}</cite>
+            </blockquote>
+          ))}
+        </div>
+        <span className={styles.noteGateLabel}>05 / collected by visitors</span>
       </div>
 
       <section id="guestbook" className={styles.guestbook}>
@@ -1535,17 +1597,18 @@ export default function FieldNotebook() {
           <p>{t.guestbook.copy}</p>
         </div>
 
-        <div className={styles.openBook}>
+        <div className={styles.guestbookWall}>
           <div className={styles.bookMessages}>
             {guestEntries.map((entry, index) => (
               <motion.blockquote
                 key={entry.id}
                 className={styles.guestEntry}
                 style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
+                title={entry.message ?? undefined}
                 initial={{ opacity: 0, y: 24, rotate: index % 2 ? 1.5 : -1.5 }}
                 whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 0.6 : -0.6 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.08 }}
+                transition={{ delay: Math.min(index * 0.04, 0.28) }}
               >
                 <time>
                   {new Date(entry.created_at).toLocaleDateString("zh-CN", {
@@ -1561,6 +1624,7 @@ export default function FieldNotebook() {
           </div>
 
           <form className={styles.guestForm} onSubmit={submitGuestbook}>
+            <span className={styles.formKicker}>PIN A NEW NOTE / 贴一张新便签</span>
             <label>
               <span>{t.guestbook.name}</span>
               <input name="nickname" maxLength={24} placeholder={t.guestbook.namePlaceholder} />
@@ -1591,30 +1655,8 @@ export default function FieldNotebook() {
         </div>
       </section>
 
-      <section id="index" className={styles.index}>
-        <SectionLabel index="06" en="Index" zh={language === "繁" ? "索引" : language === "EN" ? "Archive" : "索引"} />
-        <div className={styles.indexGrid}>
-          <div>
-            <h3>{t.index[0]}</h3>
-            <p>Figma</p><p>VS Code</p><p>React</p><p>TypeScript</p><p>Blender</p>
-          </div>
-          <div>
-            <h3>{t.index[1]}</h3>
-            <p>Macau</p><p>Nanjing</p><p>Suzhou</p><p>Zhuhai</p><p>Hong Kong</p>
-          </div>
-          <div>
-            <h3>{t.index[2]}</h3>
-            <p>2024.09 / New map</p><p>2026.01 / NJU Match</p><p>2026.03 / Fimel</p><p>2026.06 / Field notes</p>
-          </div>
-          <div>
-            <h3>{t.index[3]}</h3>
-            <p>Field recordings</p><p>Japanese posters</p><p>Quiet interfaces</p><p>Useful accidents</p>
-          </div>
-        </div>
-      </section>
-
       <footer id="last-page" className={styles.lastPage}>
-        <SectionLabel index="07" en="Last Page" zh={language === "繁" ? "最後一頁" : language === "EN" ? "Closing" : "最后一页"} />
+        <SectionLabel index="06" en="Last Page" zh={language === "繁" ? "最後一頁" : language === "EN" ? "Closing" : "最后一页"} />
         <div className={styles.lastGrid}>
           <div className={styles.lastCopy}>
             <p>{t.last.pre.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</p>
@@ -1632,6 +1674,11 @@ export default function FieldNotebook() {
               <a href="https://www.instagram.com/tree_hey/" target="_blank" rel="noreferrer">
                 Instagram <ArrowUpRight aria-hidden="true" />
               </a>
+            </div>
+            <div className={styles.lastCredits}>
+              <span>React · TypeScript · GSAP · Lenis</span>
+              <span>Macau · Nanjing · Suzhou · Hong Kong</span>
+              <span>Field notes / 2024—2026</span>
             </div>
           </div>
           <figure className={styles.lastPhoto}>
