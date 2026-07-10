@@ -575,6 +575,109 @@ export default function FieldNotebook() {
             { color: "#e75638", ease: "none" },
             0.78,
           );
+
+        const experimentsScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.experiments}`,
+        );
+        if (!experimentsScene) return;
+
+        const projectScenes = gsap.utils.toArray<HTMLElement>(
+          experimentsScene.querySelectorAll(`.${styles.projectScene}`),
+        );
+        const experimentsIntro = experimentsScene.querySelector(
+          `.${styles.experimentsIntro}`,
+        );
+
+        gsap.set(projectScenes, { autoAlpha: 0 });
+        gsap.set(projectScenes[0], { autoAlpha: 1 });
+
+        const experimentsTimeline = gsap.timeline({
+          scrollTrigger: {
+            id: "experiments-stage",
+            trigger: experimentsScene,
+            start: "top top",
+            end: "+=360%",
+            scrub: 1,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+            fastScrollEnd: true,
+            onUpdate: (self) => {
+              const index = Math.min(
+                projectScenes.length - 1,
+                Math.floor(self.progress * projectScenes.length),
+              );
+              setActiveProject(index);
+            },
+          },
+        });
+
+        if (experimentsIntro) {
+          experimentsTimeline.to(
+            experimentsIntro,
+            { opacity: 0.2, y: -18, ease: "none" },
+            0.52,
+          );
+        }
+
+        const sceneReveals = [
+          { clipPath: "inset(0 100% 0 0)", xPercent: 7, yPercent: 0 },
+          { clipPath: "inset(100% 0 0 0)", xPercent: 0, yPercent: 8 },
+          { clipPath: "circle(0% at 72% 52%)", xPercent: 0, yPercent: 0 },
+        ];
+
+        for (let index = 1; index < projectScenes.length; index += 1) {
+          const previous = projectScenes[index - 1];
+          const current = projectScenes[index];
+          const reveal = sceneReveals[index - 1];
+          const at = 0.72 + (index - 1) * 1.08;
+
+          experimentsTimeline
+            .to(
+              previous,
+              {
+                autoAlpha: 0,
+                scale: 0.9,
+                xPercent: index % 2 === 0 ? 6 : -6,
+                ease: "none",
+                duration: 0.34,
+              },
+              at,
+            )
+            .fromTo(
+              current,
+              {
+                autoAlpha: 0,
+                clipPath: reveal.clipPath,
+                xPercent: reveal.xPercent,
+                yPercent: reveal.yPercent,
+                scale: index === 3 ? 1.08 : 1,
+              },
+              {
+                autoAlpha: 1,
+                clipPath: index === 3 ? "circle(150% at 72% 52%)" : "inset(0% 0% 0% 0%)",
+                xPercent: 0,
+                yPercent: 0,
+                scale: 1,
+                ease: "none",
+                duration: 0.66,
+              },
+              at + 0.1,
+            )
+            .from(
+              current.querySelector(`.${styles.projectSceneCopy}`),
+              { y: 64, opacity: 0, ease: "none", duration: 0.46 },
+              at + 0.25,
+            )
+            .from(
+              current.querySelector(`.${styles.projectSceneMedia}`),
+              { scale: 1.08, ease: "none", duration: 0.68 },
+              at + 0.1,
+            );
+        }
+
+        experimentsTimeline.to({}, { duration: 0.7 });
       });
 
       media.add("(max-width: 900px)", () => {
@@ -849,6 +952,25 @@ export default function FieldNotebook() {
     window.setTimeout(() => setCopied(false), 1600);
   };
 
+  const jumpToProject = (index: number) => {
+    const trigger = ScrollTrigger.getById("experiments-stage");
+    if (trigger) {
+      const projectStops = [0.06, 0.34, 0.6, 0.9];
+      const progress = projectStops[index];
+      const target = trigger.start + (trigger.end - trigger.start) * progress;
+      if (globalLenis) {
+        globalLenis.scrollTo(target, { duration: 1.1 });
+      } else {
+        window.scrollTo({ top: target, behavior: "smooth" });
+      }
+      return;
+    }
+
+    document
+      .getElementById(`project-${experiments[index].number}`)
+      ?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  };
+
   return (
     <MotionConfig reducedMotion="user">
     <main
@@ -1066,58 +1188,77 @@ export default function FieldNotebook() {
       </section>
 
       <section id="experiments" className={styles.experiments}>
-        <div className={styles.experimentsHeading}>
-          <SectionLabel index="02" en={t.nav.experiments[0]} zh={t.nav.experiments[1]} />
-          <div>
-            <p>{t.experiments.kicker}</p>
-            <h2>{t.experiments.title}</h2>
-            <p>{t.experiments.copy}</p>
+        <div
+          className={`${styles.experimentsStage} ${
+            activeProject === 2 ? styles.projectStageDark : ""
+          }`}
+        >
+          <div className={styles.experimentsHeading}>
+            <SectionLabel index="02" en={t.nav.experiments[0]} zh={t.nav.experiments[1]} />
+            <div className={styles.experimentsIntro}>
+              <p>{t.experiments.kicker}</p>
+              <h2>{t.experiments.title}</h2>
+              <p>{t.experiments.copy}</p>
+            </div>
           </div>
-          <span className={styles.projectCount}>01 — 04</span>
-        </div>
 
-        <div className={styles.projectWall}>
-          {experiments.map((project, index) => (
-            <motion.article
-              key={project.number}
-              className={`${styles.project} ${project.className} ${activeProject === index ? styles.projectActive : ""}`}
-              onMouseEnter={() => setActiveProject(index)}
-              onFocus={() => setActiveProject(index)}
-              initial={{ opacity: 0, y: 70 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-8%" }}
-              transition={{ duration: 0.8, delay: index * 0.06 }}
-            >
-              <a href={project.href} target="_blank" rel="noreferrer">
-                <div className={styles.projectMeta}>
-                  <span className={styles.projectNumber}>{project.number}</span>
-                  <div>
+          <div className={styles.projectScenes}>
+            {experiments.map((project, index) => (
+              <article
+                id={`project-${project.number}`}
+                key={project.number}
+                className={`${styles.projectScene} ${project.className}`}
+              >
+                <a href={project.href} target="_blank" rel="noreferrer">
+                  <div className={styles.projectSceneNumber}>
+                    <span>{project.number}</span>
+                    <small>0{index + 1} / 04</small>
+                  </div>
+
+                  <div className={styles.projectSceneCopy}>
+                    <span>{project.tags}</span>
                     <h3>{project.title}</h3>
                     <p>{project.zh}</p>
+                    <blockquote>{t.experiments.notes[index]}</blockquote>
                   </div>
-                  <ArrowUpRight aria-hidden="true" />
-                </div>
-                <div className={styles.projectImage}>
-                  <Image
-                    src={project.src}
-                    alt={`${project.title} project interface`}
-                    fill
-                    sizes="(max-width: 760px) 94vw, 48vw"
-                  />
-                </div>
-                <div className={styles.projectCaption}>
-                  <span>{project.tags}</span>
-                  <p>{t.experiments.notes[index]}</p>
-                </div>
-              </a>
-            </motion.article>
-          ))}
-        </div>
 
-        <div className={styles.projectTicker} aria-live="polite">
-          <span>{experiments[activeProject].number}</span>
-          <strong>{experiments[activeProject].title}</strong>
-          <small>{experiments[activeProject].tags}</small>
+                  <div className={styles.projectSceneMedia}>
+                    <Image
+                      src={project.src}
+                      alt={`${project.title} project interface`}
+                      fill
+                      sizes="(max-width: 900px) 92vw, 66vw"
+                    />
+                  </div>
+
+                  <div className={styles.projectSceneAction}>
+                    <span>Open project</span>
+                    <ArrowUpRight aria-hidden="true" />
+                  </div>
+                </a>
+              </article>
+            ))}
+          </div>
+
+          <nav className={styles.projectIndex} aria-label="Project index">
+            {experiments.map((project, index) => (
+              <button
+                type="button"
+                key={`index-${project.number}`}
+                className={activeProject === index ? styles.projectIndexActive : undefined}
+                onClick={() => jumpToProject(index)}
+                aria-label={`Go to ${project.title}`}
+              >
+                <span>{project.number}</span>
+                <strong>{project.title}</strong>
+              </button>
+            ))}
+          </nav>
+
+          <div className={styles.projectCounter} aria-live="polite">
+            <span>{experiments[activeProject].number}</span>
+            <small>{experiments[activeProject].tags}</small>
+          </div>
         </div>
       </section>
 
