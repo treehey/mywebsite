@@ -22,7 +22,6 @@ import {
   useReducedMotion,
   useScroll,
   useSpring,
-  useTransform,
 } from "framer-motion";
 import styles from "./FieldNotebook.module.css";
 import { supabase, type GuestEntry } from "@/lib/supabase";
@@ -400,12 +399,14 @@ export default function FieldNotebook() {
   const cursorSpringX = useSpring(cursorX, { stiffness: 210, damping: 28, mass: 0.45 });
   const cursorSpringY = useSpring(cursorY, { stiffness: 210, damping: 28, mass: 0.45 });
   const t = COPY[language];
-
-  const treeX = useTransform(scrollYProgress, [0, 0.1], ["0%", "-2.6%"]);
-  const heyX = useTransform(scrollYProgress, [0, 0.1], ["0%", "2.8%"]);
-  const posterScale = useTransform(scrollYProgress, [0, 0.1], [1, 0.985]);
-  const posterLift = useTransform(scrollYProgress, [0, 0.14], ["0vh", "-5vh"]);
-  const posterInk = useTransform(scrollYProgress, [0, 0.09], [1, 0.84]);
+  const runningTitle =
+    activeSection === "poster"
+      ? "ONE LONG TAKE"
+      : activeSection === "index"
+        ? "INDEX"
+        : activeSection === "last-page"
+          ? "LAST PAGE"
+          : t.nav[activeSection][0];
 
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
@@ -421,23 +422,48 @@ export default function FieldNotebook() {
         scrollTrigger: {
           trigger: `.${styles.poster}`,
           start: "top top",
-          end: "+=90%",
-          scrub: 0.9,
+          end: "+=140%",
+          scrub: 1,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
         },
       });
 
       heroTimeline
-        .to(`.${styles.tree}`, { xPercent: -4, yPercent: -7, ease: "none" }, 0)
-        .to(`.${styles.hey}`, { xPercent: 5, yPercent: 4, ease: "none" }, 0)
-        .to(`.${styles.redNote}`, { xPercent: -14, yPercent: 18, rotate: -6, ease: "none" }, 0)
-        .to(`.${styles.posterCircle}`, { scale: 2.2, rotate: 160, opacity: 0.22, ease: "none" }, 0)
-        .to(`.${styles.archiveTab}`, { yPercent: -18, ease: "none" }, 0);
+        .to(`.${styles.tree}`, { xPercent: -18, yPercent: -9, scale: 0.96, ease: "none" }, 0)
+        .to(`.${styles.hey}`, { xPercent: 20, yPercent: 8, scale: 0.96, ease: "none" }, 0)
+        .to(`.${styles.posterIntro}`, { yPercent: -45, opacity: 0.18, ease: "none" }, 0)
+        .to(`.${styles.posterMicrogrid}`, { xPercent: -45, yPercent: -25, ease: "none" }, 0)
+        .to(`.${styles.redNote}`, { xPercent: 22, yPercent: 35, rotate: -10, ease: "none" }, 0)
+        .to(`.${styles.posterCircle}`, { scale: 5.4, rotate: 220, opacity: 0, ease: "none" }, 0)
+        .to(`.${styles.archiveTab}`, { yPercent: -65, ease: "none" }, 0)
+        .to(`.${styles.posterType}`, { opacity: 0.08, ease: "none" }, 0.72);
 
-      gsap.to(`.${styles.motionRibbon} > div`, {
+      const ribbonTween = gsap.to(`.${styles.motionRibbon} > div`, {
         xPercent: -50,
         ease: "none",
         repeat: -1,
-        duration: 18,
+        duration: 22,
+      });
+      let ribbonDirection = 1;
+
+      ScrollTrigger.create({
+        trigger: siteRef.current,
+        start: "top top",
+        end: "max",
+        onUpdate: (self) => {
+          const velocity = self.getVelocity();
+          if (Math.abs(velocity) > 20) ribbonDirection = velocity < 0 ? -1 : 1;
+          const speed = gsap.utils.clamp(0.65, 4, Math.abs(velocity) / 650);
+          gsap.to(ribbonTween, {
+            timeScale: speed * ribbonDirection,
+            duration: 0.35,
+            ease: "power2.out",
+            overwrite: true,
+          });
+        },
       });
 
       gsap.utils.toArray<HTMLElement>(`.${styles.caseBridge}`).forEach((bridge) => {
@@ -739,11 +765,15 @@ export default function FieldNotebook() {
         aria-hidden="true"
       />
 
-      <header className={`${styles.header} ${activeSection !== "poster" ? styles.headerScrolled : ""}`}>
+      <header
+        className={`${styles.header} ${
+          activeSection === "poster" ? styles.headerHero : styles.headerScrolled
+        }`}
+      >
         <a className={styles.brand} href="#poster" onClick={closeMenu}>
           TREE HEY
         </a>
-        <span className={styles.runningTitle}>Living Field Notebook</span>
+        <span className={styles.runningTitle}>{runningTitle}</span>
         <nav className={styles.desktopNav} aria-label="Primary navigation">
           {navItems.map((id, index) => (
             <a
@@ -813,31 +843,12 @@ export default function FieldNotebook() {
       </aside>
 
       <section id="poster" className={styles.poster}>
-        <motion.div
-          className={styles.posterType}
-          style={reduceMotion ? undefined : { scale: posterScale, y: posterLift, opacity: posterInk }}
-        >
-          <motion.span
-            className={styles.tree}
-            style={reduceMotion ? undefined : { x: treeX }}
-          >
-            TREE
-          </motion.span>
-          <motion.span
-            className={styles.hey}
-            style={reduceMotion ? undefined : { x: heyX }}
-          >
-            HEY
-          </motion.span>
-        </motion.div>
+        <div className={styles.posterType}>
+          <span className={styles.tree}>TREE</span>
+          <span className={styles.hey}>HEY</span>
+        </div>
 
-        <motion.div
-          className={styles.posterCircle}
-          initial={{ opacity: 0, scale: 0.72, rotate: -18 }}
-          animate={{ opacity: 1, scale: 1, rotate: 9 }}
-          transition={{ delay: 0.35, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          aria-hidden="true"
-        />
+        <div className={styles.posterCircle} aria-hidden="true" />
 
         <div className={styles.posterMicrogrid} aria-hidden="true">
           <span>Macau</span>
@@ -856,14 +867,9 @@ export default function FieldNotebook() {
           <p>{t.poster.sub.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</p>
         </div>
 
-        <motion.aside
-          className={styles.redNote}
-          initial={{ opacity: 0, rotate: -4, y: 18 }}
-          animate={{ opacity: 1, rotate: 2, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.7 }}
-        >
+        <aside className={styles.redNote}>
           {t.poster.note.split("\n").map((line) => <span key={line}>{line}<br /></span>)}
-        </motion.aside>
+        </aside>
 
         <a className={styles.scrollCue} href="#fragments">
           <ArrowDown aria-hidden="true" />
