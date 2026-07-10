@@ -665,7 +665,8 @@
 
 .fragments {
   position: relative;
-  min-height: 1260px;
+  min-height: 100svh;
+  overflow: hidden;
   padding: clamp(2.6rem, 4vw, 4rem) clamp(1.25rem, 6vw, 6rem) clamp(5rem, 8vw, 8rem);
   background-color: var(--paper);
   background-image:
@@ -751,7 +752,7 @@
 
 .fragmentBoard {
   position: absolute;
-  inset: 4rem 4vw 4rem 34%;
+  inset: 4.5rem 3vw 3rem 34%;
 }
 
 .fragmentPhoto {
@@ -759,24 +760,79 @@
   z-index: 2;
   margin: 0;
   padding: 0.55rem 0.55rem 2rem;
+  overflow: hidden;
   background: #f8f5ed;
   box-shadow: 0 14px 30px rgb(29 29 23 / 14%);
+  will-change: top, left, width, transform;
 }
 
 .fragmentPhoto img {
   object-fit: cover;
 }
 
-.fragmentPhoto figcaption {
+.fragmentOriginalImage {
+  z-index: 2;
+}
+
+.fragmentProjectImage {
+  z-index: 1;
+  opacity: 0;
+  object-position: top center;
+  transform: scale(1.08);
+}
+
+.fragmentCaption {
   position: absolute;
   right: 0.65rem;
   bottom: 0.55rem;
   left: 0.65rem;
+  z-index: 3;
   overflow: hidden;
   font-family: var(--font-mono), monospace;
   font-size: 0.58rem;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.fragmentProjectMeta {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.7rem 0.8rem;
+  color: var(--paper);
+  background: rgb(17 18 16 / 94%);
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+.fragmentProjectMeta span,
+.fragmentProjectMeta small {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.56rem;
+  text-transform: uppercase;
+}
+
+.fragmentProjectMeta span {
+  color: var(--tomato);
+}
+
+.fragmentProjectMeta strong {
+  overflow: hidden;
+  font-family: var(--font-syne), sans-serif;
+  font-size: clamp(0.9rem, 1.35vw, 1.3rem);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fragmentProjectMeta small {
+  color: rgb(241 238 229 / 62%);
+  white-space: nowrap;
 }
 
 .campus {
@@ -1810,6 +1866,7 @@
 
   .fragments {
     min-height: auto;
+    overflow: visible;
   }
 
   .fragmentsIntro {
@@ -1836,6 +1893,11 @@
 
   .fragmentPhoto {
     min-height: 15rem;
+  }
+
+  .fragmentProjectImage,
+  .fragmentProjectMeta {
+    display: none;
   }
 
   .blueNote,

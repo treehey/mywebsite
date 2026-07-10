@@ -417,6 +417,7 @@ export default function FieldNotebook() {
     if (reduceMotion || !siteRef.current) return;
 
     gsap.registerPlugin(ScrollTrigger);
+    const media = gsap.matchMedia();
     const ctx = gsap.context(() => {
       const heroTimeline = gsap.timeline({
         scrollTrigger: {
@@ -466,25 +467,133 @@ export default function FieldNotebook() {
         },
       });
 
-      gsap.utils.toArray<HTMLElement>(`.${styles.caseBridge}`).forEach((bridge) => {
-        const track = bridge.querySelector(`.${styles.bridgeTrack}`);
-        gsap.fromTo(
-          track,
-          { xPercent: 8, rotate: -1.5 },
-          {
-            xPercent: -28,
-            rotate: 1.2,
-            ease: "none",
-            scrollTrigger: {
-              trigger: bridge,
-              start: "top top",
-              end: "+=150%",
-              scrub: 1,
-              pin: true,
-              anticipatePin: 1,
-            },
-          },
+      media.add("(min-width: 901px)", () => {
+        const fragmentScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.fragments}`,
         );
+        if (!fragmentScene) return;
+
+        const cards = gsap.utils.toArray<HTMLElement>(
+          fragmentScene.querySelectorAll(`.${styles.fragmentPhoto}`),
+        );
+        const originalImages = fragmentScene.querySelectorAll(
+          `.${styles.fragmentOriginalImage}`,
+        );
+        const projectImages = fragmentScene.querySelectorAll(
+          `.${styles.fragmentProjectImage}`,
+        );
+        const projectMeta = fragmentScene.querySelectorAll(
+          `.${styles.fragmentProjectMeta}`,
+        );
+        const captions = fragmentScene.querySelectorAll(
+          `.${styles.fragmentCaption}`,
+        );
+        const supportingNotes = fragmentScene.querySelectorAll(
+          `.${styles.blueNote}, .${styles.blackNote}, .${styles.fieldList}`,
+        );
+        const targets = [
+          { top: "5%", left: "1%", width: "72%", rotate: -0.7 },
+          { top: "8%", left: "78%", width: "21%", rotate: 1.2 },
+          { top: "39%", left: "80%", width: "19%", rotate: -1.4 },
+          { top: "68%", left: "76%", width: "23%", rotate: 0.9 },
+        ];
+
+        const fragmentTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: fragmentScene,
+            start: "top top",
+            end: "+=230%",
+            scrub: 1,
+            pin: true,
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        fragmentTimeline
+          .from(
+            cards,
+            {
+              y: 90,
+              opacity: 0.22,
+              rotate: (index) => (index % 2 === 0 ? -5 : 5),
+              stagger: 0.07,
+              ease: "none",
+            },
+            0,
+          )
+          .from(
+            `.${styles.fragmentsIntro}`,
+            { x: -42, opacity: 0, ease: "none" },
+            0,
+          )
+          .to(
+            supportingNotes,
+            { y: 70, scale: 0.84, opacity: 0, stagger: 0.04, ease: "none" },
+            0.38,
+          )
+          .to(captions, { opacity: 0, ease: "none" }, 0.46)
+          .to(originalImages, { opacity: 0, scale: 1.08, ease: "none" }, 0.48)
+          .to(projectImages, { opacity: 1, scale: 1, ease: "none" }, 0.5)
+          .to(projectMeta, { opacity: 1, y: 0, stagger: 0.04, ease: "none" }, 0.56)
+          .to(
+            `.${styles.fragmentsIntro} h1`,
+            { scale: 0.76, transformOrigin: "left top", y: -12, ease: "none" },
+            0.52,
+          )
+          .to(
+            `.${styles.fragmentsCopy}, .${styles.textLink}`,
+            { opacity: 0.18, y: 18, ease: "none" },
+            0.5,
+          );
+
+        cards.forEach((card, index) => {
+          const target = targets[index];
+          fragmentTimeline.to(
+            card,
+            {
+              top: target.top,
+              left: target.left,
+              right: "auto",
+              bottom: "auto",
+              width: target.width,
+              aspectRatio: "16 / 10",
+              rotate: target.rotate,
+              zIndex: index === 0 ? 6 : 5,
+              ease: "none",
+            },
+            0.5,
+          );
+        });
+
+        fragmentTimeline
+          .to(cards.slice(1), { xPercent: 8, opacity: 0.78, ease: "none" }, 0.78)
+          .to(cards[0], { scale: 1.035, transformOrigin: "left top", ease: "none" }, 0.8)
+          .to(
+            `.${styles.fragmentsIntro} > p:first-child`,
+            { color: "#e75638", ease: "none" },
+            0.78,
+          );
+      });
+
+      media.add("(max-width: 900px)", () => {
+        const fragmentScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.fragments}`,
+        );
+        if (!fragmentScene) return;
+        const cards = fragmentScene.querySelectorAll(`.${styles.fragmentPhoto}`);
+        gsap.from(cards, {
+          y: 54,
+          opacity: 0,
+          stagger: 0.08,
+          duration: 0.72,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: fragmentScene,
+            start: "top 72%",
+          },
+        });
       });
 
       gsap.utils.toArray<HTMLElement>(`.${styles.lensBridge}`).forEach((bridge) => {
@@ -560,6 +669,7 @@ export default function FieldNotebook() {
 
     return () => {
       window.clearTimeout(refreshTimer);
+      media.revert();
       ctx.revert();
     };
   }, [reduceMotion]);
@@ -909,42 +1019,42 @@ export default function FieldNotebook() {
 
         <div className={styles.fragmentBoard}>
           {fragments.map((fragment, index) => (
-            <motion.figure
+            <figure
               key={fragment.src}
               className={`${styles.fragmentPhoto} ${fragment.className}`}
-              initial={{ opacity: 0, y: 54, rotate: index % 2 ? 3 : -3 }}
-              whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 1.5 : -1.5 }}
-              viewport={{ once: true, margin: "-12%" }}
-              transition={{ duration: 0.8, delay: index * 0.08 }}
             >
               <Image
                 src={fragment.src}
                 alt={fragment.alt}
                 fill
                 sizes="(max-width: 720px) 80vw, 30vw"
+                className={styles.fragmentOriginalImage}
               />
-              <figcaption>{fragment.caption}</figcaption>
-            </motion.figure>
+              <Image
+                src={experiments[index].src}
+                alt=""
+                aria-hidden="true"
+                fill
+                sizes="(max-width: 720px) 80vw, 46vw"
+                className={styles.fragmentProjectImage}
+              />
+              <figcaption className={styles.fragmentCaption}>{fragment.caption}</figcaption>
+              <div className={styles.fragmentProjectMeta}>
+                <span>{experiments[index].number}</span>
+                <strong>{experiments[index].title}</strong>
+                <small>{experiments[index].tags}</small>
+              </div>
+            </figure>
           ))}
 
-          <motion.blockquote
-            className={styles.blueNote}
-            initial={{ opacity: 0, scale: 0.9, rotate: 6 }}
-            whileInView={{ opacity: 1, scale: 1, rotate: -3 }}
-            viewport={{ once: true }}
-          >
+          <blockquote className={styles.blueNote}>
             Make something people love to use. Then keep it simple.
-          </motion.blockquote>
+          </blockquote>
 
-          <motion.blockquote
-            className={styles.blackNote}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          <blockquote className={styles.blackNote}>
             <span>设计让复杂变得可感知。</span>
             Design makes complexity perceivable.
-          </motion.blockquote>
+          </blockquote>
 
           <div className={styles.fieldList}>
             <span>Observe</span>
@@ -954,18 +1064,6 @@ export default function FieldNotebook() {
           </div>
         </div>
       </section>
-
-      <div className={`${styles.scrollBridge} ${styles.caseBridge}`} aria-hidden="true">
-        <div className={styles.bridgeTrack}>
-          {experiments.map((project) => (
-            <figure key={`bridge-${project.number}`}>
-              <Image src={project.src} alt="" fill sizes="28vw" />
-              <figcaption>{project.number}</figcaption>
-            </figure>
-          ))}
-        </div>
-        <span>02 / work opens from the pile</span>
-      </div>
 
       <section id="experiments" className={styles.experiments}>
         <div className={styles.experimentsHeading}>
