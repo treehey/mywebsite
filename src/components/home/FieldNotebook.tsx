@@ -1532,13 +1532,34 @@ export default function FieldNotebook() {
             1.3,
           )
           .to(
-            [outgoingField, noteGateScene],
+            outgoingField,
+            {
+              yPercent: -112,
+              scale: 0.94,
+              opacity: 0,
+              filter: "blur(7px) saturate(0.55)",
+              ease: "none",
+              duration: 0.32,
+            },
+            1.02,
+          )
+          .to(
+            noteGateScene,
             {
               yPercent: -100,
               ease: "none",
-              duration: 0.54,
+              duration: 0.52,
             },
-            1.38,
+            1.36,
+          )
+          .to(
+            playgroundScene,
+            {
+              autoAlpha: 0,
+              ease: "none",
+              duration: 0.2,
+            },
+            1.72,
           );
 
         if (noteGateCarry) {
@@ -1599,6 +1620,106 @@ export default function FieldNotebook() {
           });
           noteDepth.forEach((setX) => setX(0));
         };
+
+        const guestbookScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.guestbook}`,
+        );
+        const lastPageScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.lastPage}`,
+        );
+
+        if (guestbookScene && lastPageScene) {
+          const guestbookHeading = guestbookScene.querySelector(
+            `.${styles.guestbookHeading}`,
+          );
+          const bookMessages = guestbookScene.querySelector(
+            `.${styles.bookMessages}`,
+          );
+          const guestForm = guestbookScene.querySelector(`.${styles.guestForm}`);
+          const lastCopy = lastPageScene.querySelector(`.${styles.lastCopy}`);
+          const lastPhoto = lastPageScene.querySelector(`.${styles.lastPhoto}`);
+          const lastPageHandoff = gsap.timeline({
+            scrollTrigger: {
+              id: "guestbook-last-page-handoff",
+              trigger: lastPageScene,
+              start: "top bottom",
+              end: "top top",
+              scrub: 1,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          lastPageHandoff.fromTo(
+            lastPageScene,
+            {
+              clipPath: "polygon(58% 100%, 100% 68%, 100% 100%, 58% 100%)",
+            },
+            {
+              clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+              ease: "none",
+            },
+            0,
+          );
+
+          if (guestbookHeading) {
+            lastPageHandoff.to(
+              guestbookHeading,
+              { y: -90, opacity: 0.08, ease: "none" },
+              0,
+            );
+          }
+
+          if (bookMessages) {
+            lastPageHandoff.to(
+              bookMessages,
+              {
+                xPercent: -10,
+                y: -130,
+                scale: 0.9,
+                opacity: 0.12,
+                filter: "blur(5px)",
+                transformOrigin: "left center",
+                ease: "none",
+              },
+              0.04,
+            );
+          }
+
+          if (guestForm) {
+            lastPageHandoff.to(
+              guestForm,
+              {
+                xPercent: 16,
+                y: -150,
+                rotate: 4,
+                scale: 0.82,
+                opacity: 0.1,
+                transformOrigin: "right top",
+                ease: "none",
+              },
+              0.08,
+            );
+          }
+
+          if (lastPhoto) {
+            lastPageHandoff.fromTo(
+              lastPhoto,
+              { yPercent: 18, scale: 1.16, filter: "saturate(0.55)" },
+              { yPercent: 0, scale: 1, filter: "saturate(1)", ease: "none" },
+              0.2,
+            );
+          }
+
+          if (lastCopy) {
+            lastPageHandoff.fromTo(
+              lastCopy,
+              { y: 100, opacity: 0 },
+              { y: 0, opacity: 1, ease: "none" },
+              0.34,
+            );
+          }
+        }
+
         noteGateStage.addEventListener("pointermove", moveDepth);
         noteGateStage.addEventListener("pointerleave", resetDepth);
 
