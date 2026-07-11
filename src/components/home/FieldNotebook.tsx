@@ -818,6 +818,51 @@ export default function FieldNotebook() {
         );
         if (!fragmentScene) return;
 
+        const posterScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.poster}`,
+        );
+        const posterRibbon = posterScene?.querySelector<HTMLElement>(
+          `.${styles.motionRibbon}`,
+        );
+        const fragmentHandoff = gsap.timeline({
+          scrollTrigger: {
+            id: "poster-fragments-handoff",
+            trigger: fragmentScene,
+            start: "top bottom",
+            end: "top top",
+            scrub: 0.9,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        fragmentHandoff.fromTo(
+          fragmentScene,
+          {
+            clipPath:
+              "polygon(0 94%, 24% 94%, 24% 86%, 49% 86%, 49% 91%, 75% 91%, 75% 82%, 100% 82%, 100% 100%, 0 100%)",
+          },
+          {
+            clipPath:
+              "polygon(0 0%, 24% 0%, 24% 0%, 49% 0%, 49% 0%, 75% 0%, 75% 0%, 100% 0%, 100% 100%, 0 100%)",
+            ease: "none",
+          },
+          0,
+        );
+
+        if (posterRibbon) {
+          fragmentHandoff.fromTo(
+            posterRibbon,
+            { yPercent: 0, scaleY: 1 },
+            {
+              yPercent: -18,
+              scaleY: 1.12,
+              transformOrigin: "bottom",
+              ease: "none",
+            },
+            0.54,
+          );
+        }
+
         const cards = gsap.utils.toArray<HTMLElement>(
           fragmentScene.querySelectorAll(`.${styles.fragmentPhoto}`),
         );
@@ -926,6 +971,13 @@ export default function FieldNotebook() {
         );
         if (!experimentsScene) return;
 
+        const fragmentsIntro = fragmentScene.querySelector(
+          `.${styles.fragmentsIntro}`,
+        );
+        const fragmentBoard = fragmentScene.querySelector(
+          `.${styles.fragmentBoard}`,
+        );
+
         const projectScenes = gsap.utils.toArray<HTMLElement>(
           experimentsScene.querySelectorAll(`.${styles.projectScene}`),
         );
@@ -935,6 +987,62 @@ export default function FieldNotebook() {
 
         gsap.set(projectScenes, { autoAlpha: 0 });
         gsap.set(projectScenes[0], { autoAlpha: 1 });
+
+        const experimentsHandoff = gsap.timeline({
+          scrollTrigger: {
+            id: "fragments-experiments-handoff",
+            trigger: experimentsScene,
+            start: "top bottom",
+            end: "top top",
+            scrub: 0.95,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        experimentsHandoff.fromTo(
+          experimentsScene,
+          {
+            clipPath: "inset(38% 20% 38% 20%)",
+            scale: 0.86,
+            transformOrigin: "50% 72%",
+          },
+          {
+            clipPath: "inset(0% 0% 0% 0%)",
+            scale: 1,
+            ease: "none",
+          },
+          0,
+        );
+
+        if (fragmentsIntro) {
+          experimentsHandoff.to(
+            fragmentsIntro,
+            {
+              yPercent: -24,
+              scale: 0.9,
+              opacity: 0,
+              filter: "blur(5px)",
+              transformOrigin: "left top",
+              ease: "none",
+            },
+            0.06,
+          );
+        }
+
+        if (fragmentBoard) {
+          experimentsHandoff.to(
+            fragmentBoard,
+            {
+              yPercent: -10,
+              scale: 0.94,
+              opacity: 0.08,
+              filter: "blur(6px)",
+              transformOrigin: "center top",
+              ease: "none",
+            },
+            0.08,
+          );
+        }
 
         const experimentsTimeline = gsap.timeline({
           scrollTrigger: {
@@ -1057,8 +1165,6 @@ export default function FieldNotebook() {
             );
         }
 
-        experimentsTimeline.to({}, { duration: 0.35 });
-
         const lensScene = siteRef.current?.querySelector<HTMLElement>(`.${styles.lens}`);
         if (!lensScene) return;
         const filmStrip = lensScene.querySelector(`.${styles.filmStrip}`);
@@ -1070,6 +1176,61 @@ export default function FieldNotebook() {
         const lensViewport = lensScene.querySelector(`.${styles.filmViewport}`);
         const lensPolaroid = lensScene.querySelector(`.${styles.lensPolaroid}`);
         const playObjects = lensScene.querySelectorAll(`.${styles.lensPlayObjects} img`);
+        const lensStage = lensScene.querySelector(`.${styles.lensStage}`);
+
+        const lensHandoff = gsap.timeline({
+          scrollTrigger: {
+            id: "experiments-lens-handoff",
+            trigger: lensScene,
+            start: "top bottom",
+            end: "top top",
+            scrub: 0.95,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        lensHandoff.fromTo(
+          lensScene,
+          { clipPath: "inset(48% 0% 48% 0%)" },
+          { clipPath: "inset(0% 0% 0% 0%)", ease: "none" },
+          0,
+        );
+
+        if (lensStage) {
+          lensHandoff.fromTo(
+            lensStage,
+            { filter: "brightness(0.34) contrast(1.32)" },
+            { filter: "brightness(1) contrast(1)", ease: "none" },
+            0.08,
+          );
+        }
+
+        if (filmGateTrack) {
+          lensHandoff.to(
+            filmGateTrack,
+            {
+              yPercent: -38,
+              scale: 0.92,
+              opacity: 0.12,
+              ease: "none",
+            },
+            0.08,
+          );
+        }
+
+        if (filmGateFrames) {
+          lensHandoff.to(
+            filmGateFrames,
+            {
+              yPercent: (index) => (index % 2 === 0 ? -24 : 28),
+              rotate: (index) => (index % 2 === 0 ? -5 : 5),
+              opacity: 0,
+              stagger: 0.025,
+              ease: "none",
+            },
+            0.34,
+          );
+        }
 
         const lensTimeline = gsap.timeline({
           scrollTrigger: {
@@ -1822,20 +1983,19 @@ export default function FieldNotebook() {
           <ArrowDown aria-hidden="true" />
           <span>{t.poster.scroll}</span>
         </a>
-      </section>
-
-      <div className={styles.motionRibbon} aria-hidden="true">
-        <div>
-          <span>Scroll to collect fragments</span>
-          <span>Drag the field</span>
-          <span>Open the work</span>
-          <span>Leave a trace</span>
-          <span>Scroll to collect fragments</span>
-          <span>Drag the field</span>
-          <span>Open the work</span>
-          <span>Leave a trace</span>
+        <div className={styles.motionRibbon} aria-hidden="true">
+          <div>
+            <span>Scroll to collect fragments</span>
+            <span>Drag the field</span>
+            <span>Open the work</span>
+            <span>Leave a trace</span>
+            <span>Scroll to collect fragments</span>
+            <span>Drag the field</span>
+            <span>Open the work</span>
+            <span>Leave a trace</span>
+          </div>
         </div>
-      </div>
+      </section>
 
       <section id="fragments" className={styles.fragments}>
         <SectionLabel index="01" en={t.nav.fragments[0]} zh={t.nav.fragments[1]} />

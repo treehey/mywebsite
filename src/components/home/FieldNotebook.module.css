@@ -500,9 +500,13 @@
 }
 
 .motionRibbon {
-  position: relative;
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: hidden;
-  border-bottom: 1px solid rgb(17 18 16 / 16%);
+  border-top: 1px solid rgb(241 238 229 / 16%);
   background: var(--ink);
   color: var(--paper);
   font-family: var(--font-mono), monospace;
@@ -754,6 +758,28 @@
 }
 
 @media (min-width: 901px) {
+  .poster {
+    z-index: 2;
+  }
+
+  .fragments {
+    z-index: 3;
+    margin-top: -100svh;
+    will-change: clip-path;
+  }
+
+  .experiments {
+    z-index: 4;
+    margin-top: -100svh;
+    will-change: clip-path, transform;
+  }
+
+  .lens {
+    z-index: 5;
+    margin-top: -100svh;
+    will-change: clip-path;
+  }
+
   .fragmentsIntro {
     position: sticky;
     top: 7rem;
