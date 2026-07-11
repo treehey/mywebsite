@@ -371,6 +371,7 @@ const tearNoise = (value: number) =>
 function createTearRenderer(
   canvas: HTMLCanvasElement,
   revealLayer: HTMLElement,
+  paintPaper = true,
 ): TearRenderer {
   const context = canvas.getContext("2d");
   let targetProgress = 0;
@@ -433,7 +434,7 @@ function createTearRenderer(
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
       canvas.width = targetWidth;
       canvas.height = targetHeight;
-      texture = buildTexture();
+      texture = paintPaper ? buildTexture() : null;
     }
 
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
@@ -463,30 +464,32 @@ function createTearRenderer(
       points.push({ x, y: baseY + broadWave + liveRipple + deckle });
     }
 
-    const paperPath = new Path2D();
-    paperPath.moveTo(0, -2);
-    paperPath.lineTo(width, -2);
-    paperPath.lineTo(points[points.length - 1].x, points[points.length - 1].y);
-    points
-      .slice()
-      .reverse()
-      .forEach((point) => paperPath.lineTo(point.x, point.y));
-    paperPath.closePath();
+    if (paintPaper) {
+      const paperPath = new Path2D();
+      paperPath.moveTo(0, -2);
+      paperPath.lineTo(width, -2);
+      paperPath.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      points
+        .slice()
+        .reverse()
+        .forEach((point) => paperPath.lineTo(point.x, point.y));
+      paperPath.closePath();
 
-    context.save();
-    context.shadowColor = `rgba(24,22,18,${0.16 + Math.min(0.1, scrollEnergy * 0.08)})`;
-    context.shadowBlur = 30 + Math.min(18, scrollEnergy * 14);
-    context.shadowOffsetY = 10;
-    context.fillStyle = "#e8e3d8";
-    context.fill(paperPath);
-    context.restore();
+      context.save();
+      context.shadowColor = `rgba(24,22,18,${0.16 + Math.min(0.1, scrollEnergy * 0.08)})`;
+      context.shadowBlur = 30 + Math.min(18, scrollEnergy * 14);
+      context.shadowOffsetY = 10;
+      context.fillStyle = "#e8e3d8";
+      context.fill(paperPath);
+      context.restore();
 
-    context.save();
-    context.clip(paperPath);
-    const pattern = texture ? context.createPattern(texture, "repeat") : null;
-    context.fillStyle = pattern ?? "#e8e3d8";
-    context.fillRect(0, -120, width, Math.min(height + 240, baseY + 240));
-    context.restore();
+      context.save();
+      context.clip(paperPath);
+      const pattern = texture ? context.createPattern(texture, "repeat") : null;
+      context.fillStyle = pattern ?? "#e8e3d8";
+      context.fillRect(0, -120, width, Math.min(height + 240, baseY + 240));
+      context.restore();
+    }
 
     const edgePath = new Path2D();
     edgePath.moveTo(points[0].x, points[0].y);
@@ -495,9 +498,12 @@ function createTearRenderer(
     context.save();
     context.lineCap = "round";
     context.lineJoin = "round";
-    context.strokeStyle = "rgba(249,247,239,0.78)";
-    context.lineWidth = 4.5;
+    context.shadowColor = "rgba(255,253,244,0.66)";
+    context.shadowBlur = 9 + scrollEnergy * 7;
+    context.strokeStyle = "rgba(252,250,242,0.9)";
+    context.lineWidth = 6.5;
     context.stroke(edgePath);
+    context.shadowBlur = 0;
     context.strokeStyle = "rgba(63,58,48,0.12)";
     context.lineWidth = 0.8;
     context.stroke(edgePath);
@@ -528,32 +534,67 @@ function createTearRenderer(
         context.stroke();
       }
 
-      const dustCount = 1 + (index % 3 === 0 ? 2 : 0);
+      const dustCount =
+        7 + (index % 3 === 0 ? 2 : 0) + Math.round(Math.min(4, scrollEnergy * 3));
       for (let dust = 0; dust < dustCount; dust += 1) {
-        const dustSeed =
-          index * 11.1 + dust * 29.7 + Math.floor(time / 95) * 0.17;
-        const dustX = point.x + (tearNoise(dustSeed) - 0.5) * 38;
+        const dustSeed = index * 11.1 + dust * 29.7;
+        const pulse = Math.sin(time * 0.0018 + dustSeed) * (1.4 + scrollEnergy * 2.8);
+        const spread = 32 + Math.min(34, scrollEnergy * 25);
+        const dustX = point.x + (tearNoise(dustSeed) - 0.5) * 46 + pulse;
         const dustY =
           point.y +
-          (tearNoise(dustSeed * 1.19) - 0.56) *
-            (26 + Math.min(24, scrollEnergy * 20));
-        const radius = 0.3 + tearNoise(dustSeed * 1.57) * 1.65;
-        context.beginPath();
-        context.ellipse(
-          dustX,
-          dustY,
-          radius * (0.75 + tearNoise(dustSeed * 2.19)),
-          radius,
-          tearNoise(dustSeed * 2.83) * Math.PI,
-          0,
-          Math.PI * 2,
-        );
-        context.fillStyle = `rgba(246,243,233,${
-          0.14 + tearNoise(dustSeed * 1.73) * 0.5
-        })`;
-        context.fill();
+          (tearNoise(dustSeed * 1.19) - 0.5) * spread +
+          pulse * 0.45;
+        const isPaperSide = dustY < point.y;
+        const radius =
+          0.22 +
+          tearNoise(dustSeed * 1.57) *
+            (isPaperSide ? 1.45 : 1.9 + scrollEnergy * 0.55);
+        context.fillStyle = isPaperSide
+          ? `rgba(49,46,39,${0.06 + tearNoise(dustSeed * 1.73) * 0.24})`
+          : `rgba(250,247,237,${0.18 + tearNoise(dustSeed * 1.73) * 0.62})`;
+        if (dust % 2 === 0) {
+          context.fillRect(
+            dustX,
+            dustY,
+            radius * (0.8 + tearNoise(dustSeed * 2.19)),
+            radius,
+          );
+        } else {
+          context.beginPath();
+          context.ellipse(
+            dustX,
+            dustY,
+            radius * (0.75 + tearNoise(dustSeed * 2.19)),
+            radius,
+            tearNoise(dustSeed * 2.83) * Math.PI,
+            0,
+            Math.PI * 2,
+          );
+          context.fill();
+        }
       }
     });
+
+    const atmosphereCount = Math.round(180 + scrollEnergy * 90);
+    for (let index = 0; index < atmosphereCount; index += 1) {
+      const seed = index * 17.37;
+      const x = tearNoise(seed) * width;
+      const pointIndex = Math.min(
+        points.length - 1,
+        Math.floor((x / width) * points.length),
+      );
+      const edgeY = points[pointIndex].y;
+      const depth = tearNoise(seed * 1.91);
+      const driftY = Math.sin(time * 0.00045 + seed) * 8;
+      const y = edgeY + 12 + depth * Math.max(0, height - edgeY) + driftY;
+      if (y < edgeY || y > height) continue;
+      const size = 0.25 + tearNoise(seed * 2.73) * 1.15;
+      context.fillStyle = `rgba(244,241,232,${
+        0.025 + tearNoise(seed * 3.31) * (0.055 + scrollEnergy * 0.025)
+      })`;
+      context.fillRect(x, y, size, size);
+    }
     context.restore();
 
     const revealRect = revealLayer.getBoundingClientRect();
@@ -676,6 +717,9 @@ export default function FieldNotebook() {
       const noteGateScene = siteRef.current?.querySelector<HTMLElement>(
         `.${styles.noteGate}`,
       );
+      const noteGateStage = noteGateScene?.closest<HTMLElement>(
+        `.${styles.playgroundStage}`,
+      );
       const noteTearCanvas = noteGateScene?.querySelector<HTMLCanvasElement>(
         `.${styles.noteTearCanvas}`,
       );
@@ -685,7 +729,7 @@ export default function FieldNotebook() {
       const tearState = { progress: 0 };
 
       if (noteTearCanvas && noteTearReveal) {
-        tearRenderer = createTearRenderer(noteTearCanvas, noteTearReveal);
+        tearRenderer = createTearRenderer(noteTearCanvas, noteTearReveal, false);
       }
 
       const heroTimeline = gsap.timeline({
@@ -1124,13 +1168,11 @@ export default function FieldNotebook() {
           );
         }
 
-        if (!noteGateScene || !tearRenderer) return;
-        const noteSources = noteGateScene.querySelectorAll(
-          `.${styles.noteGateSource} figure`,
-        );
+        if (!noteGateScene || !noteGateStage || !tearRenderer) return;
         const noteCards = noteGateScene.querySelectorAll(
           `.${styles.noteGateWall} blockquote`,
         );
+        const outgoingField = noteGateStage.querySelector(`.${styles.playgroundField}`);
         const noteGateCarry = noteGateScene.querySelector(`.${styles.noteGateCarry}`);
         const noteGateLabel = noteGateScene.querySelector(`.${styles.noteGateLabel}`);
         const noteGateWorldFar = noteGateScene.querySelector(
@@ -1146,10 +1188,11 @@ export default function FieldNotebook() {
 
         const noteTimeline = gsap.timeline({
           scrollTrigger: {
-            trigger: noteGateScene,
+            id: "playground-tear",
+            trigger: noteGateStage,
             start: "top top",
-            end: "+=205%",
-            scrub: 1.2,
+            end: "+=240%",
+            scrub: 1.15,
             pin: true,
             pinSpacing: true,
             anticipatePin: 1,
@@ -1163,123 +1206,129 @@ export default function FieldNotebook() {
             {
               progress: 1,
               ease: "none",
-              duration: 1.08,
+              duration: 1.5,
               onUpdate: () => tearRenderer?.render(tearState.progress),
             },
             0,
           )
           .to(
-            noteSources,
+            outgoingField,
             {
-              y: (index) => (index % 2 === 0 ? -72 : -42),
-              x: (index) => (index % 2 === 0 ? -36 : 46),
-              scale: 0.9,
-              rotate: (index) => (index % 2 === 0 ? -7 : 6),
-              opacity: 0.22,
-              stagger: 0.05,
+              scale: 1.035,
+              filter: "saturate(0.78) brightness(0.92)",
               ease: "none",
-              duration: 0.82,
+              duration: 1.2,
             },
             0,
           )
           .fromTo(
             noteGateWorldFar,
-            { yPercent: -2, scale: 1.13, opacity: 0.46 },
+            { yPercent: -4, scale: 1.16, opacity: 0.72 },
             {
-              yPercent: 3,
-              scale: 1.07,
-              opacity: 0.3,
+              yPercent: 5,
+              scale: 1.05,
+              opacity: 0.52,
               ease: "none",
-              duration: 1.08,
+              duration: 1.5,
             },
             0,
           )
           .fromTo(
             noteGateWorldMid,
-            { yPercent: -7, scale: 1.12, opacity: 0.72 },
+            { yPercent: -15, scale: 1.2, opacity: 0.96 },
             {
-              yPercent: 9,
-              scale: 1.02,
-              opacity: 0.48,
+              yPercent: 16,
+              scale: 1,
+              opacity: 0.78,
               ease: "none",
-              duration: 1.08,
+              duration: 1.5,
             },
             0,
           )
           .fromTo(
             noteGateWorldNear,
             {
-              xPercent: -2,
-              yPercent: -10,
-              scale: 1.08,
-              opacity: 0.88,
+              xPercent: -5,
+              yPercent: -20,
+              scale: 1.14,
+              opacity: 1,
             },
             {
-              xPercent: 2,
-              yPercent: 12,
-              scale: 1.01,
-              opacity: 0.62,
+              xPercent: 8,
+              yPercent: 18,
+              scale: 1,
+              opacity: 0.84,
               ease: "none",
-              duration: 1.08,
+              duration: 1.5,
             },
             0,
           )
           .fromTo(
             noteGateCaption,
-            { y: 90, opacity: 0 },
-            { y: -30, opacity: 1, ease: "none", duration: 0.78 },
-            0.18,
+            { y: 120, opacity: 0 },
+            { y: -20, opacity: 1, ease: "none", duration: 0.72 },
+            0.4,
           )
           .fromTo(
             noteCards,
             {
-              y: 48,
-              scale: 0.94,
+              y: 180,
+              scale: 0.58,
               rotate: (index) => (index % 2 === 0 ? -5 : 4),
-              opacity: 0.28,
+              opacity: 0,
             },
             {
               y: 0,
               scale: 1,
               rotate: (index) => [-2, 1.5, -1, 2, -1.5, 1, -2.2, 1.8][index] ?? 0,
               opacity: 1,
-              stagger: 0.035,
+              stagger: 0.08,
               ease: "none",
-              duration: 0.68,
+              duration: 0.62,
             },
-            0.2,
+            0.72,
           )
           .fromTo(
             noteGateLabel,
             { y: 30, opacity: 0 },
             { y: 0, opacity: 1, ease: "none", duration: 0.28 },
-            0.58,
+            0.88,
           )
           .to(
             noteGateLabel,
             { y: -18, opacity: 0, ease: "none", duration: 0.18 },
-            0.91,
+            1.3,
+          )
+          .to(
+            [outgoingField, noteGateScene],
+            {
+              yPercent: -100,
+              ease: "none",
+              duration: 0.54,
+            },
+            1.38,
           );
 
         if (noteGateCarry) {
           noteTimeline
             .fromTo(
               noteGateCarry,
-              { xPercent: 24, yPercent: 35, rotate: 10, scale: 0.82 },
+              { xPercent: 46, yPercent: 65, rotate: 8, scale: 0.56, opacity: 0 },
               {
-                xPercent: -18,
-                yPercent: -28,
-                rotate: -6,
-                scale: 1.06,
+                xPercent: 0,
+                yPercent: 0,
+                rotate: -3,
+                scale: 0.92,
+                opacity: 1,
                 ease: "none",
-                duration: 0.74,
+                duration: 0.62,
               },
-              0.08,
+              0.52,
             )
             .to(
               noteGateCarry,
-              { yPercent: -70, rotate: -12, opacity: 0, ease: "none", duration: 0.24 },
-              0.82,
+              { yPercent: -35, rotate: -8, opacity: 0, ease: "none", duration: 0.22 },
+              1.28,
             );
         }
 
@@ -1288,20 +1337,27 @@ export default function FieldNotebook() {
           noteGateWorldMid,
           noteGateWorldNear,
         ].filter((layer): layer is Element => Boolean(layer));
-        const depthStrength = [7, 15, 26];
+        const depthStrength = [10, 28, 52];
         const depthX = depthLayers.map((layer) =>
           gsap.quickTo(layer, "x", { duration: 0.9, ease: "power3.out" }),
         );
         const depthY = depthLayers.map((layer) =>
           gsap.quickTo(layer, "y", { duration: 1.1, ease: "power3.out" }),
         );
+        const noteDepth = Array.from(noteCards).map((card) =>
+          gsap.quickTo(card, "x", { duration: 0.82, ease: "power3.out" }),
+        );
+        const noteStrength = [18, -22, 26, -16];
         const moveDepth = (event: PointerEvent) => {
-          const bounds = noteGateScene.getBoundingClientRect();
+          const bounds = noteGateStage.getBoundingClientRect();
           const normalizedX = (event.clientX - bounds.left) / bounds.width - 0.5;
           const normalizedY = (event.clientY - bounds.top) / bounds.height - 0.5;
           depthLayers.forEach((_, index) => {
             depthX[index](normalizedX * depthStrength[index]);
             depthY[index](normalizedY * depthStrength[index] * 0.55);
+          });
+          noteDepth.forEach((setX, index) => {
+            setX(normalizedX * (noteStrength[index] ?? 14));
           });
         };
         const resetDepth = () => {
@@ -1309,13 +1365,14 @@ export default function FieldNotebook() {
             depthX[index](0);
             depthY[index](0);
           });
+          noteDepth.forEach((setX) => setX(0));
         };
-        noteGateScene.addEventListener("pointermove", moveDepth);
-        noteGateScene.addEventListener("pointerleave", resetDepth);
+        noteGateStage.addEventListener("pointermove", moveDepth);
+        noteGateStage.addEventListener("pointerleave", resetDepth);
 
         return () => {
-          noteGateScene.removeEventListener("pointermove", moveDepth);
-          noteGateScene.removeEventListener("pointerleave", resetDepth);
+          noteGateStage.removeEventListener("pointermove", moveDepth);
+          noteGateStage.removeEventListener("pointerleave", resetDepth);
         };
       });
 
@@ -1980,7 +2037,13 @@ export default function FieldNotebook() {
 
           <div className={styles.lensPlayObjects} aria-hidden="true">
             <Image src={`${B}/images/about/computer-room.jpg`} alt="" width={420} height={300} />
-            <Image src={`${B}/images/about/Minecraft.jfif`} alt="" width={480} height={300} />
+            <Image
+              src={`${B}/images/about/Minecraft.jfif`}
+              alt=""
+              width={480}
+              height={300}
+              style={{ height: "auto" }}
+            />
             <Image src={`${B}/sloth_color.png`} alt="" width={210} height={210} />
           </div>
         </div>
@@ -2003,7 +2066,8 @@ export default function FieldNotebook() {
           </button>
         </div>
 
-        <div className={styles.playgroundField} ref={playgroundRef}>
+        <div className={styles.playgroundStage}>
+          <div className={styles.playgroundField} ref={playgroundRef}>
           <motion.figure
             key={`camera-${playgroundKey}`}
             className={`${styles.playObject} ${styles.playCamera}`}
@@ -2018,6 +2082,7 @@ export default function FieldNotebook() {
               src={`${B}/images/about/computer-room.jpg`}
               alt="A creative desk"
               fill
+              loading="eager"
               sizes="320px"
             />
             <figcaption>FIELD DESK / 03:17</figcaption>
@@ -2037,6 +2102,7 @@ export default function FieldNotebook() {
               src={`${B}/images/about/Minecraft.png`}
               alt="Minecraft experiment"
               fill
+              loading="eager"
               sizes="300px"
             />
             <figcaption>BUILD A SMALL WORLD</figcaption>
@@ -2073,67 +2139,63 @@ export default function FieldNotebook() {
           >
             Curiosity is a tool.<br />Use it until the edges wear out.
           </motion.blockquote>
+          </div>
+
+          <div className={styles.noteGate} aria-hidden="true">
+            <canvas className={styles.noteTearCanvas} aria-hidden="true" />
+            <div className={styles.noteGateReveal}>
+              <div className={styles.noteGateWorld}>
+                <Image
+                  src={`${B}/images/field-notebook-archive-far.png`}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className={styles.noteGateWorldFar}
+                />
+                <Image
+                  src={`${B}/images/field-notebook-archive-mid.png`}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className={styles.noteGateWorldMid}
+                />
+                <Image
+                  src={`${B}/images/field-notebook-archive-near.png`}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className={styles.noteGateWorldNear}
+                />
+              </div>
+              <div className={styles.noteGateDepthGrid} />
+              <div className={styles.noteGateCaption}>
+                <strong>FIELD NOTES / 生活痕迹</strong>
+                <span>MACAU · I</span>
+                <span>NANJING · II</span>
+                <span>PRODUCTS · III</span>
+                <span>PHOTOGRAPHS · IV</span>
+                <span>SMALL WORLDS · V</span>
+                <span>GUESTBOOK · VI</span>
+              </div>
+              <div className={styles.noteGateWall}>
+                {guestEntries.slice(0, 8).map((entry) => (
+                  <blockquote
+                    key={`note-gate-${entry.id}`}
+                    style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
+                  >
+                    <p>{entry.message}</p>
+                    <cite>{entry.nickname || "Anonymous"}</cite>
+                  </blockquote>
+                ))}
+              </div>
+              <figure className={styles.noteGateCarry}>
+                <Image src={`${B}/sloth_color.png`} alt="" fill sizes="18vw" />
+              </figure>
+            </div>
+            <span className={styles.noteGateLabel}>05 / traces become paper</span>
+          </div>
         </div>
       </section>
-
-      <div className={styles.noteGate} aria-hidden="true">
-        <div className={styles.noteGateWorld}>
-          <Image
-            src={`${B}/images/field-notebook-archive-far.png`}
-            alt=""
-            fill
-            sizes="100vw"
-            className={styles.noteGateWorldFar}
-          />
-          <Image
-            src={`${B}/images/field-notebook-archive-mid.png`}
-            alt=""
-            fill
-            sizes="100vw"
-            className={styles.noteGateWorldMid}
-          />
-          <Image
-            src={`${B}/images/field-notebook-archive-near.png`}
-            alt=""
-            fill
-            sizes="100vw"
-            className={styles.noteGateWorldNear}
-          />
-        </div>
-        <div className={styles.noteGateDepthGrid} />
-        <canvas className={styles.noteTearCanvas} aria-hidden="true" />
-        <div className={styles.noteGateSource}>
-          <figure>
-            <Image src={`${B}/images/about/computer-room.jpg`} alt="" fill sizes="34vw" />
-          </figure>
-          <figure>
-            <Image src={`${B}/images/about/Minecraft.jfif`} alt="" fill sizes="36vw" />
-          </figure>
-        </div>
-        <div className={styles.noteGateReveal}>
-          <div className={styles.noteGateCaption}>
-            <strong>TRACES / 生活痕迹</strong>
-            <span>MACAU</span>
-            <span>NANJING</span>
-            <span>BUILD · PLAY · OBSERVE</span>
-          </div>
-          <div className={styles.noteGateWall}>
-            {guestEntries.slice(0, 8).map((entry) => (
-              <blockquote
-                key={`note-gate-${entry.id}`}
-                style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
-              >
-                <p>{entry.message}</p>
-                <cite>{entry.nickname || "Anonymous"}</cite>
-              </blockquote>
-            ))}
-          </div>
-          <figure className={styles.noteGateCarry}>
-            <Image src={`${B}/sloth_color.png`} alt="" fill sizes="18vw" />
-          </figure>
-        </div>
-        <span className={styles.noteGateLabel}>05 / traces become paper</span>
-      </div>
 
       <section id="guestbook" className={styles.guestbook}>
         <div className={styles.guestbookHeading}>

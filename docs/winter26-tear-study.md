@@ -22,12 +22,14 @@ GUESS:
 
 ## Local Translation
 
-- A custom Canvas 2D renderer draws the live torn edge from deterministic broad waves, time-based ripples, scroll-velocity energy, fibers, paper dust, shadow, and procedural paper grain.
-- ScrollTrigger pins the Playground-to-Guestbook scene and drives the main tear progress.
+- A custom Canvas 2D renderer draws the live torn edge from deterministic broad waves, time-based ripples, scroll-velocity energy, fibers, paper dust, and shadow.
+- The real draggable Playground is the outgoing paper surface; there is no duplicated transition screen.
+- One ScrollTrigger pins the full-viewport Playground stage, drives the tear, then lifts the outgoing stage while the real Guestbook takes over from below.
 - The torn contour and revealed DOM layer share one generated clip path.
 - Image 2 produced an original archive world, then semantically extracted independent middle- and foreground layers.
 - The far, middle, and foreground PNGs move at different scroll and pointer rates.
-- Playground photographs remain above the paper while guest notes and the sloth cross into the revealed world.
+- Playground objects remain above the tear while guest notes and the sloth cross into the revealed world.
+- Guest notes add a fourth pointer-parallax plane above the three Image 2 background depths.
 - Mobile uses a shorter non-pinned reveal; reduced motion removes the transition gate.
 
 No Shopify source code, textures, or production assets are included.

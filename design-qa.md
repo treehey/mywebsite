@@ -22,10 +22,11 @@
 - Fragments transform into the NJU project stage instead of ending at a hard section boundary.
 - Four project scenes use distinct full-screen compositions and a clickable project index.
 - Enzyme transforms into film; film develops into photography; photography scatters into Playground objects.
-- Playground tears open into a dark archive world before the Guestbook wall appears.
+- The real Playground stage tears directly into a dark archive world; no standalone transition screen or duplicated outgoing photographs remain.
 - The tear contour changes continuously with time, scroll progress, and scroll velocity.
 - Far, middle, and foreground archive PNGs use independent ScrollTrigger and pointer parallax.
 - Guest notes and the sloth share the live tear mask, so content cannot appear before the paper edge reaches it.
+- In the final timeline phase, Playground and the archive lift together while the real Guestbook takes over from below.
 - Reduced-motion mode removes pinning and transition gates, then stacks all four project scenes as readable full-screen sections.
 
 ## Navigation And Locale
@@ -54,6 +55,12 @@
 - Guestbook wall: `output/playwright/one-long-take/phase-05-guestbook-wall.png`
 - Image 2 depth transition: `output/playwright/one-long-take/phase-08-image2-depth-mid.png`
 - Mobile tear transition: `output/playwright/one-long-take/phase-08-mobile-image2.png`
+- Live tear opening: `output/playwright/one-long-take/phase-10-tear-opening.png`
+- Three-layer archive depth: `output/playwright/one-long-take/phase-10-archive-depth.png`
+- Archive-to-Guestbook lift: `output/playwright/one-long-take/phase-10-guestbook-lift.png`
+- Continuous handoff: `output/playwright/one-long-take/phase-10-guestbook-handoff.png`
+- Mobile tear and handoff: `output/playwright/one-long-take/phase-10-mobile-tear.png`, `output/playwright/one-long-take/phase-10-mobile-handoff.png`
+- Reduced-motion fallback: `output/playwright/one-long-take/phase-10-reduced-motion.png`
 - Last page: `output/playwright/one-long-take/phase-05-last-page.png`
 
 final result: passed
