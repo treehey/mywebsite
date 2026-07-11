@@ -1176,6 +1176,7 @@ export default function FieldNotebook() {
         const lensViewport = lensScene.querySelector(`.${styles.filmViewport}`);
         const lensPolaroid = lensScene.querySelector(`.${styles.lensPolaroid}`);
         const playObjects = lensScene.querySelectorAll(`.${styles.lensPlayObjects} img`);
+        const playObjectsLayer = lensScene.querySelector(`.${styles.lensPlayObjects}`);
         const lensStage = lensScene.querySelector(`.${styles.lensStage}`);
 
         const lensHandoff = gsap.timeline({
@@ -1327,6 +1328,76 @@ export default function FieldNotebook() {
             { y: 70, rotate: -7, opacity: 0, ease: "none", duration: 0.3 },
             0.72,
           );
+        }
+
+        const playgroundScene = siteRef.current?.querySelector<HTMLElement>(
+          `.${styles.playground}`,
+        );
+        const playgroundHeading = playgroundScene?.querySelector(
+          `.${styles.playgroundHeading}`,
+        );
+        const playgroundStage = playgroundScene?.querySelector(
+          `.${styles.playgroundStage}`,
+        );
+
+        if (playgroundScene) {
+          const playgroundHandoff = gsap.timeline({
+            scrollTrigger: {
+              id: "lens-playground-handoff",
+              trigger: playgroundScene,
+              start: "top bottom",
+              end: "top top",
+              scrub: 0.95,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          playgroundHandoff.fromTo(
+            playgroundScene,
+            {
+              clipPath:
+                "polygon(0 20%, 27% 8%, 69% 16%, 100% 2%, 100% 100%, 0 100%)",
+            },
+            {
+              clipPath:
+                "polygon(0 0%, 27% 0%, 69% 0%, 100% 0%, 100% 100%, 0 100%)",
+              ease: "none",
+            },
+            0,
+          );
+
+          if (playObjectsLayer) {
+            playgroundHandoff.to(
+              playObjectsLayer,
+              {
+                yPercent: -14,
+                scale: 1.08,
+                opacity: 0,
+                filter: "blur(5px)",
+                transformOrigin: "center",
+                ease: "none",
+              },
+              0.16,
+            );
+          }
+
+          if (playgroundHeading) {
+            playgroundHandoff.fromTo(
+              playgroundHeading,
+              { y: 110, opacity: 0 },
+              { y: 0, opacity: 1, ease: "none" },
+              0.18,
+            );
+          }
+
+          if (playgroundStage) {
+            playgroundHandoff.fromTo(
+              playgroundStage,
+              { y: 150, scale: 0.97 },
+              { y: 0, scale: 1, ease: "none" },
+              0.25,
+            );
+          }
         }
 
         if (!noteGateScene || !noteGateStage || !tearRenderer) return;

@@ -780,6 +780,13 @@
     will-change: clip-path;
   }
 
+  .playground {
+    position: relative;
+    z-index: 6;
+    margin-top: -100svh;
+    will-change: clip-path;
+  }
+
   .fragmentsIntro {
     position: sticky;
     top: 7rem;
