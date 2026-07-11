@@ -32,4 +32,19 @@ GUESS:
 - Guest notes add a fourth pointer-parallax plane above the three Image 2 background depths.
 - Mobile uses a shorter non-pinned reveal; reduced motion removes the transition gate.
 
+## Continuous Handoff Grammar
+
+The reference works because the transition is part of the scene choreography, not a separate separator. The local site applies that principle with a different transition designed for each pair of chapters:
+
+- Poster to Fragments: the next paper world opens through a clipped window while the title is still in frame.
+- Fragments to Experiments: the selected project image expands as the desk artifacts blur behind it.
+- Experiments to Lens: a thin photographic band develops over the final project before taking the viewport.
+- Lens to Playground: the contact sheet scatters in depth while an angled paper stage lands above it.
+- Playground to Guestbook: the custom live tear exposes the layered archive and real messages underneath.
+- Guestbook to Last Page: the dark note wall recedes while the closing page unfolds diagonally into place.
+
+Every desktop handoff keeps the outgoing and incoming chapters visible in the same viewport. Overlapping section geometry removes the blank scroll interval between the end of one timeline and the beginning of the next. CSS view-timeline effects are limited to mobile so they cannot override the desktop GSAP transforms.
+
+Contextual cursor verbs and bounded media parallax provide local interaction depth between the larger scroll beats. These effects use original DOM, Canvas 2D, GSAP ScrollTrigger, Framer Motion, and generated archive imagery.
+
 No Shopify source code, textures, or production assets are included.

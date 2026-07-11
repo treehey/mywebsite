@@ -681,8 +681,10 @@ export default function FieldNotebook() {
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [copied, setCopied] = useState(false);
   const [motionReady, setMotionReady] = useState(false);
+  const [cursorIntent, setCursorIntent] = useState("");
   const siteRef = useRef<HTMLElement>(null);
   const playgroundRef = useRef<HTMLDivElement>(null);
+  const parallaxTargetRef = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll();
   const cursorX = useMotionValue(-120);
@@ -1400,7 +1402,7 @@ export default function FieldNotebook() {
           }
         }
 
-        if (!noteGateScene || !noteGateStage || !tearRenderer) return;
+        if (!playgroundScene || !noteGateScene || !noteGateStage || !tearRenderer) return;
         const noteCards = noteGateScene.querySelectorAll(
           `.${styles.noteGateWall} blockquote`,
         );
@@ -2021,19 +2023,44 @@ export default function FieldNotebook() {
       onPointerMove={(event) => {
         cursorX.set(event.clientX);
         cursorY.set(event.clientY);
+        const target = event.target as HTMLElement;
+        const intent = target.closest<HTMLElement>("[data-cursor]")?.dataset.cursor ?? "";
+        setCursorIntent((current) => (current === intent ? current : intent));
+
+        const parallaxTarget = target.closest<HTMLElement>("[data-parallax]");
+        if (parallaxTargetRef.current !== parallaxTarget) {
+          parallaxTargetRef.current?.style.setProperty("--parallax-x", "0px");
+          parallaxTargetRef.current?.style.setProperty("--parallax-y", "0px");
+          parallaxTargetRef.current = parallaxTarget;
+        }
+        if (parallaxTarget) {
+          const bounds = parallaxTarget.getBoundingClientRect();
+          const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+          const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+          parallaxTarget.style.setProperty("--parallax-x", `${x * 18}px`);
+          parallaxTarget.style.setProperty("--parallax-y", `${y * 12}px`);
+        }
       }}
       onPointerLeave={() => {
         cursorX.set(-120);
         cursorY.set(-120);
+        setCursorIntent("");
+        parallaxTargetRef.current?.style.setProperty("--parallax-x", "0px");
+        parallaxTargetRef.current?.style.setProperty("--parallax-y", "0px");
+        parallaxTargetRef.current = null;
       }}
     >
       {motionReady && !reduceMotion && (
         <>
           <motion.div
-            className={styles.cursorHalo}
+            className={`${styles.cursorHalo} ${cursorIntent ? styles.cursorHaloActive : ""}`}
             style={{ x: cursorSpringX, y: cursorSpringY }}
+            animate={{ scale: cursorIntent ? 0.56 : 1 }}
+            transition={{ type: "spring", stiffness: 260, damping: 24 }}
             aria-hidden="true"
-          />
+          >
+            <span>{cursorIntent}</span>
+          </motion.div>
 
           <motion.div
             className={styles.scrollProgress}
@@ -2171,7 +2198,7 @@ export default function FieldNotebook() {
           {t.poster.note.split("\n").map((line) => <span key={line}>{line}<br /></span>)}
         </aside>
 
-        <a className={styles.scrollCue} href="#fragments">
+        <a className={styles.scrollCue} href="#fragments" data-cursor="SCROLL">
           <ArrowDown aria-hidden="true" />
           <span>{t.poster.scroll}</span>
         </a>
@@ -2201,7 +2228,7 @@ export default function FieldNotebook() {
           <p className={styles.fragmentsCopy}>
             {t.fragments.copy}
           </p>
-          <a href="#experiments" className={styles.textLink}>
+          <a href="#experiments" className={styles.textLink} data-cursor="NEXT">
             {t.fragments.link} <ArrowUpRight aria-hidden="true" />
           </a>
         </div>
@@ -2276,7 +2303,7 @@ export default function FieldNotebook() {
                 key={project.number}
                 className={`${styles.projectScene} ${project.className}`}
               >
-                <a href={project.href} target="_blank" rel="noreferrer">
+                <a href={project.href} target="_blank" rel="noreferrer" data-cursor="OPEN">
                   <div className={styles.projectSceneNumber}>
                     <span>{project.number}</span>
                     <small>0{index + 1} / 04</small>
@@ -2289,7 +2316,7 @@ export default function FieldNotebook() {
                     <blockquote>{t.experiments.notes[index]}</blockquote>
                   </div>
 
-                  <div className={styles.projectSceneMedia}>
+                  <div className={styles.projectSceneMedia} data-parallax>
                     <Image
                       src={project.src}
                       alt={`${project.title} project interface`}
@@ -2347,7 +2374,12 @@ export default function FieldNotebook() {
             <SectionLabel index="03" en={t.nav.lens[0]} zh={t.nav.lens[1]} />
             <h2>{t.lens.title}</h2>
             <p>{t.lens.copy}</p>
-            <a href={`${B}/images/HK.jpg`} target="_blank" className={styles.lensLink}>
+            <a
+              href={`${B}/images/HK.jpg`}
+              target="_blank"
+              className={styles.lensLink}
+              data-cursor="VIEW"
+            >
               {t.lens.link} <ArrowUpRight aria-hidden="true" />
             </a>
           </div>
@@ -2361,9 +2393,10 @@ export default function FieldNotebook() {
                   rel="noreferrer"
                   className={styles.filmFrame}
                   key={`${photo.number}-${index}`}
+                  data-cursor="VIEW"
                 >
                   <span>{photo.number}</span>
-                  <div>
+                  <div data-parallax>
                     <Image
                       src={photo.src}
                       alt={`${photo.place} photography`}
@@ -2412,6 +2445,7 @@ export default function FieldNotebook() {
             type="button"
             className={styles.shuffleButton}
             onClick={() => setPlaygroundKey((key) => key + 1)}
+            data-cursor="SHUFFLE"
           >
             <Shuffle aria-hidden="true" />
             <span>{t.playground.shuffle}</span>
@@ -2427,6 +2461,7 @@ export default function FieldNotebook() {
             dragConstraints={playgroundRef}
             dragElastic={0.12}
             whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
+            data-cursor="DRAG"
             initial={{ x: playgroundKey % 2 ? 30 : 0, rotate: -5 }}
             animate={{ x: 0, rotate: -3 }}
           >
@@ -2447,6 +2482,7 @@ export default function FieldNotebook() {
             dragConstraints={playgroundRef}
             dragElastic={0.12}
             whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
+            data-cursor="DRAG"
             initial={{ x: playgroundKey % 2 ? -35 : 0, rotate: 5 }}
             animate={{ x: 0, rotate: 2 }}
           >
@@ -2467,6 +2503,7 @@ export default function FieldNotebook() {
             dragConstraints={playgroundRef}
             dragElastic={0.12}
             whileDrag={{ scale: 1.05, rotate: 0, zIndex: 8 }}
+            data-cursor="DRAG"
             initial={{ y: playgroundKey % 2 ? -28 : 0, rotate: -2 }}
             animate={{ y: 0, rotate: 3 }}
           >
@@ -2486,6 +2523,7 @@ export default function FieldNotebook() {
             drag
             dragConstraints={playgroundRef}
             whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
+            data-cursor="DRAG"
             initial={{ opacity: 0, rotate: 8 }}
             animate={{ opacity: 1, rotate: -2 }}
           >
@@ -2568,6 +2606,7 @@ export default function FieldNotebook() {
                 whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 0.6 : -0.6 }}
                 viewport={{ once: true }}
                 transition={{ delay: Math.min(index * 0.04, 0.28) }}
+                data-cursor="READ"
               >
                 <time>
                   {new Date(entry.created_at).toLocaleDateString("zh-CN", {
@@ -2582,7 +2621,7 @@ export default function FieldNotebook() {
             ))}
           </div>
 
-          <form className={styles.guestForm} onSubmit={submitGuestbook}>
+          <form className={styles.guestForm} onSubmit={submitGuestbook} data-cursor="WRITE">
             <span className={styles.formKicker}>PIN A NEW NOTE / 贴一张新便签</span>
             <label>
               <span>{t.guestbook.name}</span>
@@ -2622,15 +2661,30 @@ export default function FieldNotebook() {
             <h2>{t.last.title.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</h2>
             <div className={styles.emailRow}>
               <a href="mailto:123kevinlio@gmail.com">123kevinlio@gmail.com</a>
-              <button type="button" onClick={copyEmail} aria-label="Copy email address">
+              <button
+                type="button"
+                onClick={copyEmail}
+                aria-label="Copy email address"
+                data-cursor="COPY"
+              >
                 {copied ? <Check /> : <Copy />}
               </button>
             </div>
             <div className={styles.socialRow}>
-              <a href="https://github.com/treehey" target="_blank" rel="noreferrer">
+              <a
+                href="https://github.com/treehey"
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="VISIT"
+              >
                 GitHub <ArrowUpRight aria-hidden="true" />
               </a>
-              <a href="https://www.instagram.com/tree_hey/" target="_blank" rel="noreferrer">
+              <a
+                href="https://www.instagram.com/tree_hey/"
+                target="_blank"
+                rel="noreferrer"
+                data-cursor="VISIT"
+              >
                 Instagram <ArrowUpRight aria-hidden="true" />
               </a>
             </div>
@@ -2640,7 +2694,7 @@ export default function FieldNotebook() {
               <span>Field notes / 2024—2026</span>
             </div>
           </div>
-          <figure className={styles.lastPhoto}>
+          <figure className={styles.lastPhoto} data-cursor="LOOK" data-parallax>
             <Image
               src={`${B}/images/1.jpg`}
               alt="Macau rooftops collected along the way"

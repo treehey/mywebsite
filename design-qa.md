@@ -3,7 +3,7 @@
 - Implementation URL: `http://localhost:3000`
 - Master direction: `ONE LONG TAKE`
 - Motion reference studied: `https://www.shopify.com/editions/winter2026`
-- Primary evidence: `output/playwright/one-long-take/`
+- Primary evidence: `output/playwright/continuity-audit-phase-11/`
 - Desktop viewport: 1440 x 900
 - Mobile viewport: 390 x 844
 - Modes checked: default motion and `prefers-reduced-motion: reduce`
@@ -15,19 +15,30 @@
 - Production build and TypeScript compilation pass.
 - Default-motion and reduced-motion sessions report zero console errors.
 - Desktop and mobile layouts report zero horizontal overflow.
+- Desktop document height is 14,046 px, down from the earlier 18,183 px sequence after removing duplicated transition holds.
 
 ## Motion And Transitions
 
 - Hero is a pinned poster scene with scroll-linked type separation, artifact reveals, and velocity-reactive marquee motion.
-- Fragments transform into the NJU project stage instead of ending at a hard section boundary.
+- Hero and Fragments share the final poster viewport; a four-step clipped paper window expands over the outgoing type.
+- Fragments blur and recede behind the NJU project stage instead of ending at a hard section boundary.
 - Four project scenes use distinct full-screen compositions and a clickable project index.
-- Enzyme transforms into film; film develops into photography; photography scatters into Playground objects.
+- Enzyme remains visible while Lens develops through a narrow central film band.
+- Lens photographs scatter as an angled Playground sheet enters the same viewport and lands above them.
 - The real Playground stage tears directly into a dark archive world; no standalone transition screen or duplicated outgoing photographs remain.
 - The tear contour changes continuously with time, scroll progress, and scroll velocity.
 - Far, middle, and foreground archive PNGs use independent ScrollTrigger and pointer parallax.
 - Guest notes and the sloth share the live tear mask, so content cannot appear before the paper edge reaches it.
 - In the final timeline phase, Playground and the archive lift together while the real Guestbook takes over from below.
+- Guestbook notes and form recede while the Last Page unfolds diagonally from the lower-right, with its photograph and copy revealing on separate beats.
 - Reduced-motion mode removes pinning and transition gates, then stacks all four project scenes as readable full-screen sections.
+
+## Interaction Depth
+
+- Interactive regions expose contextual cursor verbs such as `OPEN`, `VIEW`, `DRAG`, `WRITE`, and `COPY`.
+- Project media, film frames, and the final photograph respond with bounded pointer parallax without changing layout geometry.
+- Hover depth is disabled with the custom cursor on coarse/mobile pointers and in reduced-motion mode.
+- The Playground retains draggable photographs and notes, plus a shuffle action that re-stages the composition.
 
 ## Navigation And Locale
 
@@ -47,20 +58,14 @@
 
 ## Visual Evidence
 
-- Hero impact frame: `output/playwright/one-long-take/phase-06-hero-impact-frame.png`
-- Chapter rail: `output/playwright/one-long-take/phase-06-chapter-rail.png`
-- Mobile Hero: `output/playwright/one-long-take/phase-06-mobile-hero.png`
-- Reduced motion: `output/playwright/one-long-take/phase-07-reduced-motion.png`
-- Mobile fragments: `output/playwright/one-long-take/phase-07-mobile-fragments.png`
-- Guestbook wall: `output/playwright/one-long-take/phase-05-guestbook-wall.png`
-- Image 2 depth transition: `output/playwright/one-long-take/phase-08-image2-depth-mid.png`
-- Mobile tear transition: `output/playwright/one-long-take/phase-08-mobile-image2.png`
-- Live tear opening: `output/playwright/one-long-take/phase-10-tear-opening.png`
-- Three-layer archive depth: `output/playwright/one-long-take/phase-10-archive-depth.png`
-- Archive-to-Guestbook lift: `output/playwright/one-long-take/phase-10-guestbook-lift.png`
-- Continuous handoff: `output/playwright/one-long-take/phase-10-guestbook-handoff.png`
-- Mobile tear and handoff: `output/playwright/one-long-take/phase-10-mobile-tear.png`, `output/playwright/one-long-take/phase-10-mobile-handoff.png`
-- Reduced-motion fallback: `output/playwright/one-long-take/phase-10-reduced-motion.png`
-- Last page: `output/playwright/one-long-take/phase-05-last-page.png`
+- Hero to Fragments: `output/playwright/continuity-audit-phase-11/01-fragments-approach.png`
+- Fragments to Experiments: `output/playwright/continuity-audit-phase-11/02-experiments-approach.png`
+- Experiments to Lens: `output/playwright/continuity-audit-phase-11/03-lens-mid.png`
+- Lens to Playground: `output/playwright/continuity-audit-phase-11/04-playground-mid.png`
+- Playground to Guestbook: `output/playwright/continuity-audit-phase-11/05-guestbook-approach.png`
+- Guestbook to Last Page: `output/playwright/continuity-audit-phase-11/06-last-page-mid.png`
+- Context cursor and media parallax: `output/playwright/continuity-audit-phase-11/07-context-cursor-project.png`, `output/playwright/continuity-audit-phase-11/08-context-cursor-last-page.png`
+- Mobile Guestbook and Last Page: `output/playwright/continuity-audit-phase-11/09-mobile-guestbook.png`, `output/playwright/continuity-audit-phase-11/09-mobile-last-page.png`
+- Reduced-motion Guestbook: `output/playwright/continuity-audit-phase-11/10-reduced-guestbook.png`
 
 final result: passed

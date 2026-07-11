@@ -23,6 +23,14 @@
   border-radius: 50%;
   pointer-events: none;
   mix-blend-mode: multiply;
+  display: grid;
+  place-items: center;
+  background: rgb(241 238 229 / 0%);
+  box-shadow: 0 0 0 rgb(17 18 16 / 0%);
+  transition:
+    border-color 220ms ease,
+    background 220ms ease,
+    box-shadow 220ms ease;
 }
 
 .cursorHalo::after {
@@ -34,6 +42,29 @@
   content: "";
   background: var(--tomato);
   transform: translate(-50%, -50%);
+  transition: opacity 180ms ease;
+}
+
+.cursorHalo span {
+  font-family: var(--font-mono), monospace;
+  font-size: 1.05rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.cursorHaloActive {
+  border-color: rgb(231 86 56 / 88%);
+  background: rgb(241 238 229 / 72%);
+  box-shadow: 0 14px 42px rgb(17 18 16 / 14%);
+}
+
+.cursorHaloActive::after {
+  opacity: 0;
+}
+
+.cursorHaloActive span {
+  opacity: 1;
 }
 
 .site :is(section, footer) {
@@ -1177,11 +1208,12 @@
 .projectSceneMedia img {
   object-fit: cover;
   object-position: top center;
-  transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0) scale(1.025);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .projectScene:hover .projectSceneMedia img {
-  transform: scale(1.018);
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0) scale(1.045);
 }
 
 .projectFimel .projectSceneMedia {
@@ -1464,12 +1496,13 @@
 .filmFrame img {
   object-fit: cover;
   filter: grayscale(1) contrast(1.1);
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0) scale(1.035);
   transition: filter 400ms ease, transform 700ms ease;
 }
 
 .filmFrame:hover img {
   filter: grayscale(0) contrast(1);
-  transform: scale(1.04);
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0) scale(1.065);
 }
 
 .filmFrame span,
@@ -2136,6 +2169,8 @@
 
 .lastPhoto img {
   object-fit: cover;
+  transform: translate3d(var(--parallax-x, 0px), var(--parallax-y, 0px), 0) scale(1.04);
+  transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lastPhoto figcaption {
@@ -2730,6 +2765,21 @@
 
   .motionRibbon::before {
     animation: none;
+  }
+
+  .fragments,
+  .experiments,
+  .lens,
+  .playground,
+  .lastPage {
+    margin-top: 0;
+    clip-path: none;
+    transform: none;
+    will-change: auto;
+  }
+
+  .lastPage {
+    box-shadow: none;
   }
 
   .experiments,
