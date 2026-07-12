@@ -3181,11 +3181,13 @@
 }
 
 .sharedPhoto .sharedPhotoSource,
-.sharedPhoto .sharedPhotoProject {
+.sharedPhoto .sharedPhotoProject,
+.sharedPhoto .sharedPhotoFinal {
   transition: opacity 680ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.sharedPhoto .sharedPhotoProject {
+.sharedPhoto .sharedPhotoProject,
+.sharedPhoto .sharedPhotoFinal {
   opacity: 0;
   object-position: top center;
   filter: none;
@@ -3196,6 +3198,15 @@
 }
 
 .sharedFieldObjects[data-scene="experiments"][data-project="0"] .sharedPhotoProject {
+  opacity: 1;
+}
+
+.sharedFieldObjects[data-scene="last-page"] .sharedPhotoSource,
+.sharedFieldObjects[data-scene="last-page"] .sharedPhotoProject {
+  opacity: 0;
+}
+
+.sharedFieldObjects[data-scene="last-page"] .sharedPhotoFinal {
   opacity: 1;
 }
 
@@ -3211,6 +3222,10 @@
 
 @media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
   .projectNju .projectSceneMedia {
+    opacity: 0;
+  }
+
+  .lastPhoto img {
     opacity: 0;
   }
 }
@@ -3689,6 +3704,117 @@
   height: 2.8rem;
 }
 
+.playgroundDiscovery {
+  position: absolute;
+  z-index: 12;
+  top: 12%;
+  right: 17%;
+  bottom: auto;
+  max-width: 18rem;
+  padding: 1.4rem 1.5rem;
+  color: var(--ink);
+  background: #f3b8a7;
+  box-shadow: 0 1.6rem 4rem rgb(17 18 16 / 18%);
+  font-family: Georgia, serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  line-height: 1.45;
+}
+
+.playgroundDiscovery span {
+  display: block;
+  margin-bottom: 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.52rem;
+  font-style: normal;
+}
+
+.guestEntryNew {
+  z-index: 8;
+  box-shadow:
+    0 2.2rem 5rem rgb(0 0 0 / 35%),
+    0 0 0 0.35rem rgb(231 86 56 / 32%);
+}
+
+.finaleCover {
+  position: absolute;
+  z-index: 42;
+  inset: 0;
+  display: grid;
+  min-height: 100svh;
+  align-content: center;
+  justify-items: center;
+  visibility: hidden;
+  overflow: hidden;
+  opacity: 0;
+  color: var(--paper);
+  background:
+    linear-gradient(90deg, rgb(241 238 229 / 7%) 1px, transparent 1px),
+    linear-gradient(rgb(241 238 229 / 5%) 1px, transparent 1px),
+    #25291c;
+  background-size: 4.25vw 100%, 100% 4.25vw, auto;
+  box-shadow: inset 4.25vw 0 0 rgb(17 18 16 / 24%);
+}
+
+.finaleCover::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: radial-gradient(circle at 50% 44%, rgb(241 238 229 / 9%), transparent 36%);
+}
+
+.finaleCover > span,
+.finaleCover > h2,
+.finaleCover > button {
+  position: relative;
+  z-index: 2;
+}
+
+.finaleCover > span {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.58rem;
+}
+
+.finaleCover h2 {
+  margin: 1.1rem 0 2.4rem;
+  font-family: var(--font-syne), sans-serif;
+  font-size: clamp(6rem, 18vw, 18rem);
+  font-weight: 800;
+  line-height: 0.78;
+}
+
+.finaleCover button {
+  display: inline-flex;
+  gap: 0.7rem;
+  align-items: center;
+  padding: 0.75rem 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  background: transparent;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+}
+
+.finaleCover button svg {
+  width: 1rem;
+}
+
+.site[data-motion-event="cover-close"] .sharedPhoto {
+  opacity: 0 !important;
+}
+
+.site[data-motion-event="cover-close"] .sharedMarker {
+  top: 56.5vh !important;
+  left: 66.2vw !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  border-color: var(--paper);
+  background: var(--tomato);
+  box-shadow: 0 0 0 2px var(--tomato);
+}
+
 @media (max-width: 900px) {
   .projectPhysics {
     display: none;
@@ -3732,5 +3858,16 @@
   .caseStudyExit {
     min-height: 9rem;
     padding-inline: 1.25rem;
+  }
+
+  .playgroundDiscovery {
+    top: auto;
+    right: 1rem;
+    bottom: 5rem;
+    max-width: 15rem;
+  }
+
+  .finaleCover {
+    display: none;
   }
 }

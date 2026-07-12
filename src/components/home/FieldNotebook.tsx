@@ -15,6 +15,7 @@ import {
 import {
   motion,
   MotionConfig,
+  type PanInfo,
   useReducedMotion,
 } from "framer-motion";
 import styles from "./FieldNotebook.module.css";
@@ -30,6 +31,15 @@ import { ProjectPhysics, type MotionLanguage } from "./scenes/ProjectPhysics";
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 type Language = "简" | "繁" | "EN";
+type PlayObjectId = "camera" | "block" | "sloth" | "note";
+type PlayOffset = { x: number; y: number };
+
+const initialPlayOffsets: Record<PlayObjectId, PlayOffset> = {
+  camera: { x: 0, y: 0 },
+  block: { x: 0, y: 0 },
+  sloth: { x: 0, y: 0 },
+  note: { x: 0, y: 0 },
+};
 
 const COPY = {
   "简": {
@@ -690,7 +700,10 @@ export default function FieldNotebook() {
   const [activeProject, setActiveProject] = useState(0);
   const [caseStudyIndex, setCaseStudyIndex] = useState<number | null>(null);
   const [playgroundKey, setPlaygroundKey] = useState(0);
+  const [playOffsets, setPlayOffsets] = useState(initialPlayOffsets);
+  const [snappedObjects, setSnappedObjects] = useState<PlayObjectId[]>([]);
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
+  const [newGuestId, setNewGuestId] = useState<number | null>(null);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [copied, setCopied] = useState(false);
   const siteRef = useRef<HTMLElement>(null);
@@ -1591,6 +1604,7 @@ export default function FieldNotebook() {
           const guestForm = guestbookScene.querySelector(`.${styles.guestForm}`);
           const lastCopy = lastPageScene.querySelector(`.${styles.lastCopy}`);
           const lastPhoto = lastPageScene.querySelector(`.${styles.lastPhoto}`);
+          const finaleCover = lastPageScene.querySelector(`.${styles.finaleCover}`);
           const lastPageHandoff = gsap.timeline({
             scrollTrigger: {
               id: "guestbook-last-page-handoff",
@@ -1628,9 +1642,8 @@ export default function FieldNotebook() {
               {
                 xPercent: -10,
                 y: -130,
-                scale: 0.9,
-                opacity: 0.12,
-                filter: "blur(5px)",
+                rotate: -2,
+                opacity: 0.28,
                 transformOrigin: "left center",
                 ease: "none",
               },
@@ -1645,8 +1658,7 @@ export default function FieldNotebook() {
                 xPercent: 16,
                 y: -150,
                 rotate: 4,
-                scale: 0.82,
-                opacity: 0.1,
+                opacity: 0.24,
                 transformOrigin: "right top",
                 ease: "none",
               },
@@ -1670,6 +1682,40 @@ export default function FieldNotebook() {
               { y: 0, opacity: 1, ease: "none" },
               0.34,
             );
+          }
+
+          if (finaleCover) {
+            const finaleContents = finaleCover.querySelectorAll("span, h2, button");
+            gsap.set(finaleCover, {
+              autoAlpha: 0,
+              clipPath: "inset(49% 48% 49% 48%)",
+            });
+            gsap.timeline({
+              scrollTrigger: {
+                id: "finale-cover-close",
+                trigger: lastPageScene,
+                start: "bottom bottom",
+                end: "+=95%",
+                scrub: 0.9,
+                pin: true,
+                pinSpacing: true,
+                anticipatePin: 1,
+                onEnter: () => siteRef.current?.setAttribute("data-motion-event", "cover-close"),
+                onLeaveBack: () => siteRef.current?.removeAttribute("data-motion-event"),
+              },
+            })
+              .to(finaleCover, {
+                autoAlpha: 1,
+                clipPath: "inset(0% 0% 0% 0%)",
+                ease: "none",
+                duration: 0.72,
+              })
+              .fromTo(
+                finaleContents,
+                { y: 48, opacity: 0 },
+                { y: 0, opacity: 1, stagger: 0.08, ease: "power3.out", duration: 0.4 },
+                0.52,
+              );
           }
         }
 
@@ -1908,17 +1954,24 @@ export default function FieldNotebook() {
         setGuestStatus("error");
         return;
       }
-      setGuestEntries((current) => [data as GuestEntry, ...current].slice(0, 12));
+      const created = data as GuestEntry;
+      setNewGuestId(created.id);
+      setGuestEntries((current) => [created, ...current].slice(0, 12));
     } else {
+      const id = Date.now();
+      setNewGuestId(id);
       setGuestEntries((current) => [
-        { ...entry, id: Date.now(), created_at: new Date().toISOString() },
+        { ...entry, id, created_at: new Date().toISOString() },
         ...current,
       ].slice(0, 12));
     }
 
     formElement.reset();
     setGuestStatus("done");
-    window.setTimeout(() => setGuestStatus("idle"), 1800);
+    window.setTimeout(() => {
+      setGuestStatus("idle");
+      setNewGuestId(null);
+    }, 1800);
   };
 
   const copyEmail = async () => {
@@ -1944,6 +1997,40 @@ export default function FieldNotebook() {
     document
       .getElementById(`project-${experiments[index].number}`)
       ?.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  };
+
+  const snapPlayObject = (id: PlayObjectId, info: PanInfo) => {
+    const current = playOffsets[id];
+    const target = {
+      x: window.innerWidth * 0.73,
+      y: window.scrollY + window.innerHeight * 0.57,
+    };
+    const distance = Math.hypot(info.point.x - target.x, info.point.y - target.y);
+    const magnetic = distance < Math.min(window.innerWidth * 0.13, 180);
+    const next = magnetic
+      ? {
+          x: current.x + info.offset.x + target.x - info.point.x,
+          y: current.y + info.offset.y + target.y - info.point.y,
+        }
+      : {
+          x: current.x + Math.round(info.offset.x / 48) * 48,
+          y: current.y + Math.round(info.offset.y / 48) * 48,
+        };
+    setPlayOffsets((offsets) => ({ ...offsets, [id]: next }));
+    if (magnetic) {
+      setSnappedObjects((objects) => objects.includes(id) ? objects : [...objects, id]);
+    }
+  };
+
+  const shufflePlayground = () => {
+    setPlaygroundKey((key) => key + 1);
+    setPlayOffsets({
+      camera: { x: 36, y: -24 },
+      block: { x: -42, y: 28 },
+      sloth: { x: 24, y: 34 },
+      note: { x: -28, y: -18 },
+    });
+    setSnappedObjects([]);
   };
 
   return (
@@ -1985,6 +2072,7 @@ export default function FieldNotebook() {
         activeProject={activeProject}
         photoSrc={`${B}/images/about/nju.jpg`}
         projectSrc={`${B}/images/njumatch.png`}
+        finalSrc={`${B}/images/1.jpg`}
         reduceMotion={reduceMotion === true}
       />
       <ProjectCaseStudy
@@ -2265,7 +2353,7 @@ export default function FieldNotebook() {
           <button
             type="button"
             className={styles.shuffleButton}
-            onClick={() => setPlaygroundKey((key) => key + 1)}
+            onClick={shufflePlayground}
             data-cursor="SHUFFLE"
           >
             <Shuffle aria-hidden="true" />
@@ -2281,10 +2369,13 @@ export default function FieldNotebook() {
             drag
             dragConstraints={playgroundRef}
             dragElastic={0.12}
+            dragMomentum
+            dragTransition={{ bounceStiffness: 360, bounceDamping: 28 }}
+            onDragEnd={(_, info) => snapPlayObject("camera", info)}
             whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
             data-cursor="DRAG"
-            initial={{ x: playgroundKey % 2 ? 30 : 0, rotate: -5 }}
-            animate={{ x: 0, rotate: -3 }}
+            initial={{ opacity: 0, scale: 0.92, rotate: -5 }}
+            animate={{ ...playOffsets.camera, opacity: 1, scale: 1, rotate: -3 }}
           >
             <Image
               src={`${B}/images/about/computer-room.jpg`}
@@ -2302,10 +2393,13 @@ export default function FieldNotebook() {
             drag
             dragConstraints={playgroundRef}
             dragElastic={0.12}
+            dragMomentum
+            dragTransition={{ bounceStiffness: 360, bounceDamping: 28 }}
+            onDragEnd={(_, info) => snapPlayObject("block", info)}
             whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
             data-cursor="DRAG"
-            initial={{ x: playgroundKey % 2 ? -35 : 0, rotate: 5 }}
-            animate={{ x: 0, rotate: 2 }}
+            initial={{ opacity: 0, scale: 0.92, rotate: 5 }}
+            animate={{ ...playOffsets.block, opacity: 1, scale: 1, rotate: 2 }}
           >
             <Image
               src={`${B}/images/about/Minecraft.png`}
@@ -2323,10 +2417,13 @@ export default function FieldNotebook() {
             drag
             dragConstraints={playgroundRef}
             dragElastic={0.12}
+            dragMomentum
+            dragTransition={{ bounceStiffness: 360, bounceDamping: 28 }}
+            onDragEnd={(_, info) => snapPlayObject("sloth", info)}
             whileDrag={{ scale: 1.05, rotate: 0, zIndex: 8 }}
             data-cursor="DRAG"
-            initial={{ y: playgroundKey % 2 ? -28 : 0, rotate: -2 }}
-            animate={{ y: 0, rotate: 3 }}
+            initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
+            animate={{ ...playOffsets.sloth, opacity: 1, scale: 1, rotate: 3 }}
           >
             <Image
               src={`${B}/sloth_color.png`}
@@ -2343,14 +2440,30 @@ export default function FieldNotebook() {
             className={styles.playNote}
             drag
             dragConstraints={playgroundRef}
+            dragMomentum
+            dragTransition={{ bounceStiffness: 360, bounceDamping: 28 }}
+            onDragEnd={(_, info) => snapPlayObject("note", info)}
             whileDrag={{ scale: 1.04, rotate: 0, zIndex: 8 }}
             data-cursor="DRAG"
-            initial={{ opacity: 0, rotate: 8 }}
-            animate={{ opacity: 1, rotate: -2 }}
+            initial={{ opacity: 0, scale: 0.92, rotate: 8 }}
+            animate={{ ...playOffsets.note, opacity: 1, scale: 1, rotate: -2 }}
           >
             Curiosity is a tool.<br />Use it until the edges wear out.
           </motion.blockquote>
+
           </div>
+
+          {snappedObjects.length >= 2 && (
+            <motion.aside
+              className={styles.playgroundDiscovery}
+              initial={{ opacity: 0, scale: 0.7, rotate: 6 }}
+              animate={{ opacity: 1, scale: 1, rotate: -2 }}
+              transition={{ type: "spring", stiffness: 240, damping: 20 }}
+            >
+              <span>FOUND / 组合记录</span>
+              好想法不是排出来的，<br />是物件互相靠近后出现的。
+            </motion.aside>
+          )}
 
           <div className={styles.noteGate} aria-hidden="true">
             <canvas className={styles.noteTearCanvas} aria-hidden="true" />
@@ -2420,13 +2533,18 @@ export default function FieldNotebook() {
             {guestEntries.map((entry, index) => (
               <motion.blockquote
                 key={entry.id}
-                className={styles.guestEntry}
+                layout
+                className={`${styles.guestEntry} ${entry.id === newGuestId ? styles.guestEntryNew : ""}`}
                 style={{ ["--note-color" as string]: entry.color || "#f8f5ed" }}
                 title={entry.message ?? undefined}
-                initial={{ opacity: 0, y: 24, rotate: index % 2 ? 1.5 : -1.5 }}
-                whileInView={{ opacity: 1, y: 0, rotate: index % 2 ? 0.6 : -0.6 }}
+                initial={entry.id === newGuestId
+                  ? { opacity: 0, x: 320, y: 220, scale: 0.42, rotate: 12 }
+                  : { opacity: 0, y: 24, rotate: index % 2 ? 1.5 : -1.5 }}
+                whileInView={{ opacity: 1, x: 0, y: 0, scale: 1, rotate: index % 2 ? 0.6 : -0.6 }}
                 viewport={{ once: true }}
-                transition={{ delay: Math.min(index * 0.04, 0.28) }}
+                transition={entry.id === newGuestId
+                  ? { type: "spring", stiffness: 180, damping: 21, mass: 0.8 }
+                  : { delay: Math.min(index * 0.04, 0.28) }}
                 data-cursor="READ"
               >
                 <time>
@@ -2527,7 +2645,22 @@ export default function FieldNotebook() {
         </div>
         <div className={styles.footerLine}>
           <span>© 2026 TREE HEY</span>
-          <a href="#poster">{t.last.back} <ArrowUpRight aria-hidden="true" /></a>
+          <a
+            href="#poster"
+            onClick={(event) => {
+              event.preventDefault();
+              navigateTo("poster");
+            }}
+          >
+            {t.last.back} <ArrowUpRight aria-hidden="true" />
+          </a>
+        </div>
+        <div className={styles.finaleCover}>
+          <span>THE END IS THE COVER / 现场笔记</span>
+          <h2>TREE HEY</h2>
+          <button type="button" onClick={() => navigateTo("poster")}>
+            重新打开笔记 <ArrowUpRight aria-hidden="true" />
+          </button>
         </div>
       </footer>
     </main>

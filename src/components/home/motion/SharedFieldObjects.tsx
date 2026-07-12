@@ -23,7 +23,7 @@ const photoStates = {
   lens: { left: "19vw", top: "63vh", width: "62vw", height: "18vh", rotate: 0, opacity: 0.16 },
   playground: { left: "66vw", top: "41vh", width: "19vw", height: "27vh", rotate: 4, opacity: 0.32 },
   guestbook: { left: "13vw", top: "66vh", width: "19vw", height: "21vh", rotate: -3, opacity: 0.2 },
-  "last-page": { left: "59vw", top: "31vh", width: "32vw", height: "45vh", rotate: 1, opacity: 0.14 },
+  "last-page": { left: "44vw", top: "51vh", width: "52vw", height: "58vh", rotate: 0, opacity: 0.96 },
 } satisfies Record<SceneId, object>;
 
 type SharedFieldObjectsProps = {
@@ -31,6 +31,7 @@ type SharedFieldObjectsProps = {
   activeProject: number;
   photoSrc: string;
   projectSrc: string;
+  finalSrc: string;
   reduceMotion: boolean;
 };
 
@@ -39,6 +40,7 @@ export function SharedFieldObjects({
   activeProject,
   photoSrc,
   projectSrc,
+  finalSrc,
   reduceMotion,
 }: SharedFieldObjectsProps) {
   const photoState =
@@ -90,6 +92,13 @@ export function SharedFieldObjects({
           fill
           sizes="64vw"
           priority
+        />
+        <Image
+          className={styles.sharedPhotoFinal}
+          src={finalSrc}
+          alt=""
+          fill
+          sizes="52vw"
         />
         <figcaption>{caption}</figcaption>
       </motion.figure>
