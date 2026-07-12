@@ -3165,6 +3165,41 @@
   filter: saturate(0.78) contrast(1.05);
 }
 
+.sharedPhoto .sharedPhotoSource,
+.sharedPhoto .sharedPhotoProject {
+  transition: opacity 680ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sharedPhoto .sharedPhotoProject {
+  opacity: 0;
+  object-position: top center;
+  filter: none;
+}
+
+.sharedFieldObjects[data-scene="experiments"][data-project="0"] .sharedPhotoSource {
+  opacity: 0;
+}
+
+.sharedFieldObjects[data-scene="experiments"][data-project="0"] .sharedPhotoProject {
+  opacity: 1;
+}
+
+.site[data-motion-event="photo-pin"] .sharedPhoto {
+  box-shadow:
+    0 2.4rem 7rem rgb(31 29 22 / 24%),
+    0 0 0 0.32rem rgb(241 238 229 / 70%);
+}
+
+.site[data-motion-event="photo-pin"] .sharedMarker {
+  animation: markerSettle 640ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .projectNju .projectSceneMedia {
+    opacity: 0;
+  }
+}
+
 .sharedPhoto figcaption {
   position: absolute;
   z-index: 2;
@@ -3337,5 +3372,15 @@
 
   .sharedFieldObjects {
     display: none;
+  }
+}
+
+@keyframes markerSettle {
+  0%,
+  100% {
+    box-shadow: 0 0 0 2px var(--tomato);
+  }
+  45% {
+    box-shadow: 0 0 0 0.75rem rgb(231 86 56 / 16%);
   }
 }

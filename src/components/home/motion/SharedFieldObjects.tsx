@@ -19,7 +19,7 @@ const markerStates = {
 const photoStates = {
   poster: { left: "73vw", top: "17vh", width: "14vw", height: "19vh", rotate: 4, opacity: 1 },
   fragments: { left: "57vw", top: "43vh", width: "22vw", height: "29vh", rotate: -2, opacity: 0.94 },
-  experiments: { left: "34vw", top: "19vh", width: "49vw", height: "55vh", rotate: 0, opacity: 0.12 },
+  experiments: { left: "30vw", top: "5vh", width: "64vw", height: "68vh", rotate: 0, opacity: 0.94 },
   lens: { left: "19vw", top: "63vh", width: "62vw", height: "18vh", rotate: 0, opacity: 0.16 },
   playground: { left: "66vw", top: "41vh", width: "19vw", height: "27vh", rotate: 4, opacity: 0.32 },
   guestbook: { left: "13vw", top: "66vh", width: "19vw", height: "21vh", rotate: -3, opacity: 0.2 },
@@ -28,17 +28,43 @@ const photoStates = {
 
 type SharedFieldObjectsProps = {
   activeScene: SceneId;
+  activeProject: number;
   photoSrc: string;
+  projectSrc: string;
   reduceMotion: boolean;
 };
 
 export function SharedFieldObjects({
   activeScene,
+  activeProject,
   photoSrc,
+  projectSrc,
   reduceMotion,
 }: SharedFieldObjectsProps) {
+  const photoState =
+    activeScene === "experiments" && activeProject > 0
+      ? { ...photoStates.experiments, opacity: 0, scale: 0.94 }
+      : photoStates[activeScene];
+  const caption =
+    activeScene === "experiments"
+      ? "NJU MATCH / CONNECT"
+      : activeScene === "lens"
+        ? "FRAME 01 / DEVELOP"
+        : activeScene === "playground"
+          ? "LOOSE PRINT / MOVE"
+          : activeScene === "guestbook"
+            ? "COMMUNITY NOTE / PIN"
+            : activeScene === "last-page"
+              ? "MEMORY 01 / KEEP"
+              : "NANJING / OBSERVATION 01";
+
   return (
-    <div className={styles.sharedFieldObjects} data-scene={activeScene} aria-hidden="true">
+    <div
+      className={styles.sharedFieldObjects}
+      data-scene={activeScene}
+      data-project={activeProject}
+      aria-hidden="true"
+    >
       <motion.div
         className={styles.sharedMarker}
         animate={markerStates[activeScene]}
@@ -46,11 +72,26 @@ export function SharedFieldObjects({
       />
       <motion.figure
         className={styles.sharedPhoto}
-        animate={photoStates[activeScene]}
+        animate={photoState}
         transition={reduceMotion ? { duration: 0 } : motionTokens.spring}
       >
-        <Image src={photoSrc} alt="" fill sizes="62vw" priority />
-        <figcaption>MACAU / OBSERVATION 03</figcaption>
+        <Image
+          className={styles.sharedPhotoSource}
+          src={photoSrc}
+          alt=""
+          fill
+          sizes="62vw"
+          priority
+        />
+        <Image
+          className={styles.sharedPhotoProject}
+          src={projectSrc}
+          alt=""
+          fill
+          sizes="64vw"
+          priority
+        />
+        <figcaption>{caption}</figcaption>
       </motion.figure>
       <div className={styles.sharedPaperEdge} />
     </div>
