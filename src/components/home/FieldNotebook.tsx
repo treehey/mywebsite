@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import {
@@ -24,6 +24,8 @@ import { SharedFieldObjects } from "./motion/SharedFieldObjects";
 import { SpineNavigation } from "./motion/SpineNavigation";
 import { sceneIds as chapterItems, type SceneId } from "./motion/sceneRegistry";
 import { useMotionDirector } from "./motion/useMotionDirector";
+import { ProjectCaseStudy } from "./scenes/ProjectCaseStudy";
+import { ProjectPhysics, type MotionLanguage } from "./scenes/ProjectPhysics";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
@@ -251,6 +253,10 @@ const experiments = [
     href: "https://njumatch.com",
     tags: "Campus product / Full-stack",
     className: styles.projectNju,
+    motionLanguage: "connect" as MotionLanguage,
+    problem: "校园里有很多可能相遇的人，但传统社交产品把真实环境和关系语境抹平了。",
+    process: "从校园建筑、兴趣标签和安全边界出发，把一次匹配设计成可被理解的连接过程。",
+    outcome: "完成从产品策略、视觉系统到全栈开发的闭环，让关系从真实校园中发生。",
   },
   {
     number: "02",
@@ -260,6 +266,10 @@ const experiments = [
     href: "https://treehey.github.io/Fimel/",
     tags: "Minecraft / Creative web",
     className: styles.projectFimel,
+    motionLanguage: "build" as MotionLanguage,
+    problem: "创作者需要一个既能展示作品，也能保留 Minecraft 社群气质的入口。",
+    process: "将方块、地形与工作室内容拆成可重组的模块，再建立清晰的浏览层级。",
+    outcome: "一个保持游戏个性、同时能承载团队与项目内容的可漫游站点。",
   },
   {
     number: "03",
@@ -269,6 +279,10 @@ const experiments = [
     href: "https://finai.org.cn",
     tags: "AI / Information design",
     className: styles.projectWide,
+    motionLanguage: "structure" as MotionLanguage,
+    problem: "研究信息密度很高，用户容易在模型、数据和结论之间失去方向。",
+    process: "把噪声压缩成证据路径，通过语义层级和渐进披露帮助用户建立结构。",
+    outcome: "复杂研究从资料堆叠变成可扫描、可追溯、可继续探索的工作界面。",
   },
   {
     number: "04",
@@ -278,6 +292,10 @@ const experiments = [
     href: "https://treehey.github.io/Enzyme/",
     tags: "Science / Interactive web",
     className: styles.projectEnzyme,
+    motionLanguage: "react" as MotionLanguage,
+    problem: "酶学反应难以被直接观察，静态图示无法表达条件变化与动态关系。",
+    process: "把分子、轨迹和食物隐喻组合成可操作实验，让参数变化产生即时反馈。",
+    outcome: "抽象科学概念变成可以触摸、比较和记住的交互式学习体验。",
   },
 ] as const;
 
@@ -670,6 +688,7 @@ export default function FieldNotebook() {
   const [language, setLanguage] = useState<Language>("简");
   const [activeSection, setActiveSection] = useState<SceneId>("poster");
   const [activeProject, setActiveProject] = useState(0);
+  const [caseStudyIndex, setCaseStudyIndex] = useState<number | null>(null);
   const [playgroundKey, setPlaygroundKey] = useState(0);
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
@@ -694,6 +713,7 @@ export default function FieldNotebook() {
     onSceneChange: setActiveSection,
     reduceMotion: reduceMotion === true,
   });
+  const closeCaseStudy = useCallback(() => setCaseStudyIndex(null), []);
 
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
@@ -921,7 +941,7 @@ export default function FieldNotebook() {
           },
           {
             clipPath:
-              "polygon(0 0%, 0 0%, 7% 0%, 14% 0%, 23% 0%, 31% 0%, 42% 0%, 53% 0%, 65% 0%, 74% 0%, 86% 0%, 94% 0%, 100% 0%, 100% 100%)",
+              "polygon(0 0%, 0 0%, 7% 0%, 14% 0%, 23% 0%, 31% 0%, 42% 0%, 53% 0%, 65% 0%, 74% 0%, 86% 0%, 94% 0%, 100% 0%, 100% 100%, 0 100%)",
             yPercent: 0,
             ease: "none",
           },
@@ -996,18 +1016,34 @@ export default function FieldNotebook() {
           const current = projectScenes[index];
           const reveal = sceneReveals[index - 1];
           const at = 0.72 + (index - 1) * 1.08;
+          const previousPieces = previous.querySelectorAll("[data-physics-piece]");
+          const exitPhysics =
+            index === 1
+              ? { y: (pieceIndex: number) => (pieceIndex % 2 ? 72 : -56), rotate: 22, scale: 0.72 }
+              : index === 2
+                ? { x: 0, y: 0, scaleX: 0.08, transformOrigin: "left center" }
+                : { x: (pieceIndex: number) => (pieceIndex % 2 ? 90 : -90), scale: 0.45 };
 
           experimentsTimeline
+            .to(
+              previousPieces,
+              {
+                ...exitPhysics,
+                opacity: 0,
+                stagger: 0.018,
+                ease: "none",
+                duration: 0.28,
+              },
+              at,
+            )
             .to(
               previous,
               {
                 autoAlpha: 0,
-                scale: 0.9,
-                xPercent: index % 2 === 0 ? 6 : -6,
                 ease: "none",
-                duration: 0.34,
+                duration: 0.2,
               },
-              at,
+              at + 0.16,
             )
             .fromTo(
               current,
@@ -1016,7 +1052,7 @@ export default function FieldNotebook() {
                 clipPath: reveal.clipPath,
                 xPercent: reveal.xPercent,
                 yPercent: reveal.yPercent,
-                scale: index === 3 ? 1.08 : 1,
+                scale: index === 1 ? 0.88 : index === 3 ? 1.08 : 1,
               },
               {
                 autoAlpha: 1,
@@ -1025,7 +1061,7 @@ export default function FieldNotebook() {
                 yPercent: 0,
                 scale: 1,
                 ease: "none",
-                duration: 0.66,
+                duration: 0.58,
               },
               at + 0.1,
             )
@@ -1036,7 +1072,12 @@ export default function FieldNotebook() {
             )
             .from(
               current.querySelector(`.${styles.projectSceneMedia}`),
-              { scale: 1.08, ease: "none", duration: 0.68 },
+              {
+                scale: index === 1 ? 0.76 : index === 2 ? 1.04 : 1.08,
+                rotate: index === 1 ? -2 : 0,
+                ease: "none",
+                duration: 0.62,
+              },
               at + 0.1,
             );
         }
@@ -1728,6 +1769,39 @@ export default function FieldNotebook() {
 
   useEffect(() => {
     if (reduceMotion) return;
+    const project = document.getElementById(`project-${experiments[activeProject].number}`);
+    if (!project) return;
+    const pieces = project.querySelectorAll("[data-physics-piece]");
+    const language = experiments[activeProject].motionLanguage;
+    const from =
+      language === "connect"
+        ? { scale: 0.3, opacity: 0, transformOrigin: "center" }
+        : language === "build"
+          ? { y: 48, rotate: 18, scale: 0.55, opacity: 0 }
+          : language === "structure"
+            ? { x: (index: number) => (index % 2 ? 90 : -90), opacity: 0 }
+            : { scale: 0, opacity: 0 };
+    const tween = gsap.fromTo(
+      pieces,
+      from,
+      {
+        x: 0,
+        y: 0,
+        rotate: 0,
+        scale: 1,
+        opacity: 1,
+        stagger: 0.035,
+        duration: 0.72,
+        ease: language === "structure" ? "power3.out" : "back.out(1.7)",
+      },
+    );
+    return () => {
+      tween.kill();
+    };
+  }, [activeProject, reduceMotion]);
+
+  useEffect(() => {
+    if (reduceMotion) return;
     const frame = window.requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => window.cancelAnimationFrame(frame);
   }, [guestEntries.length, reduceMotion]);
@@ -1913,6 +1987,10 @@ export default function FieldNotebook() {
         projectSrc={`${B}/images/njumatch.png`}
         reduceMotion={reduceMotion === true}
       />
+      <ProjectCaseStudy
+        project={caseStudyIndex === null ? null : experiments[caseStudyIndex]}
+        onClose={closeCaseStudy}
+      />
 
       <section id="poster" className={styles.poster}>
         <div className={styles.posterCoverMeta} aria-hidden="true">
@@ -2030,7 +2108,12 @@ export default function FieldNotebook() {
                 key={project.number}
                 className={`${styles.projectScene} ${project.className}`}
               >
-                <a href={project.href} target="_blank" rel="noreferrer" data-cursor="OPEN">
+                <button
+                  type="button"
+                  className={styles.projectSceneTrigger}
+                  onClick={() => setCaseStudyIndex(index)}
+                  aria-label={`Open ${project.title} project story`}
+                >
                   <div className={styles.projectSceneNumber}>
                     <span>{project.number}</span>
                     <small>0{index + 1} / 04</small>
@@ -2038,25 +2121,36 @@ export default function FieldNotebook() {
 
                   <div className={styles.projectSceneCopy}>
                     <span>{project.tags}</span>
-                    <h3>{project.title}</h3>
+                    <h3>
+                      {project.title.split(" ").map((word) => (
+                        <span key={word}>{word}<br /></span>
+                      ))}
+                    </h3>
                     <p>{project.zh}</p>
                     <blockquote>{t.experiments.notes[index]}</blockquote>
                   </div>
 
                   <div className={styles.projectSceneMedia} data-parallax>
-                    <Image
-                      src={project.src}
-                      alt={`${project.title} project interface`}
-                      fill
-                      sizes="(max-width: 900px) 92vw, 66vw"
-                    />
+                    <motion.div
+                      className={styles.projectSceneVisual}
+                      layoutId={`project-visual-${project.number}`}
+                    >
+                      <Image
+                        src={project.src}
+                        alt={`${project.title} project interface`}
+                        fill
+                        sizes="(max-width: 900px) 92vw, 66vw"
+                      />
+                    </motion.div>
                   </div>
 
+                  <ProjectPhysics language={project.motionLanguage} />
+
                   <div className={styles.projectSceneAction}>
-                    <span>Open project</span>
+                    <span>View story</span>
                     <ArrowUpRight aria-hidden="true" />
                   </div>
-                </a>
+                </button>
               </article>
             ))}
           </div>
