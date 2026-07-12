@@ -9,30 +9,25 @@ import {
   ArrowUpRight,
   Check,
   Copy,
-  Globe2,
-  Menu,
   Send,
   Shuffle,
-  X,
 } from "lucide-react";
 import {
   motion,
   MotionConfig,
-  useMotionValue,
   useReducedMotion,
-  useScroll,
-  useSpring,
 } from "framer-motion";
 import styles from "./FieldNotebook.module.css";
 import { supabase, type GuestEntry } from "@/lib/supabase";
 import { globalLenis } from "../SmoothScroll";
+import { SharedFieldObjects } from "./motion/SharedFieldObjects";
+import { SpineNavigation } from "./motion/SpineNavigation";
+import { sceneIds as chapterItems, type SceneId } from "./motion/sceneRegistry";
+import { useMotionDirector } from "./motion/useMotionDirector";
 
 const B = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 type Language = "简" | "繁" | "EN";
-
-const navItems = ["fragments", "experiments", "lens", "playground", "guestbook"] as const;
-const chapterItems = ["poster", ...navItems, "last-page"] as const;
 
 const COPY = {
   "简": {
@@ -672,41 +667,37 @@ function SectionLabel({
 }
 
 export default function FieldNotebook() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [language, setLanguage] = useState<Language>("简");
-  const [activeSection, setActiveSection] = useState<(typeof chapterItems)[number]>("poster");
+  const [activeSection, setActiveSection] = useState<SceneId>("poster");
   const [activeProject, setActiveProject] = useState(0);
   const [playgroundKey, setPlaygroundKey] = useState(0);
   const [guestEntries, setGuestEntries] = useState<GuestEntry[]>(fallbackEntries);
   const [guestStatus, setGuestStatus] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [copied, setCopied] = useState(false);
-  const [motionReady, setMotionReady] = useState(false);
-  const [cursorIntent, setCursorIntent] = useState("");
   const siteRef = useRef<HTMLElement>(null);
   const playgroundRef = useRef<HTMLDivElement>(null);
   const parallaxTargetRef = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const cursorX = useMotionValue(-120);
-  const cursorY = useMotionValue(-120);
-  const cursorSpringX = useSpring(cursorX, { stiffness: 210, damping: 28, mass: 0.45 });
-  const cursorSpringY = useSpring(cursorY, { stiffness: 210, damping: 28, mass: 0.45 });
   const t = COPY[language];
-  const runningTitle =
-    activeSection === "poster"
-      ? "ONE LONG TAKE"
-      : activeSection === "last-page"
-        ? "LAST PAGE"
-        : t.nav[activeSection][0];
+  const sceneLabels: Record<SceneId, string> = {
+    poster: language === "EN" ? "Cover" : "封面",
+    fragments: t.nav.fragments[0],
+    experiments: t.nav.experiments[0],
+    lens: t.nav.lens[0],
+    playground: t.nav.playground[0],
+    guestbook: t.nav.guestbook[0],
+    "last-page": language === "EN" ? "Last page" : "末页",
+  };
+  const { navigateTo } = useMotionDirector({
+    rootRef: siteRef,
+    activeScene: activeSection,
+    onSceneChange: setActiveSection,
+    reduceMotion: reduceMotion === true,
+  });
 
   useEffect(() => {
     document.documentElement.classList.add("field-notebook-theme");
     return () => document.documentElement.classList.remove("field-notebook-theme");
-  }, []);
-
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setMotionReady(true));
-    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -748,71 +739,15 @@ export default function FieldNotebook() {
       });
 
       heroTimeline
-        .to(`.${styles.tree}`, { xPercent: -18, yPercent: -9, scale: 0.96, ease: "none" }, 0)
-        .to(`.${styles.hey}`, { xPercent: 20, yPercent: 8, scale: 0.96, ease: "none" }, 0)
-        .to(`.${styles.posterIntro}`, { yPercent: -45, opacity: 0.18, ease: "none" }, 0)
-        .to(`.${styles.posterMicrogrid}`, { xPercent: -45, yPercent: -25, ease: "none" }, 0)
-        .to(`.${styles.redNote}`, { xPercent: 22, yPercent: 35, rotate: -10, ease: "none" }, 0)
-        .to(`.${styles.posterCircle}`, { scale: 5.4, rotate: 220, opacity: 0, ease: "none" }, 0)
-        .to(`.${styles.archiveTab}`, { yPercent: -65, ease: "none" }, 0)
-        .fromTo(
-          `.${styles.posterArtifacts} figure`,
-          {
-            autoAlpha: 0,
-            scale: 0.45,
-            rotate: (index) => [-8, 7, -5, 4][index] ?? 0,
-            clipPath: "inset(46% 0% 46% 0%)",
-          },
-          {
-            autoAlpha: 1,
-            scale: 1,
-            rotate: (index) => [-3, 3, -2, 2][index] ?? 0,
-            clipPath: "inset(0% 0% 0% 0%)",
-            stagger: 0.045,
-            ease: "none",
-            duration: 0.34,
-          },
-          0.18,
-        )
         .to(
-          `.${styles.posterArtifacts} figure`,
-          {
-            x: (index) => [-150, 180, -90, 140][index] ?? 0,
-            y: (index) => [-90, 120, 150, -130][index] ?? 0,
-            scale: 1.26,
-            opacity: 0,
-            stagger: 0.035,
-            ease: "none",
-            duration: 0.32,
-          },
-          0.68,
+          `.${styles.posterType}`,
+          { scale: 1.13, yPercent: -3, transformOrigin: "54% 46%", ease: "none" },
+          0,
         )
-        .to(`.${styles.posterType}`, { opacity: 0.08, ease: "none" }, 0.72);
-
-      const ribbonTween = gsap.to(`.${styles.motionRibbon} > div`, {
-        xPercent: -50,
-        ease: "none",
-        repeat: -1,
-        duration: 22,
-      });
-      let ribbonDirection = 1;
-
-      ScrollTrigger.create({
-        trigger: siteRef.current,
-        start: "top top",
-        end: "max",
-        onUpdate: (self) => {
-          const velocity = self.getVelocity();
-          if (Math.abs(velocity) > 20) ribbonDirection = velocity < 0 ? -1 : 1;
-          const speed = gsap.utils.clamp(0.65, 4, Math.abs(velocity) / 650);
-          gsap.to(ribbonTween, {
-            timeScale: speed * ribbonDirection,
-            duration: 0.35,
-            ease: "power2.out",
-            overwrite: true,
-          });
-        },
-      });
+        .to(`.${styles.posterIntro}`, { yPercent: -18, opacity: 0.22, ease: "none" }, 0.12)
+        .to(`.${styles.posterCoverMeta}`, { yPercent: -55, opacity: 0.2, ease: "none" }, 0.08)
+        .to(`.${styles.scrollCue}`, { y: -24, opacity: 0, ease: "none" }, 0.56)
+        .to(`.${styles.posterType}`, { opacity: 0.12, ease: "none" }, 0.76);
 
       media.add("(min-width: 901px)", () => {
         const fragmentScene = siteRef.current?.querySelector<HTMLElement>(
@@ -820,12 +755,6 @@ export default function FieldNotebook() {
         );
         if (!fragmentScene) return;
 
-        const posterScene = siteRef.current?.querySelector<HTMLElement>(
-          `.${styles.poster}`,
-        );
-        const posterRibbon = posterScene?.querySelector<HTMLElement>(
-          `.${styles.motionRibbon}`,
-        );
         const fragmentHandoff = gsap.timeline({
           scrollTrigger: {
             id: "poster-fragments-handoff",
@@ -850,20 +779,6 @@ export default function FieldNotebook() {
           },
           0,
         );
-
-        if (posterRibbon) {
-          fragmentHandoff.fromTo(
-            posterRibbon,
-            { yPercent: 0, scaleY: 1 },
-            {
-              yPercent: -18,
-              scaleY: 1.12,
-              transformOrigin: "bottom",
-              ease: "none",
-            },
-            0.54,
-          );
-        }
 
         const cards = gsap.utils.toArray<HTMLElement>(
           fragmentScene.querySelectorAll(`.${styles.fragmentPhoto}`),
@@ -1846,8 +1761,8 @@ export default function FieldNotebook() {
       if (!id) return;
       const target = document.getElementById(decodeURIComponent(id));
       if (!target) return;
-      if (chapterItems.includes(id as (typeof chapterItems)[number])) {
-        setActiveSection(id as (typeof chapterItems)[number]);
+      if (chapterItems.includes(id as SceneId)) {
+        setActiveSection(id as SceneId);
       }
       const shouldReduceMotion = reduceMotion === true;
       const top = target.getBoundingClientRect().top + window.scrollY - 76;
@@ -1874,57 +1789,6 @@ export default function FieldNotebook() {
     };
   }, [reduceMotion]);
 
-  useEffect(() => {
-    let ticking = false;
-    const updateFromViewport = () => {
-      ticking = false;
-      const probeY = window.innerHeight * 0.42;
-      const current = chapterItems.find((id) => {
-        const section = document.getElementById(id);
-        if (!section) return false;
-        const rect = section.getBoundingClientRect();
-        return rect.top <= probeY && rect.bottom > probeY;
-      });
-      if (current) setActiveSection(current);
-    };
-
-    const requestUpdate = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(updateFromViewport);
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (visible?.target.id && chapterItems.includes(visible.target.id as (typeof chapterItems)[number])) {
-          setActiveSection(visible.target.id as (typeof chapterItems)[number]);
-        }
-      },
-      {
-        rootMargin: "-35% 0px -45% 0px",
-        threshold: [0.12, 0.32, 0.52, 0.72],
-      },
-    );
-
-    chapterItems.forEach((id) => {
-      const section = document.getElementById(id);
-      if (section) observer.observe(section);
-    });
-
-    updateFromViewport();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-    };
-  }, []);
-
   const selectLanguage = (next: Language) => {
     setLanguage(next);
     window.localStorage.setItem("treehey-language", next);
@@ -1948,8 +1812,6 @@ export default function FieldNotebook() {
         setGuestEntries(merged);
       });
   }, []);
-
-  const closeMenu = () => setMenuOpen(false);
 
   const submitGuestbook = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -2021,12 +1883,7 @@ export default function FieldNotebook() {
       ref={siteRef}
       className={styles.site}
       onPointerMove={(event) => {
-        cursorX.set(event.clientX);
-        cursorY.set(event.clientY);
         const target = event.target as HTMLElement;
-        const intent = target.closest<HTMLElement>("[data-cursor]")?.dataset.cursor ?? "";
-        setCursorIntent((current) => (current === intent ? current : intent));
-
         const parallaxTarget = target.closest<HTMLElement>("[data-parallax]");
         if (parallaxTargetRef.current !== parallaxTarget) {
           parallaxTargetRef.current?.style.setProperty("--parallax-x", "0px");
@@ -2042,151 +1899,33 @@ export default function FieldNotebook() {
         }
       }}
       onPointerLeave={() => {
-        cursorX.set(-120);
-        cursorY.set(-120);
-        setCursorIntent("");
         parallaxTargetRef.current?.style.setProperty("--parallax-x", "0px");
         parallaxTargetRef.current?.style.setProperty("--parallax-y", "0px");
         parallaxTargetRef.current = null;
       }}
     >
-      {motionReady && !reduceMotion && (
-        <>
-          <motion.div
-            className={`${styles.cursorHalo} ${cursorIntent ? styles.cursorHaloActive : ""}`}
-            style={{ x: cursorSpringX, y: cursorSpringY }}
-            animate={{ scale: cursorIntent ? 0.56 : 1 }}
-            transition={{ type: "spring", stiffness: 260, damping: 24 }}
-            aria-hidden="true"
-          >
-            <span>{cursorIntent}</span>
-          </motion.div>
-
-          <motion.div
-            className={styles.scrollProgress}
-            style={{ scaleX: scrollYProgress }}
-            aria-hidden="true"
-          />
-        </>
-      )}
-
-      <header
-        className={`${styles.header} ${
-          activeSection === "poster" ? styles.headerHero : styles.headerScrolled
-        }`}
-      >
-        <a className={styles.brand} href="#poster" onClick={closeMenu}>
-          TREE HEY
-        </a>
-        <span className={styles.runningTitle}>{runningTitle}</span>
-        <nav className={styles.desktopNav} aria-label="Primary navigation">
-          {navItems.map((id, index) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              className={activeSection === id ? styles.activeNavLink : undefined}
-            >
-              <span>0{index + 1}</span>
-              {t.nav[id][0]}
-            </a>
-          ))}
-        </nav>
-        <label className={styles.languageSelect}>
-          <Globe2 aria-hidden="true" />
-          <span className="sr-only">Language</span>
-          <select
-            value={language}
-            onChange={(event) => selectLanguage(event.target.value as Language)}
-          >
-            <option value="简">简</option>
-            <option value="繁">繁</option>
-            <option value="EN">EN</option>
-          </select>
-        </label>
-        <button
-          className={styles.menuButton}
-          type="button"
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          {menuOpen ? <X /> : <Menu />}
-        </button>
-      </header>
-
-      {menuOpen && (
-        <motion.nav
-          className={styles.mobileNav}
-          aria-label="Mobile navigation"
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {navItems.map((id, index) => (
-            <a key={id} href={`#${id}`} onClick={closeMenu}>
-              <span>0{index + 1}</span>
-              <strong>{t.nav[id][0]}</strong>
-              <small>{t.nav[id][1]}</small>
-            </a>
-          ))}
-        </motion.nav>
-      )}
-
-      <aside
-        className={`${styles.chapterRail} ${activeSection === "poster" ? styles.chapterRailHidden : ""}`}
-        aria-label="Page chapters"
-      >
-        {chapterItems.map((id, index) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            className={activeSection === id ? styles.activeChapter : undefined}
-            aria-label={`Go to ${id}`}
-          >
-            <span>{String(index).padStart(2, "0")}</span>
-            <strong>
-              {id === "poster"
-                ? "Opening"
-                : id === "last-page"
-                  ? "Last page"
-                  : t.nav[id][0]}
-            </strong>
-          </a>
-        ))}
-      </aside>
+      <SpineNavigation
+        activeScene={activeSection}
+        labels={sceneLabels}
+        language={language}
+        onLanguageChange={selectLanguage}
+        onNavigate={navigateTo}
+      />
+      <SharedFieldObjects
+        activeScene={activeSection}
+        photoSrc={`${B}/images/about/nju.jpg`}
+        reduceMotion={reduceMotion === true}
+      />
 
       <section id="poster" className={styles.poster}>
+        <div className={styles.posterCoverMeta} aria-hidden="true">
+          <span>THE IMPOSSIBLE FIELD NOTEBOOK</span>
+          <span>MACAU / NANJING</span>
+          <span>EDITION 2026</span>
+        </div>
         <div className={styles.posterType}>
           <span className={styles.tree}>TREE</span>
           <span className={styles.hey}>HEY</span>
-        </div>
-
-        <div className={styles.posterCircle} aria-hidden="true" />
-
-        <div className={styles.posterArtifacts} aria-hidden="true">
-          <figure>
-            <Image src={`${B}/images/about/nju.jpg`} alt="" fill sizes="18vw" />
-          </figure>
-          <figure>
-            <Image src={`${B}/images/about/Minecraft.jfif`} alt="" fill sizes="20vw" />
-          </figure>
-          <figure>
-            <Image src={`${B}/images/HK.jpg`} alt="" fill sizes="16vw" />
-          </figure>
-          <figure>
-            <Image src={`${B}/sloth_color.png`} alt="" fill sizes="12vw" />
-          </figure>
-        </div>
-
-        <div className={styles.posterMicrogrid} aria-hidden="true">
-          <span>Macau</span>
-          <span>Nanjing</span>
-          <span>Useful</span>
-          <span>Playful</span>
-        </div>
-
-        <div className={styles.archiveTab}>
-          <span>2026</span>
-          <span>FIELD NOTES</span>
         </div>
 
         <div className={styles.posterIntro}>
@@ -2194,26 +1933,17 @@ export default function FieldNotebook() {
           <p>{t.poster.sub.split("\n").map((line) => <span key={line}>{line}<br /></span>)}</p>
         </div>
 
-        <aside className={styles.redNote}>
-          {t.poster.note.split("\n").map((line) => <span key={line}>{line}<br /></span>)}
-        </aside>
-
-        <a className={styles.scrollCue} href="#fragments" data-cursor="SCROLL">
+        <a
+          className={styles.scrollCue}
+          href="#fragments"
+          onClick={(event) => {
+            event.preventDefault();
+            navigateTo("fragments");
+          }}
+        >
           <ArrowDown aria-hidden="true" />
           <span>{t.poster.scroll}</span>
         </a>
-        <div className={styles.motionRibbon} aria-hidden="true">
-          <div>
-            <span>Scroll to collect fragments</span>
-            <span>Drag the field</span>
-            <span>Open the work</span>
-            <span>Leave a trace</span>
-            <span>Scroll to collect fragments</span>
-            <span>Drag the field</span>
-            <span>Open the work</span>
-            <span>Leave a trace</span>
-          </div>
-        </div>
       </section>
 
       <section id="fragments" className={styles.fragments}>
