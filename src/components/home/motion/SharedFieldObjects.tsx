@@ -69,11 +69,13 @@ export function SharedFieldObjects({
     >
       <motion.div
         className={styles.sharedMarker}
+        initial={false}
         animate={markerStates[activeScene]}
         transition={reduceMotion ? { duration: 0 } : motionTokens.snapSpring}
       />
       <motion.figure
         className={styles.sharedPhoto}
+        initial={false}
         animate={photoState}
         transition={reduceMotion ? { duration: 0 } : motionTokens.spring}
       >

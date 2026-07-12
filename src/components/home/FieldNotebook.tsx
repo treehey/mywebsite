@@ -734,7 +734,13 @@ export default function FieldNotebook() {
   }, []);
 
   useEffect(() => {
-    if (reduceMotion || !siteRef.current) return;
+    const siteElement = siteRef.current;
+    if (!siteElement) return;
+
+    if (reduceMotion) {
+      siteElement.setAttribute("data-motion-ready", "true");
+      return () => siteElement.removeAttribute("data-motion-ready");
+    }
 
     gsap.registerPlugin(ScrollTrigger);
     const media = gsap.matchMedia();
@@ -875,15 +881,11 @@ export default function FieldNotebook() {
             ease: "none",
           }, 0.42)
           .to(cards[0], {
-            top: "43%",
-            left: "57%",
-            right: "auto",
-            bottom: "auto",
-            width: "22%",
-            aspectRatio: "4 / 3",
-            rotate: -2,
-            opacity: 0.08,
-            zIndex: 6,
+            xPercent: 12,
+            yPercent: -8,
+            scale: 0.82,
+            rotate: -4,
+            opacity: 0.06,
             ease: "none",
           }, 0.42)
           .to(originalImages.slice(0, 1), { opacity: 0, ease: "none" }, 0.48)
@@ -1803,10 +1805,16 @@ export default function FieldNotebook() {
 
     }, siteRef);
 
+    ScrollTrigger.refresh();
+    const readyFrame = window.requestAnimationFrame(() => {
+      siteElement.setAttribute("data-motion-ready", "true");
+    });
     const refreshTimer = window.setTimeout(() => ScrollTrigger.refresh(), 350);
 
     return () => {
+      window.cancelAnimationFrame(readyFrame);
       window.clearTimeout(refreshTimer);
+      siteElement.removeAttribute("data-motion-ready");
       media.revert();
       ctx.revert();
       tearRenderer?.destroy();

@@ -1,0 +1,46 @@
+{
+  "desktop": {
+    "overflow": 0,
+    "scrollHeight": 14406,
+    "domNodes": 652,
+    "transferSize": 14084,
+    "domContentLoaded": 96.60000000149012,
+    "loadEvent": 399.6000000014901,
+    "initialVitals": {
+      "lcp": 828,
+      "cls": 0
+    }
+  },
+  "forwardFrames": {
+    "samples": 1289,
+    "p50": 5.5,
+    "p95": 6.199999999998909,
+    "max": 11.400000000000091,
+    "over34ms": 0
+  },
+  "reverseFrames": {
+    "samples": 860,
+    "p50": 5.5,
+    "p95": 6.100000000000364,
+    "max": 6.5,
+    "over34ms": 0
+  },
+  "dialogOpened": true,
+  "dialogClosed": true,
+  "mobile": {
+    "overflow": 0,
+    "scrollHeight": 15162,
+    "coverDisplay": "none"
+  },
+  "reduced": {
+    "overflow": 0,
+    "sharedDisplay": "none",
+    "coverDisplay": "none",
+    "scrollHeight": 10396
+  },
+  "errors": {
+    "desktop": [],
+    "mobile": [],
+    "reduced": []
+  }
+}
